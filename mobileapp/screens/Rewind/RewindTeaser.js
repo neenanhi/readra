@@ -88,4 +88,7 @@ const styles = StyleSheet.create({
   textOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
-    
+    alignItems: "center",
+    backgroundColor: "rgba(246, 234, 153, 0.22)", // subtle cream tint
+},
+  
