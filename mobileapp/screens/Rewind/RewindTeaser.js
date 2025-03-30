@@ -91,4 +91,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(246, 234, 153, 0.22)", // subtle cream tint
 },
-  
+  titleText: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#fff",
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+});
