@@ -84,4 +84,8 @@ const styles = StyleSheet.create({
   glBackground: {
     ...StyleSheet.absoluteFillObject, 
     flex: 1,
-  
+  },
+  textOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    
