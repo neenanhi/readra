@@ -81,3 +81,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "transparent", //ff69b4 hot pink
   },
+  glBackground: {
+    ...StyleSheet.absoluteFillObject, 
+    flex: 1,
+  
