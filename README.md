@@ -15,5 +15,3 @@ A mobile app for personalized book tracking and reading insights.
 - ☕ Java (recommender microservice)
 - ☁️ AWS (cloud)
 - 🚀 GitHub Actions (CI/CD)
-
-## Folder Structure
