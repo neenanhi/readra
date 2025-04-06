@@ -59,4 +59,14 @@ export default function RewindTeaser({ onFinish }) {
   return (
     <TouchableWithoutFeedback onPress={() => onFinish && onFinish()}>
       <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-        
+        <GLView
+            style={styles.glBackground}
+            onContextCreate={onContextCreate}
+        />
+        <View style={styles.textOverlay}>
+          <Text style={styles.titleText}>Your Monthly Rewind</Text>
+        </View>
+      </Animated.View>
+    </TouchableWithoutFeedback>
+  );
+}
