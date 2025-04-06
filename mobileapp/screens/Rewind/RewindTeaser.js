@@ -55,3 +55,8 @@ export default function RewindTeaser({ onFinish }) {
     gl.flush();
     gl.endFrameEXP();
     }
+
+  return (
+    <TouchableWithoutFeedback onPress={() => onFinish && onFinish()}>
+      <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+        
