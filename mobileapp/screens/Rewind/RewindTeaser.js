@@ -34,3 +34,9 @@ export default function RewindTeaser({ onFinish }) {
 //       }, 1000);
 //     });
 //   }, []);
+    const timeout = setTimeout(() => {
+       Animated.timing(fadeAnim, {
+         toValue: 0,
+         duration: 600,
+         useNativeDriver: true,
+       
