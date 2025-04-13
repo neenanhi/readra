@@ -13,3 +13,6 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { GLView } from "expo-gl";
+
+export default function RewindTeaser({ onFinish }) {
+  const fadeAnim = useRef(new Animated.Value(1)).current;
