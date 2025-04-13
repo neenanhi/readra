@@ -16,3 +16,21 @@ import { GLView } from "expo-gl";
 
 export default function RewindTeaser({ onFinish }) {
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+//     Animated.timing(fadeAnim, {
+//       toValue: 1,
+//       duration: 600,
+//       useNativeDriver: true,
+//     }).start(() => {
+//       setTimeout(() => {
+//         Animated.timing(fadeAnim, {
+//           toValue: 0,
+//           duration: 600,
+//           useNativeDriver: true,
+//         }).start(() => {
+//           onFinish && onFinish();
+//         });
+//       }, 1000);
+//     });
+//   }, []);
