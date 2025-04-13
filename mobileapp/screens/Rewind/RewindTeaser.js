@@ -46,3 +46,6 @@ export default function RewindTeaser({ onFinish }) {
 
      return () => clearTimeout(timeout);
    }, []);
+
+  function onContextCreate(gl) {
+    console.log("🔥 onContextCreate has been called!");
