@@ -39,4 +39,10 @@ export default function RewindTeaser({ onFinish }) {
          toValue: 0,
          duration: 600,
          useNativeDriver: true,
-       
+       }).start(() => {
+         onFinish && onFinish();
+       });
+     }, 1000);
+
+     return () => clearTimeout(timeout);
+   }, []);
