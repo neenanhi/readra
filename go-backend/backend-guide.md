@@ -7,7 +7,7 @@ To run the backend you need the latest version of Go! installed. You can get tha
 
 ### Running server
 
-To run the server, make sure you are in the same directory as `server.go`. Run `go run server.go`. All dependencies will be automatically installed (I think).
+To run the server, make sure you are in the same directory as `server.go`. Run `go run *.go`. All dependencies will be automatically installed (I think).
 
 ### Adding routes
 
