@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import Bookshelf from '../screens/Bookshelf';
 import Home from '../screens/Home';
+import SignUpScreen from '../screens/SignUpScreen';
 import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -16,7 +17,8 @@ export default function MainNavigator() {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <NavigationContainer>
-        <Tab.Navigator initialRouteName="Home"> 
+        <Tab.Navigator initialRouteName="Sign Up"> 
+          <Tab.Screen name="Sign Up" component={SignUpScreen} />
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Bookshelf" component={Bookshelf} />
           <Tab.Screen name="Analytics" children={() => <Placeholder label="Analytics" />} />
