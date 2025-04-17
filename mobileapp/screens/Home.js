@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator } from 'react-native';
-import { fetchBooks, getCoverUrl } from '../api/openLibrary';
+import { fetchBooks } from '../api/openLibrary';
 import BookCard from '../components/BookCard';
+import { UserContext } from '../context/UserContext';
 
 const Home = ({ navigation }) => {
   // function setBooks changes value of books
@@ -9,6 +10,7 @@ const Home = ({ navigation }) => {
   // useState rerenders the UI when books/loading value updates
   const [books, setBooks] = useState([]); 
   const [loading, setLoading] = useState(true); 
+  const { session } = useContext(UserContext); // get session from UserContext
 
 
   // =====================
@@ -35,6 +37,7 @@ const Home = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
+      <Text> Hi {session?.user?.email}</Text>
       {/* Quote of the Day */}
       <View style={styles.quoteBox}>
         <Text style={styles.quoteText}>

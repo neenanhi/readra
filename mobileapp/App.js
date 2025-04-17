@@ -1,32 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from './Supabase';
-import MainNavigator from './navigation/MainNavigator';
-import AuthNavigator from './navigation/AuthNavigator';
+import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
+import { UserProvider } from './context/UserContext';
+import SessionRouter from './SessionRouter'; // this is the main router that decides which navigator to show based on the session state
 
+
+// =====================
+// App
+// ------------------------
+// Purpose:
+// - Wraps the entire app in context (UserProvider)
+// - Wraps the app in React Navigation setup
+// - Loads SessionRouter to determine which navigator (Main, Auth) to show
+//
+// Inputs:
+// - None
+//
+// Outputs:
+// - The whole app UI
+// =====================
 export default function App() {
-  const [session, setSession] = useState(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
+  // everything inside this provider has access to the user context
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        {session ? <MainNavigator /> : <AuthNavigator />}
-      </NavigationContainer>
-    </GestureHandlerRootView>
+    <UserProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <NavigationContainer>
+          <SessionRouter />
+        </NavigationContainer>
+      </GestureHandlerRootView>
+    </UserProvider>
   );
 }
