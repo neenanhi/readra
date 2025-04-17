@@ -1,5 +1,4 @@
 // TODO: Replace hardcoded "fantasy" with selected genre
-// FIXME: Crashes when book.description is undefined
 export async function fetchBooks() {
     const response = await fetch('https://openlibrary.org/search.json?q=fantasy');
     const data = await response.json();
