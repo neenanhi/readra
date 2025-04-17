@@ -21,7 +21,7 @@ export default function MainNavigator() {
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Bookshelf" component={Bookshelf} />
           <Tab.Screen name="Analytics" children={() => <Placeholder label="Analytics" />} />
-          <Tab.Screen name="Wrapped" children={() => <Placeholder label="Wrapped" />} />
+          <Tab.Screen name="Rewind" children={() => <Placeholder label="Rewind" />} />
         </Tab.Navigator>
     </GestureHandlerRootView>
   );

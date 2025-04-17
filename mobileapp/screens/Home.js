@@ -37,7 +37,7 @@ const Home = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text> Hi {session?.user?.email}</Text>
+      <Text style={styles.sectionTitle}> Hi {session?.user?.email}</Text>
       {/* Quote of the Day */}
       <View style={styles.quoteBox}>
         <Text style={styles.quoteText}>
