@@ -37,7 +37,7 @@ export default function SignInScreen({ navigation }) {
       />
       <Button title="Sign In" onPress={handleSignIn} />
       {message ? <Text>{message}</Text> : null}
-      <Text onPress={() => navigation.replace('SignUp')}>
+      <Text onPress={() => navigation.navigate('SignUp')}>
         Don’t have an account? Sign up here
       </Text>
     </View>
