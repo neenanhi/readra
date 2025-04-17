@@ -16,15 +16,13 @@ function Placeholder({ label }) {
 export default function MainNavigator() {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <NavigationContainer>
-        <Tab.Navigator initialRouteName="Sign Up"> 
-          <Tab.Screen name="Sign Up" component={SignUpScreen} />
+        <Tab.Navigator initialRouteName="Login"> 
+          <Tab.Screen name="Login" component={SignUpScreen} />
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Bookshelf" component={Bookshelf} />
           <Tab.Screen name="Analytics" children={() => <Placeholder label="Analytics" />} />
           <Tab.Screen name="Wrapped" children={() => <Placeholder label="Wrapped" />} />
         </Tab.Navigator>
-      </NavigationContainer>
     </GestureHandlerRootView>
   );
 }

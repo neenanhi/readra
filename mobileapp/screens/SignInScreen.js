@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text } from 'react-native';
 import { supabase } from '../Supabase';
 
-export default function SignUpScreen({ navigation }) {
+export default function SignInScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSignUp = async () => {
-    const { error } = await supabase.auth.signUp({
+  const handleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -16,7 +16,8 @@ export default function SignUpScreen({ navigation }) {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage('Check your email to confirm your account.');
+      setMessage('Signed in successfully!');
+      // You can now navigate to your home screen or fetch user data
     }
   };
 
@@ -34,10 +35,10 @@ export default function SignUpScreen({ navigation }) {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Sign Up" onPress={handleSignUp} />
+      <Button title="Sign In" onPress={handleSignIn} />
       {message ? <Text>{message}</Text> : null}
-      <Text onPress={() => navigation.replace('SignIn')}>
-        Already have an account? Sign in here
+      <Text onPress={() => navigation.replace('SignUp')}>
+        Don’t have an account? Sign up here
       </Text>
     </View>
   );
