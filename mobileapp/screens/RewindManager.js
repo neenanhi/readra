@@ -5,6 +5,8 @@ import Rewind2 from "./Rewind/Rewind2";
 import Rewind3 from "./Rewind/Rewind3";
 import axios from "axios";
 import { supabase, isbndbGetHeaders } from "../Supabase";
+import { COLORS } from "../styles/colors";
+
 const stories = [Rewind1, Rewind2, Rewind3];
 const AUTO_ADVANCE_MS = 15000;
 
@@ -166,7 +168,7 @@ export function Rewind() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#background",
+    backgroundColor: "COLORS.background",
     justifyContent: "center",
     alignItems: "center",
   },
