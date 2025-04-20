@@ -112,10 +112,6 @@ const Home = ({navigation}) => {
                 console.error('Error fetching recent books:', err)
             }
         };
-    //     getBooks();
-    //     getRecent();
-    // }, []);
-
         // fetch the user's saved manual quote for the home screen
         const getSavedQuote = async () => {
           try {
@@ -368,9 +364,6 @@ const styles = StyleSheet.create({
   scrollRow: {
     marginBottom: SPACING.md,
   },
-
-  // (These bookCard/bookCover/... styles are actually defined inside your
-  // <BookCard> component, so you can remove them from Home if they’re not used here.)
 
   recentCard: {
     flexDirection: 'row',
