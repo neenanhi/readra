@@ -3,11 +3,13 @@ import { View, StyleSheet, Pressable, Animated } from "react-native";
 import Rewind1 from "./Rewind/Rewind1";
 import Rewind2 from "./Rewind/Rewind2";
 import Rewind3 from "./Rewind/Rewind3";
+import RewindTeaser from "./Rewind/RewindTeaser";
 import axios from "axios";
 import { supabase, isbndbGetHeaders } from "../Supabase";
 import { COLORS } from "../styles/colors";
 
 const stories = [Rewind1, Rewind2, Rewind3];
+
 const AUTO_ADVANCE_MS = 15000;
 
 /**
@@ -118,51 +120,56 @@ export function Rewind() {
   }, [current]);
 
   const StoryComponent = stories[current];
+  const [showTeaser, setShowTeaser] = useState(true);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.progressBar}>
-        {stories.map((_, idx) => (
-          <View key={idx} style={styles.progressDotBackground}>
-            <Animated.View
-              style={[
-                styles.progressDotActive,
-                {
-                  width: progressAnims[idx].interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["0%", "100%"],
-                  }),
-                  backgroundColor:
-                    idx < current ? "#fff" : idx === current ? "#fff" : "#444",
-                  opacity: idx === current ? 1 : idx < current ? 0.7 : 0.35,
-                },
-              ]}
-            />
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.storyContainer}>
-        {stories.map((StoryComponent, idx) => (
-            <View
-                key={idx}
+  if (showTeaser) {
+    return <RewindTeaser onFinish={() => setShowTeaser(false)} />;
+  } else {
+    return (
+      <View style={styles.container}>
+        <View style={styles.progressBar}>
+          {stories.map((_, idx) => (
+            <View key={idx} style={styles.progressDotBackground}>
+              <Animated.View
                 style={[
-                  styles.storyContainer,
+                  styles.progressDotActive,
                   {
-                    opacity: idx === current ? 1 : 0,
-                    pointerEvents: idx === current ? "auto" : "none",
+                    width: progressAnims[idx].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ["0%", "100%"],
+                    }),
+                    backgroundColor:
+                      idx < current ? "#fff" : idx === current ? "#fff" : "#444",
+                    opacity: idx === current ? 1 : idx < current ? 0.7 : 0.35,
                   },
                 ]}
-            >
-              <StoryComponent />
+              />
             </View>
-        ))}
-      </View>
+          ))}
+        </View>
 
-      <Pressable style={styles.leftZone} onPress={prevStory} />
-      <Pressable style={styles.rightZone} onPress={nextStory} />
-    </View>
-  );
+        <View style={styles.storyContainer}>
+          {stories.map((StoryComponent, idx) => (
+              <View
+                  key={idx}
+                  style={[
+                    styles.storyContainer,
+                    {
+                      opacity: idx === current ? 1 : 0,
+                      pointerEvents: idx === current ? "auto" : "none",
+                    },
+                  ]}
+              >
+                <StoryComponent />
+              </View>
+          ))}
+        </View>
+
+        <Pressable style={styles.leftZone} onPress={prevStory} />
+        <Pressable style={styles.rightZone} onPress={nextStory} />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

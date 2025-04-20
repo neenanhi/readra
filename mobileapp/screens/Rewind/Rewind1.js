@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import { GLView } from "expo-gl";
 import RewindScreen1 from "./RewindScreen1";
+import { COLORS } from "../../styles/colors"; 
 
 const vertexShaderSrc = `
 precision mediump float;
@@ -166,7 +167,7 @@ export default function Rewind1() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "COLORS.background",
   },
   background: {
     position: "absolute",
