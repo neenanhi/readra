@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {PutBook} from '../api/openLibrary';
 import {
   View,
   Text,
@@ -21,17 +22,44 @@ export default function Bookshelf() {
   const [newTitle, setNewTitle] = useState('');
   const [newStatus, setNewStatus] = useState('read');
 
-  const addBook = () => {
+  // const addBook = () => {
+  //   const newBook = {
+  //     id: Date.now().toString(),
+  //     title: newTitle,
+  //     status: newStatus,
+  //   };
+  //   setBooks(prev => [...prev, newBook]);
+  //   setNewTitle('');
+  //   setNewStatus('read');
+  //   setModalVisible(false);
+  // };
+  
+  // Modified addBook to log info into supabase and populate book field with 
+  // temporary information, we can change this temp data when we get the data
+  // filling screen working
+  const addBook = async () => {
     const newBook = {
       id: Date.now().toString(),
       title: newTitle,
       status: newStatus,
+      // temporary info
+      author: "Unknown",
+      genre: "unspecified",
+      cover_image: null,
+      description: null,
+      isbn: null
     };
+
+    // update local state
     setBooks(prev => [...prev, newBook]);
+    // send to Supabase
+    await PutBook(newBook);
+  
     setNewTitle('');
     setNewStatus('read');
     setModalVisible(false);
   };
+  
 
   const renderBook = ({ item }) => (
     <Text style={styles.bookItem}>• {item.title}</Text>
