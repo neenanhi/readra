@@ -20,7 +20,12 @@ export default function Bookshelf() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState('');
-  const [newStatus, setNewStatus] = useState('read');
+  const [newStatus, setNewStatus] = useState('');
+  const [newAuthor, setNewAuthor] = useState('');
+  const [newGenre, setNewGenre] = useState('');
+  const [newISBN, setNewISBN] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newCoverImage, setNewCoverImage] = useState('');
 
   // const addBook = () => {
   //   const newBook = {
@@ -43,11 +48,11 @@ export default function Bookshelf() {
       title: newTitle,
       status: newStatus,
       // temporary info
-      author: "Unknown",
-      genre: "unspecified",
-      cover_image: null,
-      description: null,
-      isbn: null
+      author: newAuthor || null,
+      genre: newGenre || null,
+      cover_image: newCoverImage || null,
+      description: newDescription || null,
+      isbn: newISBN || null
     };
 
     // update local state
@@ -56,7 +61,12 @@ export default function Bookshelf() {
     await PutBook(newBook);
   
     setNewTitle('');
-    setNewStatus('read');
+    setNewStatus('');
+    setNewAuthor('');
+    setNewGenre('');
+    setNewISBN('');
+    setNewDescription('');
+    setNewCoverImage('');
     setModalVisible(false);
   };
   
@@ -109,6 +119,38 @@ export default function Bookshelf() {
             value={newStatus}
             onChangeText={setNewStatus}
           />
+          <TextInput 
+            placeholder="Author"
+            style={styles.input}
+            value={newAuthor}
+            onChangeText={setNewAuthor} 
+          />
+          <TextInput
+            placeholder="Genre"
+            style={styles.input}
+            value={newGenre}
+            onChangeText={setNewGenre}
+          />
+          <TextInput 
+            placeholder="ISBN"
+            style={styles.input}
+            value={newISBN}
+            onChangeText={setNewISBN}
+            keyboardType="numeric"
+          />
+          <TextInput
+            placeholder="Description"
+            style={styles.input}
+            value={newDescription}
+            onChangeText={setNewDescription}
+          />
+          <TextInput
+            placeholder="Cover Image URL"
+            style={styles.input}
+            value={newCoverImage}
+            onChangeText={setNewCoverImage}
+          />
+
           <View style={styles.modalButtons}>
             <Pressable style={styles.button} onPress={addBook}>
               <Text style={styles.buttonText}>Add</Text>
