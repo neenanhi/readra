@@ -19,8 +19,6 @@ jobs:
           if [[ " $ADMIN_USERS " =~ " $COMMITTER " ]]; then
             echo "User $COMMITTER is an admin. Allowing commit."
           else
-            # git revert ${{ github.event.inputs.commit_hash }}
-            git push
             echo "ERROR: Direct commits to main are not allowed for non-admin users."
             exit 1
           fi
