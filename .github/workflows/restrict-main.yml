@@ -1,10 +1,3 @@
-name: Restrict Direct Commits to Main
-
-on:
-  push:
-    branches:
-      - main
-
 jobs:
   enforce-branch-policy:
     runs-on: ubuntu-latest
@@ -15,8 +8,16 @@ jobs:
 
       - name: Check if user is an admin
         run: |
-          ADMIN_USERS="neenanhi", "Bonapetite21"  # Replace with actual GitHub usernames of admins
-          if [[ " $ADMIN_USERS " =~ " $COMMITTER " ]]; then
+          ADMIN_USERS=("neenanhi" "Bonapetite21")  # Add other admins here
+          IS_ADMIN=false
+          for ADMIN in "${ADMIN_USERS[@]}"; do
+            if [ "$COMMITTER" = "$ADMIN" ]; then
+              IS_ADMIN=true
+              break
+            fi
+          done
+
+          if [ "$IS_ADMIN" = true ]; then
             echo "User $COMMITTER is an admin. Allowing commit."
           else
             echo "ERROR: Direct commits to main are not allowed for non-admin users."
