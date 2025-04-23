@@ -1,17 +1,22 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/supabase-community/supabase-go"
 )
 
-<<<<<<< Updated upstream
-func main() {
-	e := echo.New()
+// func main() {
+// 	e := echo.New()
 
-	// ROUTES
-	e.GET("/example", example)
-=======
-var client *supabase.Client
+// 	// ROUTES
+// 	e.GET("/example", example)
+// var client *supabase.Client
 
 type Book struct {
 	ID          string `json:"id"`
@@ -66,7 +71,6 @@ func main() {
 		}
 		return c.JSON(http.StatusOK, results)
 	})
->>>>>>> Stashed changes
 
 	e.POST("/book", func(c echo.Context) error {
 		// All your PostBook logic here
