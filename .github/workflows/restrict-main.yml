@@ -15,7 +15,7 @@ jobs:
 
       - name: Check if user is an admin
         run: |
-          ADMIN_USERS="neenanhi"  # Replace with actual GitHub usernames of admins
+          ADMIN_USERS="neenanhi", "Bonapetite21"  # Replace with actual GitHub usernames of admins
           if [[ " $ADMIN_USERS " =~ " $COMMITTER " ]]; then
             echo "User $COMMITTER is an admin. Allowing commit."
           else
