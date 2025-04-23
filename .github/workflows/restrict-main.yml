@@ -1,0 +1,24 @@
+name: Restrict Direct Commits to Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  enforce-branch-policy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Commit Author
+        run: echo "COMMITTER=${{ github.actor }}" >> $GITHUB_ENV
+
+      - name: Check if user is an admin
+        run: |
+          ADMIN_USERS="neenanhi"  # Replace with actual GitHub usernames of admins
+          if [[ " $ADMIN_USERS " =~ " $COMMITTER " ]]; then
+            echo "User $COMMITTER is an admin. Allowing commit."
+          else
+            echo "ERROR: Direct commits to main are not allowed for non-admin users."
+            exit 1
+          fi
