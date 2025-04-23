@@ -36,7 +36,7 @@ export default function SignUpScreen({ navigation }) {
   return (
     <View style={AuthScreenStyles.container}>
       <Image
-        source={require("../assets/images/panda-express.png")}
+        source={require("../assets/images/readra_logo_border.png")}
         style={AuthScreenStyles.logo}
       />
       <Text style={AuthScreenStyles.title}>READRA</Text>

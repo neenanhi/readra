@@ -33,7 +33,7 @@ export default function SignInScreen({ navigation }) {
     <View style={AuthScreenStyles.container}>
       {/* title */}
       <Image
-        source={require("../assets/images/panda-express.png")}
+        source={require("../assets/images/readra_logo_border.png")}
         style={AuthScreenStyles.logo}
       />
       <Text style={AuthScreenStyles.title}>READRA</Text>
