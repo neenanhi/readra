@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native';
-import { supabase } from '../Supabase';
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { supabase } from "../Supabase";
+import { AuthScreenStyles } from "../styles/AuthScreenStyles";
 
 export default function SignInScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSignIn = async () => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -16,30 +24,57 @@ export default function SignInScreen({ navigation }) {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage('Signed in successfully!');
+      setMessage("Signed in successfully!");
       // You can now navigate to your home screen or fetch user data
     }
   };
 
   return (
-    <View>
+    <View style={AuthScreenStyles.container}>
+      {/* title */}
+      <Image
+        source={require("../assets/images/panda-express.png")}
+        style={AuthScreenStyles.logo}
+      />
+      <Text style={AuthScreenStyles.title}>READRA</Text>
+
+      {/* header for login screen */}
+      {/* <Text style={AuthScreenStyles.header}>Login to your account</Text> */}
+
+      {/* email & password */}
       <TextInput
+        style={AuthScreenStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
       />
       <TextInput
+        style={AuthScreenStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Sign In" onPress={handleSignIn} />
-      {message ? <Text>{message}</Text> : null}
-      <Text onPress={() => navigation.navigate('SignUp')}>
-        Don’t have an account? Sign up here
+
+      {/* login button */}
+      <TouchableOpacity style={AuthScreenStyles.button} onPress={handleSignIn}>
+        <Text style={AuthScreenStyles.buttonText}>Log in</Text>
+      </TouchableOpacity>
+
+      {/* text with link to sign up screen */}
+      <Text style={AuthScreenStyles.link}>
+        Don’t have an account?{" "}
+        <Text
+          style={AuthScreenStyles.linkBold}
+          onPress={() => navigation.navigate("SignUp")}
+        >
+          Sign up
+        </Text>
       </Text>
+
+      {/* error message from supabase */}
+      {message ? <Text style={AuthScreenStyles.message}>{message}</Text> : null}
     </View>
   );
 }
