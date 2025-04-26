@@ -19,7 +19,7 @@ export default function MainNavigator() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <Tab.Navigator 
-        initialRouteName="Login"
+        initialRouteName="Home"
         screenOptions={{
           tabBarStyle: {
             backgroundColor: '#2E3A59',
@@ -38,8 +38,8 @@ export default function MainNavigator() {
       > 
         {/* Login Screen */}
         <Tab.Screen 
-          name="Login" 
-          component={SignUpScreen} 
+          name="Home" 
+          component={Home} 
           options={{
           tabBarIcon: () => (
             <Image source={require('../assets/library_icon.svg')} style={{ margin: 'auto', width: 50, height: 50 }}/>  
@@ -82,7 +82,7 @@ export default function MainNavigator() {
         {/* Rewind Screen */}
         <Tab.Screen 
           name="Rewind" 
-          // FIX COMPONENT LATER
+          // Placeholder screen, add analytics/rewind screen later
           component={Bookshelf}
           options={{
             tabBarIcon: () => (
