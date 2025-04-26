@@ -1,13 +1,13 @@
+// Library Imports
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, StyleSheet, Image } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { View } from 'react-native-web';
+
+// Component Imports
 import Bookshelf from '../screens/Bookshelf';
 import Home from '../screens/Home';
-import SignUpScreen from '../screens/SignUpScreen';
-import { Text } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
-import { Image } from 'react-native';
-import { View } from 'react-native-web';
 
 const Tab = createBottomTabNavigator();
 
@@ -82,18 +82,13 @@ export default function MainNavigator() {
         {/* Rewind Screen */}
         <Tab.Screen 
           name="Rewind" 
-          // Placeholder screen, add analytics/rewind screen later
-          component={Bookshelf}
+          component={Placeholder}
           options={{
             tabBarIcon: () => (
               <Image source={require('../assets/rewind_icon.svg')} style={{ width: 50, height: 50 }} />
             ),
           }}       
         />
-        {/* <Tab.Screen name="Sign Up" component={SignUpScreen} /> */}
-        {/* <Tab.Screen name="Bookshelf" component={Bookshelf} /> */}
-        {/* <Tab.Screen name="Analytics" children={() => <Placeholder label="Analytics" />} /> */}
-        {/* <Tab.Screen name="Rewind" children={() => <Placeholder label="Rewind" />} /> */}
       </Tab.Navigator>
     </GestureHandlerRootView>
   );
