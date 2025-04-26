@@ -27,6 +27,45 @@ export default function Bookshelf() {
   const [newDescription, setNewDescription] = useState('');
   const [newCoverImage, setNewCoverImage] = useState('');
 
+  //Search bar components (query holds what we want to search, results is a list of results)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
+  // ---------- This version uses openlibrary APi and works
+  const searchBooks = async () => {
+    //If no search content, return nothing
+    if (!searchQuery) return;
+  
+    try {
+      // change our search to a URI component, then use OL API to search for the resulting books
+      // thanks to goodreads handling the search itself, we dont need to deal with regex
+      const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
+      //Once we get the response, we change it to a JSON format
+      const data = await response.json();
+      // Debug our query
+      // console.log("Search Results:", data.docs.slice(0, 10));
+      setSearchResults(data.docs.slice(0, 10));  // Show top 10 results (can be edited)
+    } catch (err) {
+      console.error("Error fetching books:", err);
+    }
+  };
+  
+  // ---------- This version uses goodreads APi but has some issues with validation
+  // ask neena for info on what this API key is - for now its labeled SUPERCOOLAPIKEYDONTTELLNEENA
+  // const searchBooks = async () => {
+  //   if (!searchQuery) return;
+  
+  //   try {
+  //     const response = await fetch(`https://www.goodreads.com/search/index.xml?key=SUPERCOOLAPIKEYDONTTELLNEENA&q=${encodeURIComponent(searchQuery)}`);
+  //     const xmlText = await response.text();
+  
+  //     // Goodreads returns XML apparently, I hear we need to parse it to Json somehow.
+  //     console.log(xmlText);  // For now, just log it
+  //   } catch (err) {
+  //     console.error("Error fetching books:", err);
+  //   }
+  // };
+  
   // const addBook = () => {
   //   const newBook = {
   //     id: Date.now().toString(),
@@ -80,13 +119,46 @@ export default function Bookshelf() {
 
   return (
     <View style={styles.container}>
+      {/* Search Bar code: */}
+      <TextInput
+        placeholder="Search for books..."
+        style={styles.input}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        onSubmitEditing={searchBooks}
+      />
+      {/* within this component you can access searchResults at any point after it's set.*/}
+      {/* Search Results looks like this: [
+          { title: "SoloLeveling", author_name: ["Sung Jin Woo"], key: "/works/OL12345W" },
+          { title: "MHA: Vigilantes", author_name: ["Izuku Midoriya"], key: "/works/OL67890W" }
+        ]
+      */}
+      {searchResults.length > 0 && (
+        <View style={{ flex: 1 }}>
+          <Text style={styles.heading}>Search Results</Text>
+          <FlatList
+            data={searchResults}
+            // React needs a unique key for each item in the list, 
+            // if not present use the title as the key
+            keyExtractor={(item, index) => item.key || index.toString()}
+            renderItem={({ item }) => (
+              <Text style={styles.bookItem}>
+                • {item.title} {item.author_name ? `by ${item.author_name[0]}` : ''}
+              </Text>
+            )}
+          />
+        </View>
+      )}
+
+      {/* Display users read books */}
+
       <Text style={styles.heading}>📘 Read</Text>
       <FlatList
         data={readBooks}
         keyExtractor={item => item.id}
         renderItem={renderBook}
       />
-
+      {/* Display books in users backlog */}
       <Text style={styles.heading}>🕮 Want to Read</Text>
       <FlatList
         data={wantToReadBooks}
