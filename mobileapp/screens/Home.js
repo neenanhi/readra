@@ -202,4 +202,12 @@ const Home = ({navigation}) => {
             </View>
             ) : (
             <TouchableOpacity onPress={() => setIsEditingQuote(true)}>
-               
+                <View style={styles.quoteBox}>
+                    {quoteInput ? (
+                        <>
+                            <Text style={styles.quoteText}>
+                                “{quoteInput}”
+                            </Text>
+                            <Text style={styles.quoteAuthor}>— {quoteAuthor || 'You'}</Text>
+                        </>
+                    
