@@ -157,3 +157,14 @@ const Home = ({navigation}) => {
         getRecent();
         getSavedQuote();
       }, [session]);
+
+
+    return (
+        <SafeAreaView style={styles.safe}>
+        <Pressable 
+            style={styles.container}
+            onPress={() => {
+                if (isEditingQuote) {saveQuote();}
+            }}
+        >
+            
