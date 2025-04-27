@@ -167,4 +167,8 @@ const Home = ({navigation}) => {
                 if (isEditingQuote) {saveQuote();}
             }}
         >
+            {/* Greeting */}
+            <View style={styles.greetingContainer}>
+                <Text style={styles.greetingText}> Hello, {displayName}!</Text>
+            </View>
             
