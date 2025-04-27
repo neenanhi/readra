@@ -172,3 +172,15 @@ const Home = ({navigation}) => {
                 <Text style={styles.greetingText}> Hello, {displayName}!</Text>
             </View>
             
+            {/* Quote (press to edit) */}
+            {isEditingQuote ? (
+                <View style={styles.quoteBox}>
+                <TextInput
+                    style={styles.quoteInput}
+                    multiline
+                    placeholder="Type your favorite quote..."
+                    placeholderTextColor={COLORS.textLight}
+                    font
+                    value={quoteInput}
+                    onChangeText={setQuoteInput}
+                />
