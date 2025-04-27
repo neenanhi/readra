@@ -184,3 +184,17 @@ const Home = ({navigation}) => {
                     value={quoteInput}
                     onChangeText={setQuoteInput}
                 />
+
+                {/* Author Input */}
+                <TextInput
+                    style={styles.authorInput}
+                    placeholder="— Author (e.g You)"
+                    placeholderTextColor={COLORS.textLight}
+                    value={quoteAuthor}
+                    onChangeText={setQuoteAuthor}
+                />
+
+                {/* Save Button */}
+                <TouchableOpacity style={styles.saveButton} onPress={saveQuote}>
+                    <Text style={styles.saveButtonLabel}>Save</Text>
+                </TouchableOpacity>
