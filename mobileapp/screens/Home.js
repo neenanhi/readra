@@ -221,3 +221,192 @@ const Home = ({navigation}) => {
                 </View>
             </TouchableOpacity>
             )}
+
+            {/* Find your next read section header */}
+            <View style={styles.headerRow}>
+                <Text style={styles.sectionTitle}>Trending now:</Text>
+            </View>
+
+            {/* Horizontal Scroll of Book Cards */}
+            <ScrollView>
+                {loading ? (
+                    <ActivityIndicator size="large" color={COLORS.textLight} />
+                ) : (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.scrollRow}
+                    >
+                        {books.map((book, index) => (
+                            <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
+                        ))}
+                    </ScrollView>
+                )}
+            </ScrollView>
+
+            {/* Reading Analysis Card */}
+            {recent && recent.length > 0 && (
+            <TouchableOpacity
+                style={styles.recentCard}
+                onPress={() => navigation.navigate('Rewind')}
+                >
+                <Image
+                    source={{ uri: recent[0].cover_image }}
+                    style={styles.recentCover}
+                    resizeMode="cover"
+                />
+                <View style={styles.recentInfo}>
+                    <Text style={styles.recentTitle}>
+                    {recent[0].title || 'Untitled'}
+                    {/* {console.log(recent)} */}
+                    </Text>
+                    <Text style={styles.recentAuthor}>
+                    by {recent[0].author || 'Unknown'}
+                    </Text>
+                    <Text style={styles.recentAction}>Analyze your reading →</Text>
+                </View>
+            </TouchableOpacity>
+            )}
+
+        </Pressable>
+        </SafeAreaView>
+    );
+};
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: COLORS.background, 
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xl,
+  },
+
+  greetingContainer: {
+    marginBottom: SPACING.lg,
+    borderRadius: 12,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  greetingText: {
+    ...TEXT.h1, // fontSize:24, fontWeight:'600', color:COLORS.primaryText, fontFamily:'georgia'
+  },
+
+  quoteBox: {
+    marginBottom: SPACING.md + 4, // ~20px
+    padding: SPACING.lg,         // 24px
+    borderRadius: 24,
+    backgroundColor: COLORS.quoteBg,
+    shadowColor: COLORS.shadow,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  quoteInput: {
+    ...TEXT.bodyLarge, // fontSize:18, fontStyle:'italic', color:COLORS.textDark, fontFamily:'avenir'
+    textAlign: 'center',
+    marginBottom: SPACING.xs,   // small gap below quote text
+    fontStyle: 'italic',
+  },
+
+  authorInput: {
+    ...TEXT.bodySmall, // fontSize:14, color:COLORS.textLight
+    textAlign: 'center',
+    paddingVertical: SPACING.xs,
+  },
+
+  saveButton: {
+    marginTop: SPACING.xs,
+    alignSelf: 'center',
+    backgroundColor: COLORS.buttonBg,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: 8,
+  },
+
+  saveButtonLabel: {
+    ...TEXT.buttonLabel, // fontSize:14, fontWeight:'600', color:COLORS.white
+  },
+
+  quoteText: {
+    fontSize: 18,
+    fontStyle: 'italic',
+    color: COLORS.textDark,
+    textAlign: 'center',
+  },
+  quoteEmphasis: {
+    fontSize: 18,       // ensure the nested text is the same size
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    color: COLORS.textDark,
+  },
+  quoteAuthor: {
+    marginTop: SPACING.xs,
+    ...TEXT.bodySmall,
+    textAlign: 'center',
+  },
+
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  sectionTitle: {
+    ...TEXT.sectionTitle, // fontSize:18, fontWeight:'600', color:COLORS.textDark, 
+  },
+
+  scrollRow: {
+    marginBottom: SPACING.md,
+  },
+
+  // (These bookCard/bookCover/... styles are actually defined inside your
+  // <BookCard> component, so you can remove them from Home if they’re not used here.)
+
+  recentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.quoteBg,
+    padding: 12,
+    borderRadius: 16,
+    shadowColor: COLORS.shadow,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  recentCover: {
+    width: 80,
+    height: 120,
+    borderRadius: 8,
+    backgroundColor: COLORS.placeholderBg,
+    marginRight: SPACING.md,
+  },
+  recentInfo: {
+    flex: 1,
+  },
+  recentTitle: {
+    ...TEXT.cardTitle, // fontSize:16, fontWeight:'bold', color:COLORS.textDark, fontFamily:'avenir'
+    marginBottom: SPACING.xs,
+  },
+  recentAuthor: {
+    ...TEXT.cardSubtitle, // fontSize:14, fontStyle:'italic', color:COLORS.mutedText
+    marginBottom: SPACING.sm,
+  },
+  recentAction: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.accent,
+    fontFamily: 'serif',
+  },
+});
+
+export default Home;
