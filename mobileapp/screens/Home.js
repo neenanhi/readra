@@ -193,3 +193,13 @@ const Home = ({navigation}) => {
                     value={quoteAuthor}
                     onChangeText={setQuoteAuthor}
                 />
+
+                {/* Save Button */}
+                <TouchableOpacity style={styles.saveButton} onPress={saveQuote}>
+                    <Text style={styles.saveButtonLabel}>Save</Text>
+                </TouchableOpacity>
+
+            </View>
+            ) : (
+            <TouchableOpacity onPress={() => setIsEditingQuote(true)}>
+               
