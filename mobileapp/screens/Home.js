@@ -210,4 +210,14 @@ const Home = ({navigation}) => {
                             </Text>
                             <Text style={styles.quoteAuthor}>— {quoteAuthor || 'You'}</Text>
                         </>
-                    
+                    ) : (
+                        <>
+                            <Text style={styles.quoteText}>
+                                “For those who <Text style={styles.quoteEmphasis}>come after</Text>.”
+                            </Text>
+                            <Text style={styles.quoteAuthor}>— Gustave</Text>
+                        </>
+                    )}
+                </View>
+            </TouchableOpacity>
+            )}
