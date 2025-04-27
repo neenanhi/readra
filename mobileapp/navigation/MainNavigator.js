@@ -1,9 +1,8 @@
 // Library Imports
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, StyleSheet, Image } from 'react-native';
+import { Text, StyleSheet, Image, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View } from 'react-native-web';
 
 // Component Imports
 import Bookshelf from '../screens/Bookshelf';
