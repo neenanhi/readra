@@ -31,6 +31,8 @@ export default function Bookshelf() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  
+
   // ---------- This version uses openlibrary APi and works
   const searchBooks = async () => {
     //If no search content, return nothing
@@ -65,6 +67,90 @@ export default function Bookshelf() {
   //     console.error("Error fetching books:", err);
   //   }
   // };
+
+  //-- This function handles the adding books from the search bar to the library--
+  const handleAddSearchBook = async (item) => {
+    let detailedData = {};
+    let isbn = null;
+    let genre = null;
+  
+    // fetch detailed book info using the key
+    try {
+      const response = await fetch(`https://openlibrary.org${item.key}.json`);
+      detailedData = await response.json();
+    } catch (err) {
+      console.warn("Failed to fetch detailed book info:", err);
+    }
+  
+    // use search API's ISBN, else fetch edition info
+    // Note: Sometimes search results arent actually books, so they don have ISBN's
+    // I found this out when I found this gem "NASA/DoD aerospace knowledge diffusion research project"
+    // which has no isbn
+    if (item.isbn && item.isbn.length > 0) {
+      isbn = item.isbn[0];
+      // console.log("ISBN present")
+    } else if (item.cover_edition_key) {
+      try {
+        const editionRes = await fetch(`https://openlibrary.org/books/${item.cover_edition_key}.json`);
+        const editionData = await editionRes.json();
+        isbn = editionData.isbn_13 ? editionData.isbn_13[0] : (editionData.isbn_10 ? editionData.isbn_10[0] : null);
+      } catch (err) {
+        console.warn("Couldn't fetch ISBN from edition:", err);
+      }
+    }
+  
+    // filter genre using regex (only alphabetical subjects)
+    if (detailedData.subjects) {
+      // Note: This dosnt always work and genre's are sometimes.... not genres
+      // IDK if Counting is a genre but when I searched for math textbooks it gave this 
+      // "Counting" from this ["collectionID:elmmath", "Counting", "Study and teaching (Primary)", "Mathematics"]
+      // if we want to mess with the genre matching stuff we just handle it in this area regardless
+      genre = detailedData.subjects.find(sub => /^[A-Za-z\s]+$/.test(sub)) || null;
+    }
+  
+    // Build the new book object
+    const newBook = {
+      id: Date.now().toString(),
+      title: item.title || "Unknown Title",
+      status: "wantToRead",
+      author: item.author_name ? item.author_name[0] : null,
+      genre: genre,
+      cover_image: item.cover_i ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg`: null,
+      // if the data contains a string we know we have a description itself, if its not that then we are dealing with the 
+      // "description": { "value": "This is a more complex description." } version it sometimes returns, so get th evalue
+      description: cleanDescription(typeof detailedData.description === 'string' ? detailedData.description: (detailedData.description?.value || null)),        
+      isbn: isbn
+    };
+    console.log(JSON.stringify(newBook))
+    // Save to Supabase and update local state
+    try {
+      // comment out putcommand to not update supabase
+      await PutBook(newBook);
+      setBooks(prev => [...prev, newBook]);
+      alert(`"${newBook.title}" added to your library!`);
+    } catch (err) {
+      console.error("Failed to add book:", err);
+      alert("Error adding book.");
+    }
+  };
+  
+  // description needs cleaning done on it, so I made a basic function to do it
+  // feel free to change.
+  function cleanDescription(rawDescription) {
+    if (!rawDescription) return null;
+  
+    // remove everything after "Source:" or "Also contained in:"
+    let cleaned = rawDescription.split(/Source:|Also contained in:/)[0].trim();
+    // remove markdown links [text](url)
+    cleaned = cleaned.replace(/\[.*?\]\(.*?\)/g, '');
+    // remove leftover URLs
+    cleaned = cleaned.replace(/https?:\/\/\S+/g, '');
+    // normalize whitespace
+    cleaned = cleaned.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ');
+  
+    return cleaned;
+  } 
+  
   
   // const addBook = () => {
   //   const newBook = {
@@ -129,23 +215,26 @@ export default function Bookshelf() {
       />
       {/* within this component you can access searchResults at any point after it's set.*/}
       {/* Search Results looks like this: [
-          { title: "SoloLeveling", author_name: ["Sung Jin Woo"], key: "/works/OL12345W" },
-          { title: "MHA: Vigilantes", author_name: ["Izuku Midoriya"], key: "/works/OL67890W" }
+          { title: "SoloLeveling", author_name: ["Sung Jin Woo"], key: "/works/OL12345W", etc... },
+          { title: "MHA: Vigilantes", author_name: ["Izuku Midoriya"], key: "/works/OL67890W", etc... }
         ]
       */}
       {searchResults.length > 0 && (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 10 }}>
           <Text style={styles.heading}>Search Results</Text>
           <FlatList
             data={searchResults}
             // React needs a unique key for each item in the list, 
             // if not present use the title as the key
             keyExtractor={(item, index) => item.key || index.toString()}
-            renderItem={({ item }) => (
-              <Text style={styles.bookItem}>
-                • {item.title} {item.author_name ? `by ${item.author_name[0]}` : ''}
-              </Text>
-            )}
+            renderItem={({item}) => (
+              // To just display the book search results, remove touch opacity field
+              <TouchableOpacity onPress={() => handleAddSearchBook(item)}>
+                <Text style={styles.bookItem}>
+                  • {item.title} {item.author_name ? `by ${item.author_name[0]}` : ''}
+                </Text>
+              </TouchableOpacity>
+            )}            
           />
         </View>
       )}
