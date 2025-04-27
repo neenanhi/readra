@@ -41,7 +41,7 @@ export default function MainNavigator() {
           component={Home} 
           options={{
           tabBarIcon: () => (
-            <Image source={require('../assets/library_icon.svg')} style={{ margin: 'auto', width: 50, height: 50 }}/>  
+            <Image source={require('../assets/library_icon.png')} style={{ margin: 'auto', width: 50, height: 50 }}/>  
           ),
           }} 
         />
@@ -84,7 +84,7 @@ export default function MainNavigator() {
           component={Placeholder}
           options={{
             tabBarIcon: () => (
-              <Image source={require('../assets/rewind_icon.svg')} style={{ width: 50, height: 50 }} />
+              <Image source={require('../assets/rewind_icon.png')} style={{ width: 50, height: 50 }} />
             ),
           }}       
         />
