@@ -18,12 +18,11 @@ export default function BookDetail({isbn}) {
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    var num = 9781250159014;
 
     useEffect(() => {
         let mounted = true;
         setLoading(true);
-        getBookData(num)
+        getBookData(isbn)
             .then(data => {
                 if (!mounted) return;
                 if (data) {
@@ -41,7 +40,7 @@ export default function BookDetail({isbn}) {
         return () => {
             mounted = false
         };
-    }, [num]);
+    }, [isbn]);
 
 
     if (loading) {
@@ -107,6 +106,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
         padding: 24,
+        margin: 12,
+        borderRadius: 25,
     },
     topRow: {
         flexDirection: "row",
@@ -117,6 +118,8 @@ const styles = StyleSheet.create({
         aspectRatio: 0.7,
         borderRadius: 8,
         backgroundColor: "#d2d3e0",
+        marginTop: 8,
+        marginLeft: 8
     },
     infoColumn: {
         flex: 1,
@@ -139,6 +142,7 @@ const styles = StyleSheet.create({
         color: "#444",
         lineHeight: 20,
         marginBottom: 24,
+        marginLeft: 8
     },
     buttonRow: {
         flexDirection: "row",
