@@ -46,7 +46,11 @@ export default function Bookshelf() {
       const data = await response.json();
       // Debug our query
       // console.log("Search Results:", data.docs.slice(0, 10));
-      setSearchResults(data.docs.slice(0, 10));  // Show top 10 results (can be edited)
+      const filtered = data.docs.filter(book => 
+        book.isbn?.length > 0 || book.cover_edition_key
+      );
+      setSearchResults(filtered.slice(0, 10));
+      // console.log("Search Results:", filtered);
     } catch (err) {
       console.error("Error fetching books:", err);
     }
