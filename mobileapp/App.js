@@ -1,8 +1,9 @@
 import React from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
-import { UserProvider } from './context/UserContext';
-import SessionRouter from './SessionRouter'; // this is the main router that decides which navigator to show based on the session state
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {NavigationContainer} from '@react-navigation/native';
+import {UserProvider} from './context/UserContext';
+import SessionRouter from './SessionRouter';
+import {useCameraPermission} from "react-native-vision-camera"; // this is the main router that decides which navigator to show based on the session state
 
 
 // =====================
@@ -20,14 +21,17 @@ import SessionRouter from './SessionRouter'; // this is the main router that dec
 // - The whole app UI
 // =====================
 export default function App() {
-  // everything inside this provider has access to the user context
-  return (
-    <UserProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <NavigationContainer>
-          <SessionRouter />
-        </NavigationContainer>
-      </GestureHandlerRootView>
-    </UserProvider>
-  );
+
+    const {hasPermission, requestPermission} = useCameraPermission()
+
+    // everything inside this provider has access to the user context
+    return (
+        <UserProvider>
+            <GestureHandlerRootView style={{flex: 1}}>
+                <NavigationContainer>
+                    <SessionRouter/>
+                </NavigationContainer>
+            </GestureHandlerRootView>
+        </UserProvider>
+    );
 }
