@@ -1,6 +1,6 @@
 import BookCard from "../components/BookCard";
 import axios from "axios";
-import {ActivityIndicator, Button, Image, SafeAreaView, StyleSheet, Text, View} from "react-native";
+import {ActivityIndicator, Button, TouchableOpacity, Image, SafeAreaView, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {getCoverUrl} from "../api/openLibrary";
 
@@ -9,7 +9,7 @@ async function getBookData(isbn) {
         method: 'get',
         url: `https://openlibrary.org/search.json?q=${isbn}`
     });
-
+    console.log(response.data["docs"][0])
     return response.data["docs"][0];
 }
 
@@ -55,18 +55,17 @@ export default function BookDetail({isbn}) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.topRow}>
-                <Image
-                    source={{ uri: getCoverUrl(book.cover_i) }}
-                    style={styles.cover}
-                    resizeMode="cover"
-                />
-
                 <View style={styles.infoColumn}>
                     <Text style={styles.title}>{book.title}</Text>
                     <Text style={styles.author}>
                         by {book.author_name?.[0] || "Unknown"}
                     </Text>
                 </View>
+                <Image
+                    source={{ uri: getCoverUrl(book.cover_i) }}
+                    style={styles.cover}
+                    resizeMode="cover"
+                />
             </View>
 
             <Text style={styles.description}>
@@ -75,14 +74,11 @@ export default function BookDetail({isbn}) {
                     : "No description available."}
             </Text>
 
-            <View style={styles.buttonRow}>
-                <View style={styles.buttonWrapper}>
-                    <Button
-                        title="Add to Library"
-                        onPress={() => console.log("Add tapped")}
-                    />
-                </View>
-                <View style={styles.buttonWrapper}>
+            <View style={{ width: '100%' }}>
+                <TouchableOpacity style={styles.addToLibrary} onPress={() => console.log("Tapped!")}>
+                    <Text style={{ color:'#7D819F', textAlign: 'center' }}>Add to Library</Text>
+                </TouchableOpacity>
+                {/* <View style={styles.buttonWrapper}>
                     <Button
                         title="Remove"
                         onPress={() => console.log("Remove tapped")}
@@ -95,7 +91,7 @@ export default function BookDetail({isbn}) {
                         onPress={() => console.log("Edit tapped")}
                         color="#5bc0de"
                     />
-                </View>
+                </View> */}
             </View>
         </SafeAreaView>
     );
@@ -104,38 +100,46 @@ export default function BookDetail({isbn}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height: '100vh',
+        alignItems: 'center',
         backgroundColor: "#fff",
-        padding: 24,
+        paddingHorizontal: '20%',
         margin: 12,
         borderRadius: 25,
+        overflow: 'scroll',
+        
     },
     topRow: {
-        flexDirection: "row",
         marginBottom: 24,
     },
     cover: {
-        width: "45%",
-        aspectRatio: 0.7,
+        width: "70%",
+        aspectRatio: 2/3,
         borderRadius: 8,
         backgroundColor: "#d2d3e0",
-        marginTop: 8,
-        marginLeft: 8
+        display: 'flex',
+        marginHorizontal: 'auto',
     },
     infoColumn: {
         flex: 1,
-        paddingLeft: 16,
         justifyContent: "center",
     },
     title: {
-        fontSize: 24,
-        fontWeight: "700",
-        color: "#333",
-        marginBottom: 8,
+        fontSize: 30,
+        fontWeight: "bold",
+        color: "#7d819f",
+        marginBottom: 20,
+        textAlign: "center",
+        letterSpacing: 2,
+        marginTop: 50,
+        marginHorizontal: 'auto',
     },
     author: {
-        fontSize: 16,
-        fontWeight: "500",
+        fontSize: 21,
+        marginBottom: 20,
         color: "#666",
+        marginHorizontal: 'auto',
+        textAlign: 'center',
     },
     description: {
         fontSize: 14,
@@ -145,11 +149,29 @@ const styles = StyleSheet.create({
         marginLeft: 8
     },
     buttonRow: {
-        flexDirection: "row",
         justifyContent: "space-between",
     },
     buttonWrapper: {
         flex: 1,
         marginHorizontal: 4,
     },
+    addToLibrary: {
+        backgroundColor: 'transparent',
+        borderColor: '#7D819F',
+        borderWidth: 1,
+        padding: 15,
+        borderRadius: 10,
+        width: '80%',
+        marginHorizontal: 'auto',
+        marginBottom: 20,
+    },
+    removeFromLibrary: {
+        backgroundColor: '#7D819F',
+        borderWidth: 1,
+        padding: 15,
+        borderRadius: 10,
+        width: '80%',
+        marginHorizontal: 'auto',
+        marginBottom: 20,
+    }
 });
