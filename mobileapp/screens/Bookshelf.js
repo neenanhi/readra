@@ -1,471 +1,297 @@
-import React, {useState} from 'react';
-import {PutBook} from '../api/openLibrary';
+import React, { useState } from "react";
+import { PutBook } from "../api/openLibrary";
 import {
-    View,
-    Text,
-    FlatList,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    Modal,
-    Pressable, Button,
-} from 'react-native';
-import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  Button,
+} from "react-native";
+import { Camera, useCameraDevice, useCodeScanner } from "react-native-vision-camera";
 
-export default function Bookshelf() {
-    const [books, setBooks] = useState([
-        {id: '1', title: 'The Midnight Library', status: 'read'},
-        {id: '2', title: 'Circe', status: 'read'},
-        {id: '3', title: 'Tomorrow, and Tomorrow, and Tomorrow', status: 'wantToRead'},
-    ]);
+export default function Bookshelf({ navigation }) {
+  const [books, setBooks] = useState([
+    { id: "1", title: "The Midnight Library", status: "read" },
+    { id: "2", title: "Circe", status: "read" },
+    { id: "3", title: "Tomorrow, and Tomorrow, and Tomorrow", status: "wantToRead" },
+    // …add your own initial items…
+  ]);
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [newTitle, setNewTitle] = useState('');
-    const [newStatus, setNewStatus] = useState('');
-    const [newAuthor, setNewAuthor] = useState('');
-    const [newGenre, setNewGenre] = useState('');
-    const [newISBN, setNewISBN] = useState('');
-    const [newDescription, setNewDescription] = useState('');
-    const [newCoverImage, setNewCoverImage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newStatus, setNewStatus] = useState("");
 
-    //Search bar components (query holds what we want to search, results is a list of results)
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
+  const [scanner, setScanner] = useState(false);
+  const device = useCameraDevice("back");
+  const codeScanner = useCodeScanner({
+    codeTypes: ["ean-13"],
+    onCodeScanned: (codes) => {
+      setScanner(false);
+      console.log("Scanned ISBN:", codes[0].value);
+    },
+  });
 
-<<<<<<< HEAD
-  // ---------- This version uses openlibrary APi and works
+  // --- Scanner view replaces everything when active ---
+  if (scanner) {
+    return (
+      <View style={styles.cameraContainer}>
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+          codeScanner={codeScanner}
+        />
+        <TouchableOpacity style={styles.closeScanner} onPress={() => setScanner(false)}>
+          <Text style={styles.closeText}>Close Scanner</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // --- Normal app UI below ---
   const searchBooks = async () => {
-    //If no search content, return nothing
     if (!searchQuery) return;
-  
     try {
-      // change our search to a URI component, then use OL API to search for the resulting books
-      // thanks to goodreads handling the search itself, we dont need to deal with regex
-      const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
-      //Once we get the response, we change it to a JSON format
-      const data = await response.json();
-      // Debug our query
-      // console.log("Search Results:", data.docs.slice(0, 10));
-      const filtered = data.docs.filter(book => 
-        book.isbn?.length > 0 || book.cover_edition_key
+      const response = await fetch(
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`
       );
-      setSearchResults(filtered.slice(0, 10));
-      // console.log("Search Results:", filtered);
+      const data = await response.json();
+      setSearchResults(data.docs.slice(0, 10));
     } catch (err) {
       console.error("Error fetching books:", err);
     }
   };
-  
-  // ---------- This version uses goodreads APi but has some issues with validation
-  // ask neena for info on what this API key is - for now its labeled SUPERCOOLAPIKEYDONTTELLNEENA
-  // const searchBooks = async () => {
-  //   if (!searchQuery) return;
-  
-  //   try {
-  //     const response = await fetch(`https://www.goodreads.com/search/index.xml?key=SUPERCOOLAPIKEYDONTTELLNEENA&q=${encodeURIComponent(searchQuery)}`);
-  //     const xmlText = await response.text();
-  
-  //     // Goodreads returns XML apparently, I hear we need to parse it to Json somehow.
-  //     console.log(xmlText);  // For now, just log it
-  //   } catch (err) {
-  //     console.error("Error fetching books:", err);
-  //   }
-  // };
-=======
-    // ---------- This version uses openlibrary APi and works
-    const searchBooks = async () => {
-        //If no search content, return nothing
-        if (!searchQuery) return;
->>>>>>> 8c21b2446ddc1babca14b7a94281b5cfb8b70d61
 
-        try {
-            // change our search to a URI component, then use OL API to search for the resulting books
-            // thanks to goodreads handling the search itself, we dont need to deal with regex
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
-            //Once we get the response, we change it to a JSON format
-            const data = await response.json();
-            // Debug our query
-            // console.log("Search Results:", data.docs.slice(0, 10));
-            setSearchResults(data.docs.slice(0, 10));  // Show top 10 results (can be edited)
-        } catch (err) {
-            console.error("Error fetching books:", err);
-        }
-    };
-
-    // ---------- This version uses goodreads APi but has some issues with validation
-    // ask neena for info on what this API key is - for now its labeled SUPERCOOLAPIKEYDONTTELLNEENA
-    // const searchBooks = async () => {
-    //   if (!searchQuery) return;
-
-    //   try {
-    //     const response = await fetch(`https://www.goodreads.com/search/index.xml?key=SUPERCOOLAPIKEYDONTTELLNEENA&q=${encodeURIComponent(searchQuery)}`);
-    //     const xmlText = await response.text();
-
-    //     // Goodreads returns XML apparently, I hear we need to parse it to Json somehow.
-    //     console.log(xmlText);  // For now, just log it
-    //   } catch (err) {
-    //     console.error("Error fetching books:", err);
-    //   }
-    // };
-
-    //-- This function handles the adding books from the search bar to the library--
-    const handleAddSearchBook = async (item) => {
-        let detailedData = {};
-        let isbn = null;
-        let genre = null;
-
-        // fetch detailed book info using the key
-        try {
-            const response = await fetch(`https://openlibrary.org${item.key}.json`);
-            detailedData = await response.json();
-        } catch (err) {
-            console.warn("Failed to fetch detailed book info:", err);
-        }
-
-        // use search API's ISBN, else fetch edition info
-        // Note: Sometimes search results arent actually books, so they don have ISBN's
-        // I found this out when I found this gem "NASA/DoD aerospace knowledge diffusion research project"
-        // which has no isbn
-        if (item.isbn && item.isbn.length > 0) {
-            isbn = item.isbn[0];
-            // console.log("ISBN present")
-        } else if (item.cover_edition_key) {
-            try {
-                const editionRes = await fetch(`https://openlibrary.org/books/${item.cover_edition_key}.json`);
-                const editionData = await editionRes.json();
-                isbn = editionData.isbn_13 ? editionData.isbn_13[0] : (editionData.isbn_10 ? editionData.isbn_10[0] : null);
-            } catch (err) {
-                console.warn("Couldn't fetch ISBN from edition:", err);
-            }
-        }
-
-        // filter genre using regex (only alphabetical subjects)
-        if (detailedData.subjects) {
-            // Note: This dosnt always work and genre's are sometimes.... not genres
-            // IDK if Counting is a genre but when I searched for math textbooks it gave this
-            // "Counting" from this ["collectionID:elmmath", "Counting", "Study and teaching (Primary)", "Mathematics"]
-            // if we want to mess with the genre matching stuff we just handle it in this area regardless
-            genre = detailedData.subjects.find(sub => /^[A-Za-z\s]+$/.test(sub)) || null;
-        }
-
-        // Build the new book object
-        const newBook = {
-            id: Date.now().toString(),
-            title: item.title || "Unknown Title",
-            status: "wantToRead",
-            author: item.author_name ? item.author_name[0] : null,
-            genre: genre,
-            cover_image: item.cover_i ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg` : null,
-            // if the data contains a string we know we have a description itself, if its not that then we are dealing with the
-            // "description": { "value": "This is a more complex description." } version it sometimes returns, so get th evalue
-            description: cleanDescription(typeof detailedData.description === 'string' ? detailedData.description : (detailedData.description?.value || null)),
-            isbn: isbn
-        };
-        console.log(JSON.stringify(newBook))
-        // Save to Supabase and update local state
-        try {
-            // comment out putcommand to not update supabase
-            await PutBook(newBook);
-            setBooks(prev => [...prev, newBook]);
-            alert(`"${newBook.title}" added to your library!`);
-        } catch (err) {
-            console.error("Failed to add book:", err);
-            alert("Error adding book.");
-        }
-    };
-
-    // description needs cleaning done on it, so I made a basic function to do it
-    // feel free to change.
-    function cleanDescription(rawDescription) {
-        if (!rawDescription) return null;
-
-        // remove everything after "Source:" or "Also contained in:"
-        let cleaned = rawDescription.split(/Source:|Also contained in:/)[0].trim();
-        // remove markdown links [text](url)
-        cleaned = cleaned.replace(/\[.*?\]\(.*?\)/g, '');
-        // remove leftover URLs
-        cleaned = cleaned.replace(/https?:\/\/\S+/g, '');
-        // normalize whitespace
-        cleaned = cleaned.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ');
-
-        return cleaned;
+  const handleAddSearchBook = async (item) => {
+    let detailed = {};
+    try {
+      const res = await fetch(`https://openlibrary.org${item.key}.json`);
+      detailed = await res.json();
+    } catch {
+      /* ignore */
     }
 
+    // pick a genre if available
+    const genre =
+      detailed.subjects?.find((s) => /^[A-Za-z\s]+$/.test(s)) ?? null;
 
-    // const addBook = () => {
-    //   const newBook = {
-    //     id: Date.now().toString(),
-    //     title: newTitle,
-    //     status: newStatus,
-    //   };
-    //   setBooks(prev => [...prev, newBook]);
-    //   setNewTitle('');
-    //   setNewStatus('read');
-    //   setModalVisible(false);
-    // };
-
-    // Modified addBook to log info into supabase and populate book field with
-    // temporary information, we can change this temp data when we get the data
-    // filling screen working
-    const addBook = async () => {
-        const newBook = {
-            id: Date.now().toString(),
-            title: newTitle,
-            status: newStatus,
-            // temporary info
-            author: newAuthor || null,
-            genre: newGenre || null,
-            cover_image: newCoverImage || null,
-            description: newDescription || null,
-            isbn: newISBN || null
-        };
-
-        // update local state
-        setBooks(prev => [...prev, newBook]);
-        // send to Supabase
-        await PutBook(newBook);
-
-        setNewTitle('');
-        setNewStatus('');
-        setNewAuthor('');
-        setNewGenre('');
-        setNewISBN('');
-        setNewDescription('');
-        setNewCoverImage('');
-        setModalVisible(false);
+    const newBook = {
+      id: Date.now().toString(),
+      title: item.title,
+      status: "wantToRead",
+      author: item.author_name?.[0] ?? null,
+      genre,
+      cover_image: item.cover_i
+        ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg`
+        : null,
+      description:
+        typeof detailed.description === "string"
+          ? detailed.description
+          : detailed.description?.value ?? null,
+      isbn: item.isbn?.[0] ?? null,
     };
 
-
-    const renderBook = ({item}) => (
-        <Text style={styles.bookItem}>• {item.title}</Text>
-    );
-
-    const readBooks = books.filter(book => book.status === 'read');
-    const wantToReadBooks = books.filter(book => book.status === 'wantToRead');
-
-    const [scanner, setScanner] = useState(false);
-
-    const device = useCameraDevice('back');
-
-    const codeScanner = useCodeScanner({
-        codeTypes: ['ean-13'],
-        onCodeScanned: (codes) => {
-            setScanner(false);
-
-            // DO ALL LOGIC WITH THE SCANNER CODE
-            console.log(codes[0].value);
-        }
-    });
-
-    if (scanner) {
-        return (
-            <View style={styles.camera}>
-                <Camera
-                    style={StyleSheet.absoluteFill}
-                    device={device}
-                    isActive={true}
-                    codeScanner={codeScanner}
-                />
-                <Button title="Close" onPress={() => setScanner(false)}></Button>
-            </View>
-        )
+    try {
+      await PutBook(newBook);
+      setBooks((prev) => [...prev, newBook]);
+      alert(`"${newBook.title}" added to your library!`);
+    } catch {
+      alert("Failed to add book.");
     }
+  };
 
-    return (
-        <View style={styles.container}>
-            {/* Search Bar code: */}
-            <TextInput
-                placeholder="Search for books..."
-                style={styles.input}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                onSubmitEditing={searchBooks}
-            />
+  const addBook = async () => {
+    const book = { id: Date.now().toString(), title: newTitle, status: newStatus };
+    setBooks((prev) => [...prev, book]);
+    await PutBook(book);
+    setNewTitle("");
+    setNewStatus("");
+    setModalVisible(false);
+  };
 
-            <Button title="scanner" onPress={() => setScanner(true)}>Open Scanner</Button>
+  const renderBook = ({ item }) => (
+    <View style={styles.bookItem}>
+      <View style={styles.bookCover}>
+        <Text style={styles.bookTitle}>{item.title}</Text>
+      </View>
+    </View>
+  );
 
-            {searchResults.length > 0 && (
-                <View style={{flex: 10}}>
-                    <Text style={styles.heading}>Search Results</Text>
-                    <FlatList
-                        data={searchResults}
-                        // React needs a unique key for each item in the list,
-                        // if not present use the title as the key
-                        keyExtractor={(item, index) => item.key || index.toString()}
-                        renderItem={({item}) => (
-                            // To just display the book search results, remove touch opacity field
-                            <TouchableOpacity onPress={() => handleAddSearchBook(item)}>
-                                <Text style={styles.bookItem}>
-                                    • {item.title} {item.author_name ? `by ${item.author_name[0]}` : ''}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    />
-                </View>
+  return (
+    <View style={styles.container}>
+      {/* Search + Profile */}
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          placeholder="Search for books..."
+          style={styles.input}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={searchBooks}
+        />
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.navigate("Profile")}
+        >
+          <Text style={styles.profileButtonText}>P</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Scan button */}
+      <Button title="Scan ISBN" onPress={() => setScanner(true)} />
+
+      {/* Search results */}
+      {searchResults.length > 0 && (
+        <View style={styles.searchResultContainer}>
+          <Text style={styles.heading}>Search Results</Text>
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item, i) => item.key || i.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.searchItem}
+                onPress={() => handleAddSearchBook(item)}
+              >
+                <Text style={styles.bookTitle}>{item.title}</Text>
+              </TouchableOpacity>
             )}
-
-            {/* Display users read books */}
-
-            <Text style={styles.heading}>📘 Read</Text>
-            <FlatList
-                data={readBooks}
-                keyExtractor={item => item.id}
-                renderItem={renderBook}
-            />
-            {/* Display books in users backlog */}
-            <Text style={styles.heading}>🕮 Want to Read</Text>
-            <FlatList
-                data={wantToReadBooks}
-                keyExtractor={item => item.id}
-                renderItem={renderBook}
-            />
-
-            {/* FAB button */}
-            <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
-                <Text style={styles.fabText}>＋</Text>
-            </TouchableOpacity>
-
-            {/* Modal for adding a book */}
-            <Modal
-                transparent={true}
-                visible={modalVisible}
-                animationType="slide"
-            >
-                <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Add a Book</Text>
-                    <TextInput
-                        placeholder="Book Title"
-                        style={styles.input}
-                        value={newTitle}
-                        onChangeText={setNewTitle}
-                    />
-                    <TextInput
-                        placeholder="Status (read or wantToRead)"
-                        style={styles.input}
-                        value={newStatus}
-                        onChangeText={setNewStatus}
-                    />
-                    <TextInput
-                        placeholder="Author"
-                        style={styles.input}
-                        value={newAuthor}
-                        onChangeText={setNewAuthor}
-                    />
-                    <TextInput
-                        placeholder="Genre"
-                        style={styles.input}
-                        value={newGenre}
-                        onChangeText={setNewGenre}
-                    />
-                    <TextInput
-                        placeholder="ISBN"
-                        style={styles.input}
-                        value={newISBN}
-                        onChangeText={setNewISBN}
-                        keyboardType="numeric"
-                    />
-                    <TextInput
-                        placeholder="Description"
-                        style={styles.input}
-                        value={newDescription}
-                        onChangeText={setNewDescription}
-                    />
-                    <TextInput
-                        placeholder="Cover Image URL"
-                        style={styles.input}
-                        value={newCoverImage}
-                        onChangeText={setNewCoverImage}
-                    />
-
-                    <View style={styles.modalButtons}>
-                        <Pressable style={styles.button} onPress={addBook}>
-                            <Text style={styles.buttonText}>Add</Text>
-                        </Pressable>
-                        <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
-                            <Text style={styles.buttonText}>Cancel</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
+            numColumns={4}
+          />
         </View>
-    );
+      )}
+
+      {/* Your library */}
+      <Text style={styles.heading}>Your Library</Text>
+      <FlatList
+        data={books}
+        keyExtractor={(item) => item.id}
+        renderItem={renderBook}
+        numColumns={4}
+      />
+
+      {/* Add‐book FAB */}
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+        <Text style={styles.fabText}>＋</Text>
+      </TouchableOpacity>
+
+      {/* Add‐book Modal */}
+      <Modal transparent visible={modalVisible} animationType="slide">
+        <View style={styles.modalView}>
+          <Text style={styles.modalTitle}>Add a Book</Text>
+          <TextInput
+            placeholder="Title"
+            style={styles.input}
+            value={newTitle}
+            onChangeText={setNewTitle}
+          />
+          <TextInput
+            placeholder="Status (read or wantToRead)"
+            style={styles.input}
+            value={newStatus}
+            onChangeText={setNewStatus}
+          />
+          <View style={styles.modalButtons}>
+            <Pressable style={styles.button} onPress={addBook}>
+              <Text style={styles.buttonText}>Add</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.cancel]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        paddingTop: 60,
-        paddingHorizontal: 20,
-        backgroundColor: '#fff',
-        flex: 1,
-    },
-    heading: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 10,
-    },
-    bookItem: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    fab: {
-        position: 'absolute',
-        right: 30,
-        bottom: 40,
-        backgroundColor: '#007AFF',
-        borderRadius: 50,
-        width: 60,
-        height: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 5,
-    },
-    fabText: {
-        color: '#fff',
-        fontSize: 30,
-        marginTop: -2,
-    },
-    modalView: {
-        marginTop: '60%',
-        marginHorizontal: 20,
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 15,
-        shadowColor: '#000',
-        shadowOpacity: 0.25,
-        shadowOffset: {width: 0, height: 2},
-        elevation: 5,
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 10,
-        padding: 10,
-        marginBottom: 15,
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    button: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-    },
-    cancel: {
-        backgroundColor: '#ccc',
-    },
-    buttonText: {
-        color: '#fff',
-    },
-    camera: {
-        height: "100%"
-    }
+  container: { flex: 1, paddingTop: 60, paddingHorizontal: 20, backgroundColor: "#fff" },
+  searchBarContainer: { flexDirection: "row", alignItems: "center", marginBottom: 15 },
+  input: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  profileButton: {
+    marginLeft: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#7d819f",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileButtonText: { color: "#fff", fontSize: 16 },
+
+  heading: { fontSize: 20, fontWeight: "bold", marginVertical: 10, paddingHorizontal: 10 },
+
+  searchResultContainer: { flex: 1 },
+  searchItem: { flex: 1, padding: 8, marginBottom: 20, alignItems: "center" },
+
+  bookItem: { width: "25%", paddingHorizontal: 8, marginBottom: 20, alignItems: "center" },
+  bookCover: {
+    width: "100%",
+    height: 100,
+    backgroundColor: "#ddd",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bookTitle: { fontSize: 14, color: "#333", textAlign: "center" },
+
+  fab: {
+    position: "absolute",
+    right: 30,
+    bottom: 40,
+    backgroundColor: "#7d819f",
+    borderRadius: 50,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+  },
+  fabText: { color: "#fff", fontSize: 30, marginTop: -2 },
+
+  modalView: {
+    marginTop: "60%",
+    marginHorizontal: 20,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  modalButtons: { flexDirection: "row", justifyContent: "space-between" },
+  button: { backgroundColor: "#7d819f", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10 },
+  cancel: { backgroundColor: "#ccc" },
+  buttonText: { color: "#fff", fontSize: 16 },
+
+  cameraContainer: { flex: 1 },
+  closeScanner: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 10,
+    borderRadius: 6,
+  },
+  closeText: { color: "#fff", fontSize: 16 },
 });
