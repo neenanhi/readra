@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import {PutBook} from '../api/openLibrary';
+import React, { useState } from "react";
+import { PutBook } from "../api/openLibrary";
 import {
   View,
   Text,
@@ -9,58 +9,70 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
-} from 'react-native';
+} from "react-native";
+import ProfileScreen from "./Profile";
 
-export default function Bookshelf() {
+export default function Bookshelf({ navigation }) {
   const [books, setBooks] = useState([
-    { id: '1', title: 'The Midnight Library', status: 'read' },
-    { id: '2', title: 'Circe', status: 'read' },
-    { id: '3', title: 'Tomorrow, and Tomorrow, and Tomorrow', status: 'wantToRead' },
+    { id: "1", title: "The Midnight Library", status: "read" },
+    { id: "2", title: "Circe", status: "read" },
+    {
+      id: "3",
+      title: "Tomorrow, and Tomorrow, and Tomorrow",
+      status: "wantToRead",
+    },
+    { id: "4", title: "brainrot", status: "wantToRead" },
+    { id: "5", title: "tiktok", status: "wantToRead" },
+    { id: "6", title: "doomscrolling", status: "read" },
+    { id: "7", title: "dead inside", status: "wantToRead" },
+    { id: "8", title: "cannot figure out backend", status: "read" },
+    { id: "9", title: "still struggling with Golang", status: "wantToRead" },
+    { id: "10", title: "gave up", status: "read" },
+    {
+      id: "11",
+      title: "doing UI instead of fixing actual problem",
+      status: "wantToRead",
+    },
+    { id: "12", title: "dropping out", status: "wantToRead" },
   ]);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newStatus, setNewStatus] = useState('');
-  const [newAuthor, setNewAuthor] = useState('');
-  const [newGenre, setNewGenre] = useState('');
-  const [newISBN, setNewISBN] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newCoverImage, setNewCoverImage] = useState('');
+  const [newTitle, setNewTitle] = useState("");
+  const [newStatus, setNewStatus] = useState("");
 
-  //Search bar components (query holds what we want to search, results is a list of results)
-  const [searchQuery, setSearchQuery] = useState('');
+  // Search bar components
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-
-  
 
   // ---------- This version uses openlibrary APi and works
   const searchBooks = async () => {
-    //If no search content, return nothing
     if (!searchQuery) return;
-  
+
     try {
       // change our search to a URI component, then use OL API to search for the resulting books
       // thanks to goodreads handling the search itself, we dont need to deal with regex
-      const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(
+          searchQuery
+        )}`
+      );
       //Once we get the response, we change it to a JSON format
       const data = await response.json();
-      // Debug our query
-      // console.log("Search Results:", data.docs.slice(0, 10));
-      setSearchResults(data.docs.slice(0, 10));  // Show top 10 results (can be edited)
+      setSearchResults(data.docs.slice(0, 10));
     } catch (err) {
       console.error("Error fetching books:", err);
     }
   };
-  
+
   // ---------- This version uses goodreads APi but has some issues with validation
   // ask neena for info on what this API key is - for now its labeled SUPERCOOLAPIKEYDONTTELLNEENA
   // const searchBooks = async () => {
   //   if (!searchQuery) return;
-  
+
   //   try {
   //     const response = await fetch(`https://www.goodreads.com/search/index.xml?key=SUPERCOOLAPIKEYDONTTELLNEENA&q=${encodeURIComponent(searchQuery)}`);
   //     const xmlText = await response.text();
-  
+
   //     // Goodreads returns XML apparently, I hear we need to parse it to Json somehow.
   //     console.log(xmlText);  // For now, just log it
   //   } catch (err) {
@@ -73,7 +85,7 @@ export default function Bookshelf() {
     let detailedData = {};
     let isbn = null;
     let genre = null;
-  
+
     // fetch detailed book info using the key
     try {
       const response = await fetch(`https://openlibrary.org${item.key}.json`);
@@ -81,33 +93,16 @@ export default function Bookshelf() {
     } catch (err) {
       console.warn("Failed to fetch detailed book info:", err);
     }
-  
-    // use search API's ISBN, else fetch edition info
-    // Note: Sometimes search results arent actually books, so they don have ISBN's
-    // I found this out when I found this gem "NASA/DoD aerospace knowledge diffusion research project"
-    // which has no isbn
-    if (item.isbn && item.isbn.length > 0) {
-      isbn = item.isbn[0];
-      // console.log("ISBN present")
-    } else if (item.cover_edition_key) {
-      try {
-        const editionRes = await fetch(`https://openlibrary.org/books/${item.cover_edition_key}.json`);
-        const editionData = await editionRes.json();
-        isbn = editionData.isbn_13 ? editionData.isbn_13[0] : (editionData.isbn_10 ? editionData.isbn_10[0] : null);
-      } catch (err) {
-        console.warn("Couldn't fetch ISBN from edition:", err);
-      }
-    }
-  
+
     // filter genre using regex (only alphabetical subjects)
     if (detailedData.subjects) {
       // Note: This dosnt always work and genre's are sometimes.... not genres
-      // IDK if Counting is a genre but when I searched for math textbooks it gave this 
+      // IDK if Counting is a genre but when I searched for math textbooks it gave this
       // "Counting" from this ["collectionID:elmmath", "Counting", "Study and teaching (Primary)", "Mathematics"]
       // if we want to mess with the genre matching stuff we just handle it in this area regardless
-      genre = detailedData.subjects.find(sub => /^[A-Za-z\s]+$/.test(sub)) || null;
+      genre =
+        detailedData.subjects.find((sub) => /^[A-Za-z\s]+$/.test(sub)) || null;
     }
-  
     // Build the new book object
     const newBook = {
       id: Date.now().toString(),
@@ -115,157 +110,124 @@ export default function Bookshelf() {
       status: "wantToRead",
       author: item.author_name ? item.author_name[0] : null,
       genre: genre,
-      cover_image: item.cover_i ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg`: null,
-      // if the data contains a string we know we have a description itself, if its not that then we are dealing with the 
+      cover_image: item.cover_i
+        ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg`
+        : null,
+      // if the data contains a string we know we have a description itself, if its not that then we are dealing with the
       // "description": { "value": "This is a more complex description." } version it sometimes returns, so get th evalue
-      description: cleanDescription(typeof detailedData.description === 'string' ? detailedData.description: (detailedData.description?.value || null)),        
-      isbn: isbn
+      description: cleanDescription(
+        typeof detailedData.description === "string"
+          ? detailedData.description
+          : detailedData.description?.value || null
+      ),
+      isbn: isbn,
     };
-    console.log(JSON.stringify(newBook))
+
+    console.log(JSON.stringify(newBook));
     // Save to Supabase and update local state
     try {
       // comment out putcommand to not update supabase
       await PutBook(newBook);
-      setBooks(prev => [...prev, newBook]);
+      setBooks((prev) => [...prev, newBook]);
       alert(`"${newBook.title}" added to your library!`);
     } catch (err) {
       console.error("Failed to add book:", err);
       alert("Error adding book.");
     }
   };
-  
+
   // description needs cleaning done on it, so I made a basic function to do it
-  // feel free to change.
   function cleanDescription(rawDescription) {
     if (!rawDescription) return null;
-  
-    // remove everything after "Source:" or "Also contained in:"
     let cleaned = rawDescription.split(/Source:|Also contained in:/)[0].trim();
-    // remove markdown links [text](url)
-    cleaned = cleaned.replace(/\[.*?\]\(.*?\)/g, '');
-    // remove leftover URLs
-    cleaned = cleaned.replace(/https?:\/\/\S+/g, '');
-    // normalize whitespace
-    cleaned = cleaned.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ');
-  
+    cleaned = cleaned.replace(/\[.*?\]\(.*?\)/g, "");
+    cleaned = cleaned.replace(/https?:\/\/\S+/g, "");
+    cleaned = cleaned.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ");
+
     return cleaned;
-  } 
-  
-  
-  // const addBook = () => {
-  //   const newBook = {
-  //     id: Date.now().toString(),
-  //     title: newTitle,
-  //     status: newStatus,
-  //   };
-  //   setBooks(prev => [...prev, newBook]);
-  //   setNewTitle('');
-  //   setNewStatus('read');
-  //   setModalVisible(false);
-  // };
-  
-  // Modified addBook to log info into supabase and populate book field with 
-  // temporary information, we can change this temp data when we get the data
-  // filling screen working
+  }
+
   const addBook = async () => {
     const newBook = {
       id: Date.now().toString(),
       title: newTitle,
       status: newStatus,
-      // temporary info
-      author: newAuthor || null,
-      genre: newGenre || null,
-      cover_image: newCoverImage || null,
-      description: newDescription || null,
-      isbn: newISBN || null
     };
-
-    // update local state
-    setBooks(prev => [...prev, newBook]);
-    // send to Supabase
+    setBooks((prev) => [...prev, newBook]);
     await PutBook(newBook);
-  
-    setNewTitle('');
-    setNewStatus('');
-    setNewAuthor('');
-    setNewGenre('');
-    setNewISBN('');
-    setNewDescription('');
-    setNewCoverImage('');
+    setNewTitle("");
+    setNewStatus("");
     setModalVisible(false);
   };
-  
 
   const renderBook = ({ item }) => (
-    <Text style={styles.bookItem}>• {item.title}</Text>
+    <View style={styles.bookItem}>
+      <View style={styles.bookCover}>
+        <Text style={styles.bookTitle}>{item.title}</Text>
+      </View>
+    </View>
   );
-
-  const readBooks = books.filter(book => book.status === 'read');
-  const wantToReadBooks = books.filter(book => book.status === 'wantToRead');
 
   return (
     <View style={styles.container}>
-      {/* Search Bar code: */}
-      <TextInput
-        placeholder="Search for books..."
-        style={styles.input}
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        onSubmitEditing={searchBooks}
-      />
-      {/* within this component you can access searchResults at any point after it's set.*/}
-      {/* Search Results looks like this: [
-          { title: "SoloLeveling", author_name: ["Sung Jin Woo"], key: "/works/OL12345W", etc... },
-          { title: "MHA: Vigilantes", author_name: ["Izuku Midoriya"], key: "/works/OL67890W", etc... }
-        ]
-      */}
+      {/* Search Bar */}
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          placeholder="Search for books..."
+          style={styles.input}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={searchBooks}
+        />
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => {
+            navigation.navigate("Profile");
+          }}
+        >
+          <Text style={styles.profileButtonText}>P</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Search Results */}
       {searchResults.length > 0 && (
-        <View style={{ flex: 10 }}>
+        <View style={styles.searchResultContainer}>
           <Text style={styles.heading}>Search Results</Text>
           <FlatList
             data={searchResults}
-            // React needs a unique key for each item in the list, 
-            // if not present use the title as the key
             keyExtractor={(item, index) => item.key || index.toString()}
-            renderItem={({item}) => (
-              // To just display the book search results, remove touch opacity field
-              <TouchableOpacity onPress={() => handleAddSearchBook(item)}>
-                <Text style={styles.bookItem}>
-                  • {item.title} {item.author_name ? `by ${item.author_name[0]}` : ''}
-                </Text>
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.searchItem}
+                onPress={() => handleAddSearchBook(item)}
+              >
+                <Text style={styles.bookTitle}>{item.title}</Text>
               </TouchableOpacity>
-            )}            
+            )}
+            numColumns={4}
           />
         </View>
       )}
 
-      {/* Display users read books */}
-
-      <Text style={styles.heading}>📘 Read</Text>
+      {/* Combined Library Section */}
+      <Text style={styles.heading}>Your Library</Text>
       <FlatList
-        data={readBooks}
-        keyExtractor={item => item.id}
+        data={books}
+        keyExtractor={(item) => item.id}
         renderItem={renderBook}
-      />
-      {/* Display books in users backlog */}
-      <Text style={styles.heading}>🕮 Want to Read</Text>
-      <FlatList
-        data={wantToReadBooks}
-        keyExtractor={item => item.id}
-        renderItem={renderBook}
+        numColumns={4}
       />
 
       {/* FAB button */}
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={styles.fabText}>＋</Text>
       </TouchableOpacity>
 
       {/* Modal for adding a book */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        animationType="slide"
-      >
+      <Modal transparent={true} visible={modalVisible} animationType="slide">
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Add a Book</Text>
           <TextInput
@@ -273,50 +235,23 @@ export default function Bookshelf() {
             style={styles.input}
             value={newTitle}
             onChangeText={setNewTitle}
+            placeholderTextColor="#666"
           />
           <TextInput
             placeholder="Status (read or wantToRead)"
             style={styles.input}
             value={newStatus}
             onChangeText={setNewStatus}
+            placeholderTextColor="#666"
           />
-          <TextInput 
-            placeholder="Author"
-            style={styles.input}
-            value={newAuthor}
-            onChangeText={setNewAuthor} 
-          />
-          <TextInput
-            placeholder="Genre"
-            style={styles.input}
-            value={newGenre}
-            onChangeText={setNewGenre}
-          />
-          <TextInput 
-            placeholder="ISBN"
-            style={styles.input}
-            value={newISBN}
-            onChangeText={setNewISBN}
-            keyboardType="numeric"
-          />
-          <TextInput
-            placeholder="Description"
-            style={styles.input}
-            value={newDescription}
-            onChangeText={setNewDescription}
-          />
-          <TextInput
-            placeholder="Cover Image URL"
-            style={styles.input}
-            value={newCoverImage}
-            onChangeText={setNewCoverImage}
-          />
-
           <View style={styles.modalButtons}>
             <Pressable style={styles.button} onPress={addBook}>
               <Text style={styles.buttonText}>Add</Text>
             </Pressable>
-            <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
+            <Pressable
+              style={[styles.button, styles.cancel]}
+              onPress={() => setModalVisible(false)}
+            >
               <Text style={styles.buttonText}>Cancel</Text>
             </Pressable>
           </View>
@@ -330,73 +265,126 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 60,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     flex: 1,
   },
   heading: {
     fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
+    fontWeight: "bold",
     marginBottom: 10,
+    padding: 10,
   },
   bookItem: {
-    fontSize: 16,
-    marginBottom: 5,
+    width: "25%",
+    paddingHorizontal: 8,
+    marginBottom: 20,
+    alignItems: "center",
   },
+  bookCover: {
+    width: "100%",
+    height: 100,
+    backgroundColor: "#ddd",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bookTitle: {
+    fontSize: 14,
+    color: "#333",
+    textAlign: "center",
+  },
+  bookAuthor: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+    flex: 1,
+    height: 40,
+    fontSize: 16,
+    color: "#333",
+  },
+  button: {
+    backgroundColor: "#7d819f",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  cancel: {
+    backgroundColor: "#ccc",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  searchResultContainer: {
+    flex: 10,
+  },
+  searchItem: {
+    paddingHorizontal: 8,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  searchBarContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+  },
+  profileButton: {
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#7d819f",
+    marginLeft: 10,
+  },
+  profileButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  // + old fab -- add a book feature
   fab: {
-    position: 'absolute',
+    position: "absolute",
     right: 30,
     bottom: 40,
-    backgroundColor: '#007AFF',
+    backgroundColor: "#7d819f",
     borderRadius: 50,
     width: 60,
     height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 5,
   },
   fabText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 30,
     marginTop: -2,
   },
   modalView: {
-    marginTop: '60%',
+    marginTop: "60%",
     marginHorizontal: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowOffset: { width: 0, height: 2 },
     elevation: 5,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 15,
-  },
   modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-  },
-  cancel: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: '#fff',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
