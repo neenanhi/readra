@@ -59,51 +59,44 @@ export default function Bookshelf({ navigation }) {
   const searchBooks = async () => {
     if (!searchQuery) return;
     try {
-      const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`
-      );
-      const data = await response.json();
-      setSearchResults(data.docs.slice(0, 10));
+        const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
+        const data = await response.json();
+
+        const processed = data.docs.map(book => {
+            const result = {
+                title: book.title || null,
+                authors: book.author_name || [],
+                isbns: []
+            };
+
+            // Check for ISBN in keys
+            for (const key in book) {
+                const keyMatch = key.match(/^isbn_(\d{10,13})$/);
+                if (keyMatch) {
+                    result.isbns.push(keyMatch[1]);
+                }
+            }
+
+            // Check for ISBN in ia array
+            if (Array.isArray(book.ia)) {
+                for (const val of book.ia) {
+                    const valMatch = val.match(/^isbn_(\d{10,13})$/);
+                    if (valMatch) {
+                        result.isbns.push(valMatch[1]);
+                    }
+                }
+            }
+            // If we found any ISBNs, return the result
+            if (result.isbns.length > 0) return result;
+            else return null;
+        })
+        .filter(Boolean)
+        .slice(0, 25);
+
+        console.log("Processed search results:", processed);
+        setSearchResults(processed);
     } catch (err) {
-      console.error("Error fetching books:", err);
-    }
-  };
-
-  const handleAddSearchBook = async (item) => {
-    let detailed = {};
-    try {
-      const res = await fetch(`https://openlibrary.org${item.key}.json`);
-      detailed = await res.json();
-    } catch {
-      /* ignore */
-    }
-
-    // pick a genre if available
-    const genre =
-      detailed.subjects?.find((s) => /^[A-Za-z\s]+$/.test(s)) ?? null;
-
-    const newBook = {
-      id: Date.now().toString(),
-      title: item.title,
-      status: "wantToRead",
-      author: item.author_name?.[0] ?? null,
-      genre,
-      cover_image: item.cover_i
-        ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg`
-        : null,
-      description:
-        typeof detailed.description === "string"
-          ? detailed.description
-          : detailed.description?.value ?? null,
-      isbn: item.isbn?.[0] ?? null,
-    };
-
-    try {
-      await PutBook(newBook);
-      setBooks((prev) => [...prev, newBook]);
-      alert(`"${newBook.title}" added to your library!`);
-    } catch {
-      alert("Failed to add book.");
+        console.error("Error fetching books:", err);
     }
   };
 
@@ -156,7 +149,9 @@ export default function Bookshelf({ navigation }) {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.searchItem}
-                onPress={() => handleAddSearchBook(item)}
+                onPress={() => navigation.navigate('BookDetail', { 
+                  isbn: item.isbns.length > 0 ? item.isbns[0] : null 
+                })}
               >
                 <Text style={styles.bookTitle}>{item.title}</Text>
               </TouchableOpacity>

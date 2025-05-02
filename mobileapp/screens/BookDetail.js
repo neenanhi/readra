@@ -1,20 +1,23 @@
 import BookCard from "../components/BookCard";
 import axios from "axios";
-import {ActivityIndicator, Button, TouchableOpacity, Image, SafeAreaView, StyleSheet, Text, View} from "react-native";
+import {ActivityIndicator, Button, ScrollView, TouchableOpacity, Image, SafeAreaView, StyleSheet, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import {getCoverUrl} from "../api/openLibrary";
+
 
 async function getBookData(isbn) {
     const response = await axios({
         method: 'get',
         url: `https://openlibrary.org/search.json?q=${isbn}`
     });
-    console.log(response.data["docs"][0])
+    // console.log(response.data["docs"][0])
     return response.data["docs"][0];
 }
 
-export default function BookDetail({isbn}) {
-
+// export default function BookDetail({isbn}) {
+export default function BookDetail({route}) {
+        const { isbn } = route.params;
+      
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,45 +57,47 @@ export default function BookDetail({isbn}) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.topRow}>
-                <View style={styles.infoColumn}>
-                    <Text style={styles.title}>{book.title}</Text>
-                    <Text style={styles.author}>
-                        by {book.author_name?.[0] || "Unknown"}
-                    </Text>
-                </View>
-                <Image
-                    source={{ uri: getCoverUrl(book.cover_i) }}
-                    style={styles.cover}
-                    resizeMode="cover"
-                />
-            </View>
-
-            <Text style={styles.description}>
-                {book.description
-                    ? book.description.slice(0, 150) + "…"
-                    : "No description available."}
-            </Text>
-
-            <View style={{ width: '100%' }}>
-                <TouchableOpacity style={styles.addToLibrary} onPress={() => console.log("Tapped!")}>
-                    <Text style={{ color:'#7D819F', textAlign: 'center' }}>Add to Library</Text>
-                </TouchableOpacity>
-                {/* <View style={styles.buttonWrapper}>
-                    <Button
-                        title="Remove"
-                        onPress={() => console.log("Remove tapped")}
-                        color="#d9534f"
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.topRow}>
+                    <View style={styles.infoColumn}>
+                        <Text style={styles.title}>{book.title}</Text>
+                        <Text style={styles.author}>
+                            by {book.author_name?.[0] || "Unknown"}
+                        </Text>
+                    </View>
+                    <Image
+                        source={{ uri: getCoverUrl(book.cover_i) }}
+                        style={styles.cover}
+                        resizeMode="cover"
                     />
                 </View>
-                <View style={styles.buttonWrapper}>
-                    <Button
-                        title="Edit"
-                        onPress={() => console.log("Edit tapped")}
-                        color="#5bc0de"
-                    />
-                </View> */}
-            </View>
+
+                <Text style={styles.description}>
+                    {book.description
+                        ? book.description.slice(0, 150) + "…"
+                        : "No description available."}
+                </Text>
+
+                <View style={{ width: '100%' }}>
+                    <TouchableOpacity style={styles.addToLibrary} onPress={() => console.log("Tapped!")}>
+                        <Text style={{ color:'#7D819F', textAlign: 'center' }}>Add to Library</Text>
+                    </TouchableOpacity>
+                    {/* <View style={styles.buttonWrapper}>
+                        <Button
+                            title="Remove"
+                            onPress={() => console.log("Remove tapped")}
+                            color="#d9534f"
+                        />
+                    </View>
+                    <View style={styles.buttonWrapper}>
+                        <Button
+                            title="Edit"
+                            onPress={() => console.log("Edit tapped")}
+                            color="#5bc0de"
+                        />
+                    </View> */}
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
