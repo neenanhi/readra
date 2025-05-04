@@ -42,7 +42,6 @@ export default function BookDetail({route}) {
     const [pages, setPages] = useState(null);
     const [userBook, setUserBook] = useState(null);
 
-
     useEffect(() => {
         let mounted = true;
         setLoading(true);

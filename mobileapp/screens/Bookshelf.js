@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useLayoutEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {
     View,
@@ -102,6 +102,18 @@ export default function Bookshelf({navigation}) {
             searchBooks();
         },
     });
+
+    useLayoutEffect(() => {
+        navigation.getParent()?.setOptions({
+            tabBarStyle: {
+                borderTopLeftRadius: 30,
+                borderTopRightRadius: 30,
+                height: 80,
+                justifyContent: "center",
+                backgroundColor: "#2e3a59",
+                display: scanner ? "none" : "flex" }
+        });
+    }, [navigation, scanner]);
 
     // --- Scanner view replaces everything when active ---
     if (scanner) {
