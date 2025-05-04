@@ -134,10 +134,17 @@ const Home = ({navigation}) => {
               .single();
 
             if (quoteError) {
-              // If it's simply "no rows", supabase returns 406 (PGRST116) or similar.
-              // We only log unexpected errors.
+              // if it's simply "no rows", supabase returns 406 (PGRST116) 
+              // we only log unexpected errors
               if (quoteError.code !== 'PGRST116') {
                 console.error('Error fetching saved quote:', quoteError);
               }
               return;
             }
+
+            if (existing) {
+              // populate state with the saved values
+              setQuoteInput(existing.text);
+              setQuoteAuthor(existing.author || '');
+              setExistingQuoteId(existing.quote_id);
+            
