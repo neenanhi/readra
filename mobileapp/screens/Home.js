@@ -115,3 +115,11 @@ const Home = ({navigation}) => {
     //     getBooks();
     //     getRecent();
     // }, []);
+
+        // Fetch user's saved quote for the home screen
+        const getSavedQuote = async () => {
+          try {
+            // a) If there's no logged‐in session, do nothing
+            if (!session || !session.user) return;
+
+            const userId = session.user.id;
