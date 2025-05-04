@@ -116,10 +116,19 @@ const Home = ({navigation}) => {
     //     getRecent();
     // }, []);
 
-        // Fetch user's saved quote for the home screen
+        // ----- 2) NEW: Fetch the user's saved "Manual" quote for the home screen -----
         const getSavedQuote = async () => {
           try {
             // a) If there's no logged‐in session, do nothing
             if (!session || !session.user) return;
 
             const userId = session.user.id;
+
+            // b) Query "quotes" table for a Manual quote with no book_id
+            const { data: existing, error: quoteError } = await supabase
+              .from('quotes')
+              .select('quote_id, text, author')
+              .eq('user_id', userId)
+              .eq('source', 'Manual')
+              .is('book_id', null)
+              .single();
