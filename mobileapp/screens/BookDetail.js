@@ -12,7 +12,7 @@ import {
     View
 } from "react-native";
 import React, {useEffect, useState} from "react";
-import {getCoverUrl} from "../api/openLibrary";
+import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {supabase} from "../Supabase";
 
 
@@ -59,6 +59,7 @@ export default function BookDetail({route}) {
             .then(data => {
                 if (!mounted) return;
                 if (data) {
+                    data["isbn"] = isbn;
                     setBook(data);
                 } else {
                     setError(new Error("No book found"));
@@ -75,7 +76,38 @@ export default function BookDetail({route}) {
         };
     }, [isbn]);
 
-    console.log(pages, userBook);
+    function addBook() {
+        setLoading(true);
+        PutBook(book)
+            .then(() => {
+                supabase
+                    .from('book')
+                    .select("*")
+                    .eq("isbn", isbn).then(d => {
+                    setUserBook(d.data[0]);
+                });
+                setLoading(false);
+            });
+    }
+
+    function removeBook() {
+        setLoading(true);
+        supabase
+            .from("book")
+            .delete()
+            .eq("isbn", isbn)
+            .then(() => {
+                supabase
+                    .from('book')
+                    .select("*")
+                    .eq("isbn", isbn).then(d => {
+                    setUserBook(d.data[0]);
+                });
+                setLoading(false);
+            });
+    }
+
+    console.log(userBook);
 
     if (loading) {
         return (
@@ -91,7 +123,7 @@ export default function BookDetail({route}) {
             {/*<ScrollView contentContainerStyle={styles.scrollContent}>*/}
             <View style={styles.topRow}>
                 <View style={styles.infoColumn}>
-                    <Text style={styles.title}>{book.title} (</Text>
+                    <Text style={styles.title}>{book.title} ({pages} pages)</Text>
                     <Text style={styles.author}>
                         by {book.author_name?.[0] || "Unknown"}
                     </Text>
@@ -111,10 +143,10 @@ export default function BookDetail({route}) {
 
             <View style={{width: '100%'}}>
                 {userBook === undefined ?
-                <TouchableOpacity style={styles.addToLibrary} onPress={() => console.log("Tapped!")}>
+                <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
                     <Text style={{ color:'#7D819F', textAlign: 'center' }}>Add to Library</Text>
                 </TouchableOpacity> :
-                <TouchableOpacity style={styles.removeFromLibrary} onPress={() => console.log("Tapped!")}>
+                <TouchableOpacity style={styles.removeFromLibrary} onPress={() => removeBook()}>
                     <Text style={{ color:'#ffffff', textAlign: 'center' }}>Remove from Library</Text>
                 </TouchableOpacity>}
                 {/*<View style={styles.buttonWrapper}>*/}
