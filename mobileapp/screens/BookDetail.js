@@ -60,6 +60,7 @@ export default function BookDetail({route}) {
                 if (!mounted) return;
                 if (data) {
                     data["isbn"] = isbn;
+                    data["cover_image"] = `https://covers.openlibrary.org/b/id/${data.cover_i}-M.jpg`
                     setBook(data);
                 } else {
                     setError(new Error("No book found"));

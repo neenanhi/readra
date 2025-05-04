@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {PutBook} from "../api/openLibrary";
+import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {
     View,
     Text,
@@ -9,17 +9,14 @@ import {
     TouchableOpacity,
     Modal,
     Pressable,
-    Button,
+    Button, Image, ImageBackground,
 } from "react-native";
 import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
+import {supabase} from "../Supabase";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function Bookshelf({navigation}) {
-    const [books, setBooks] = useState([
-        {id: "1", title: "The Midnight Library", status: "read"},
-        {id: "2", title: "Circe", status: "read"},
-        {id: "3", title: "Tomorrow, and Tomorrow, and Tomorrow", status: "wantToRead"},
-        // …add your own initial items…
-    ]);
+    const [books, setBooks] = useState([]);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [newTitle, setNewTitle] = useState("");
@@ -87,6 +84,13 @@ export default function Bookshelf({navigation}) {
         setModalVisible(false);
     };
 
+    const getLibrary = async () => {
+        const b = await supabase
+            .from("book")
+            .select('*')
+        setBooks(b.data);
+    }
+
     const [scanner, setScanner] = useState(false);
     const device = useCameraDevice("back");
     const codeScanner = useCodeScanner({
@@ -112,16 +116,32 @@ export default function Bookshelf({navigation}) {
                 <TouchableOpacity style={styles.closeScanner} onPress={() => setScanner(false)}>
                     <Text style={styles.closeText}>Close Scanner</Text>
                 </TouchableOpacity>
+                <MaterialCommunityIcons
+                    name="line-scan"
+                    size={144}
+                    style={styles.scannerHelper}
+                    color="white"/>
             </View>
         );
     }
 
+    // load data from user's library
+    getLibrary();
+
     const renderBook = ({item}) => (
-        <View style={styles.bookItem}>
-            <View style={styles.bookCover}>
-                <Text style={styles.bookTitle}>{item.title}</Text>
+        <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('BookDetail', {isbn: item.isbn})}>
+            <ImageBackground
+                source={{uri: item.cover_image}}
+                style={styles.cover}
+                imageStyle={styles.coverImage}/>
+            <View style={styles.cardContent}>
+                <Text style={styles.bookTitle} numberOfLines={2}>
+                    {item.title}
+                </Text>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 
     return (
@@ -135,16 +155,21 @@ export default function Bookshelf({navigation}) {
                     onChangeText={setSearchQuery}
                     onSubmitEditing={searchBooks}
                 />
+
+                {/* Scan button */}
+                <MaterialCommunityIcons
+                    style={styles.iconButton}
+                    name="barcode-scan"
+                    size={24}
+                    color="black"
+                    onPress={() => setScanner(true)}/>
+
                 <TouchableOpacity
                     style={styles.profileButton}
-                    onPress={() => navigation.navigate("Profile")}
-                >
+                    onPress={() => navigation.navigate("Profile")}>
                     <Text style={styles.profileButtonText}>P</Text>
                 </TouchableOpacity>
             </View>
-
-            {/* Scan button */}
-            <Button title="Scan ISBN" onPress={() => setScanner(true)}/>
 
             {/* Search results */}
             {searchResults.length > 0 && (
@@ -174,7 +199,7 @@ export default function Bookshelf({navigation}) {
                 data={books}
                 keyExtractor={(item) => item.id}
                 renderItem={renderBook}
-                numColumns={4}
+                numColumns={3}
             />
 
             {/* Add‐book FAB */}
@@ -228,6 +253,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#333",
     },
+    iconButton: {
+        marginLeft: 8,
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: '#f0f0f0',
+    },
     profileButton: {
         marginLeft: 10,
         width: 40,
@@ -244,16 +275,38 @@ const styles = StyleSheet.create({
     searchResultContainer: {flex: 1},
     searchItem: {flex: 1, padding: 8, marginBottom: 20, alignItems: "center"},
 
-    bookItem: {width: "25%", paddingHorizontal: 8, marginBottom: 20, alignItems: "center"},
-    bookCover: {
-        width: "100%",
-        height: 100,
-        backgroundColor: "#ddd",
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
+    card: {
+        width: '30%',
+        margin: "1.5%",
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        overflow: 'hidden',
     },
-    bookTitle: {fontSize: 14, color: "#333", textAlign: "center"},
+    cover: {
+        width: '100%',
+        height: 150,
+    },
+    coverImage: {
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+    },
+    cardContent: {
+        padding: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    bookTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        textAlign: 'center',
+        lineHeight: 18,
+    },
 
     fab: {
         position: "absolute",
@@ -286,7 +339,12 @@ const styles = StyleSheet.create({
     cancel: {backgroundColor: "#ccc"},
     buttonText: {color: "#fff", fontSize: 16},
 
-    cameraContainer: {flex: 1},
+    cameraContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%"
+    },
     closeScanner: {
         position: "absolute",
         top: 40,
@@ -296,4 +354,10 @@ const styles = StyleSheet.create({
         borderRadius: 6,
     },
     closeText: {color: "#fff", fontSize: 16},
+    scannerHelper: {
+        transform: [
+            { scaleX: 1.5},
+            { scaleY: 1.2 }
+        ]
+    },
 });
