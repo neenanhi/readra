@@ -9,11 +9,12 @@ import {
     SafeAreaView,
     StyleSheet,
     Text,
-    View
+    View, TextInput, Pressable, Modal
 } from "react-native";
 import React, {useEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {supabase} from "../Supabase";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 
 async function getBookData(isbn) {
@@ -41,6 +42,7 @@ export default function BookDetail({route}) {
     const [error, setError] = useState(null);
     const [pages, setPages] = useState(null);
     const [userBook, setUserBook] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -143,21 +145,42 @@ export default function BookDetail({route}) {
 
             <View style={{width: '100%'}}>
                 {userBook === undefined ?
-                <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
-                    <Text style={{ color:'#7D819F', textAlign: 'center' }}>Add to Library</Text>
-                </TouchableOpacity> :
-                <TouchableOpacity style={styles.removeFromLibrary} onPress={() => removeBook()}>
-                    <Text style={{ color:'#ffffff', textAlign: 'center' }}>Remove from Library</Text>
-                </TouchableOpacity>}
-                {/*<View style={styles.buttonWrapper}>*/}
-                {/*    <Button*/}
-                {/*        title="Edit"*/}
-                {/*        onPress={() => console.log("Edit tapped")}*/}
-                {/*        color="#5bc0de"*/}
-                {/*    />*/}
-                {/*</View>*/}
+                    <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
+                        <Text style={{color: '#7D819F', textAlign: 'center'}}>Add to Library</Text>
+                    </TouchableOpacity> :
+                    <View style={styles.inLibRow}>
+                        <TouchableOpacity style={styles.removeButton} onPress={removeBook}>
+                            <Text style={styles.removeButtonText}>Remove from Library</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
+                            <FontAwesome5 name="edit" size={20} color="#7d819f" />
+                        </TouchableOpacity>
+                    </View>}
             </View>
-            {/*</ScrollView>*/}
+
+            <Modal transparent visible={modalVisible} animationType="slide">
+                <View style={styles.modalView}>
+                    <Text style={styles.modalTitle}>Edit {book.title}</Text>
+                    <TextInput
+                        placeholder="start date"
+                        style={styles.input}
+                    />
+                    <TextInput
+                        placeholder="finish date"
+                        style={styles.input}
+                    />
+                    <View style={styles.modalButtons}>
+                        <Pressable style={styles.button} onPress={addBook}>
+                            <Text style={styles.buttonText}>Save</Text>
+                        </Pressable>
+                        <Pressable
+                            style={[styles.button, styles.cancel]}
+                            onPress={() => setModalVisible(false)}>
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -230,13 +253,53 @@ const styles = StyleSheet.create({
         marginHorizontal: 'auto',
         marginBottom: 20,
     },
-    removeFromLibrary: {
+    inLibRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: 24,
+        paddingHorizontal: '5%',
+    },
+    removeButton: {
+        flex: 1,
+        height: "100%",
         backgroundColor: '#7D819F',
+        paddingVertical: 12,
+        borderRadius: 8,
+        marginRight: 12,
+    },
+    removeButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    editButton: {
+        width: 48,
+        height: 48,
+        backgroundColor: '#fff',
         borderWidth: 1,
-        padding: 15,
-        borderRadius: 10,
-        width: '80%',
-        marginHorizontal: 'auto',
-        marginBottom: 20,
-    }
+        borderColor: '#7d819f',
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    modalView: {
+        marginTop: "60%",
+        marginHorizontal: 20,
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 15,
+        shadowColor: "#000",
+        shadowOpacity: 0.25,
+        shadowOffset: {width: 0, height: 2},
+        elevation: 5,
+    },
+    modalTitle: {fontSize: 18, fontWeight: "bold", marginBottom: 10},
+    modalButtons: {flexDirection: "row", justifyContent: "space-between"},
+    button: {backgroundColor: "#7d819f", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10},
+    cancel: {backgroundColor: "#ccc"},
+    buttonText: {color: "#fff", fontSize: 16},
 });
