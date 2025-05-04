@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useState } from "react";
 import { PutBook } from "../api/openLibrary";
 import {
   View,
@@ -12,35 +12,14 @@ import {
   Button,
 } from "react-native";
 import { Camera, useCameraDevice, useCodeScanner } from "react-native-vision-camera";
-import { fetchUserBooks } from "../api/userLibrary";
-import { UserContext } from '../context/UserContext';
 
 export default function Bookshelf({ navigation }) {
-  const [books, setBooks] = useState([]);
-  const { session } = useContext(UserContext);
-  // fetchUserBooks
-  // const [books, setBooks] = useState([
-  //   { id: "1", title: "The Midnight Library", status: "read" },
-  //   { id: "2", title: "Circe", status: "read" },
-  //   { id: "3", title: "Tomorrow, and Tomorrow, and Tomorrow", status: "wantToRead" },
-  //   // …add your own initial items…
-  // ]);
-
-  useEffect(() => {
-    const getBooks = async () => {
-      try {
-        if (session?.user?.id) {
-          const userBooks = await fetchUserBooks(session.user.id);
-          setBooks(userBooks);
-        }
-      } catch (err) {
-        console.error('Error fetching books:', err);
-      }
-    }
-    getBooks();
-  }, [session]);
-
-
+  const [books, setBooks] = useState([
+    { id: "1", title: "The Midnight Library", status: "read" },
+    { id: "2", title: "Circe", status: "read" },
+    { id: "3", title: "Tomorrow, and Tomorrow, and Tomorrow", status: "wantToRead" },
+    // …add your own initial items…
+  ]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState("");
