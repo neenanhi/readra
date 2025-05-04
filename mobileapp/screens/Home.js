@@ -147,4 +147,13 @@ const Home = ({navigation}) => {
               setQuoteInput(existing.text);
               setQuoteAuthor(existing.author || '');
               setExistingQuoteId(existing.quote_id);
-            
+            }
+          } catch (err) {
+            console.error('Error in getSavedQuote:', err);
+          }
+        };
+
+        getBooks();
+        getRecent();
+        getSavedQuote();
+      }, [session]);
