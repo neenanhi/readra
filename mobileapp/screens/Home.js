@@ -116,15 +116,15 @@ const Home = ({navigation}) => {
     //     getRecent();
     // }, []);
 
-        // ----- 2) NEW: Fetch the user's saved "Manual" quote for the home screen -----
+        // fetch the user's saved manual quote for the home screen
         const getSavedQuote = async () => {
           try {
-            // a) If there's no logged‐in session, do nothing
+            // a) if there's no logged‐in session, do nothing
             if (!session || !session.user) return;
 
             const userId = session.user.id;
 
-            // b) Query "quotes" table for a Manual quote with no book_id
+            // b) query quotes table for a manual quote with no book_id
             const { data: existing, error: quoteError } = await supabase
               .from('quotes')
               .select('quote_id, text, author')
@@ -132,3 +132,12 @@ const Home = ({navigation}) => {
               .eq('source', 'Manual')
               .is('book_id', null)
               .single();
+
+            if (quoteError) {
+              // If it's simply "no rows", supabase returns 406 (PGRST116) or similar.
+              // We only log unexpected errors.
+              if (quoteError.code !== 'PGRST116') {
+                console.error('Error fetching saved quote:', quoteError);
+              }
+              return;
+            }
