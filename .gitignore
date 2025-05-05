@@ -46,3 +46,6 @@ target/
 
 # GitHub Actions
 !.github/
+
+# Android setup
+android/
