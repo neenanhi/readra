@@ -1,5 +1,5 @@
 import React, {useLayoutEffect, useState} from "react";
-import {getCoverUrl, PutBook} from "../api/openLibrary";
+import { getCoverUrl, PutBook, createBookLog } from "../api/openLibrary";
 import {
     View,
     Text,
@@ -9,30 +9,39 @@ import {
     TouchableOpacity,
     Modal,
     Pressable,
-    Button, Image, ImageBackground,
+    ImageBackground,
 } from "react-native";
-import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
+import { Camera, useCameraDevice, useCodeScanner } from "react-native-vision-camera";
 import {supabase} from "../Supabase";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Dropdown } from 'react-native-element-dropdown';
 
 export default function Bookshelf({navigation}) {
     const [books, setBooks] = useState([]);
-
     const [modalVisible, setModalVisible] = useState(false);
-    const [logBookModalVisibility, setLogBookModalVisbility] = useState(false);
-    const [newTitle, setNewTitle] = useState("");
-    const [newStatus, setNewStatus] = useState("");
-
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
-		// Test
-		const statusOptions = [
-			{ label: 'Want to read', value: 'wantToRead' },
-			{ label: 'Currently reading', value: 'currentlyReading' },
-			{ label: 'Finished reading', value: 'read' },
-		];
+		// Log Book Modal
+		const [logBookModalVisibility, setLogBookModalVisbility] = useState(false);
+    const [newTitle, setNewTitle] = useState("");
+    const [newStatus, setNewStatus] = useState("");
+		const [bookOptions, setBookOptions] = useState([]);
+		const [selectedBookId, setSelectedBookId] = useState(null);
+		const [selectedBookTitle, setSelectedBookTitle] = useState("Select a book...");
+		const [pagesRead, setPagesRead] = useState(0);
+
+		const addBookLog = () => {
+			console.log('adding a book...', selectedBookId, pagesRead);
+			const logInfo = {
+				pages: pagesRead,
+				book: selectedBookId,
+			}
+			console.log('Log info being sent:', logInfo);
+			// Create create log function
+			createBookLog(logInfo);
+			resetBookSelection();
+		}
 		
 
     // --- Normal app UI below ---
@@ -88,7 +97,14 @@ export default function Bookshelf({navigation}) {
         const book = {id: Date.now().toString(), title: newTitle, status: newStatus};
         setBooks((prev) => [...prev, book]);
         await PutBook(book);
-        setNewTitle("");
+
+				// Update dropdown options
+				setBookOptions(prev => [...prev, {
+					label: newTitle,
+					value: book.id
+				}]);
+				
+				setNewTitle("");
         setNewStatus("");
         setModalVisible(false);
     };
@@ -98,9 +114,16 @@ export default function Bookshelf({navigation}) {
             .from("book")
             .select('*')
         setBooks(b.data);
-    }
 
-    const [scanner, setScanner] = useState(false);
+				// Update book dropdown options
+				const options = b.data.map(book => ({
+					label: book.title,
+					value: book.id
+				}));
+				setBookOptions(options);
+		}
+
+		const [scanner, setScanner] = useState(false);
     const device = useCameraDevice("back");
     const codeScanner = useCodeScanner({
         codeTypes: ["ean-13"],
@@ -149,11 +172,16 @@ export default function Bookshelf({navigation}) {
     // load data from user's library
     getLibrary();
 
+		for (book in books) {
+			// console.log("book info:", book);
+		}
+
 		/** Book Logging: Reset Book Information when closing modal */
 		const resetBookSelection = () => {
-			setNewStatus("");
+		  setSelectedBookId(null);
+			setSelectedBookTitle("Select a book...");
+			setPagesRead(0);
 			setLogBookModalVisbility(false);
-			return;
 		}
 
     const renderBook = ({item}) => (
@@ -279,27 +307,39 @@ export default function Bookshelf({navigation}) {
 											placeholderStyle={styles.placeholderStyle}
 											selectedTextStyle={styles.selectedTextStyle}
 											inputSearchStyle={styles.inputSearchStyle}
-											data={statusOptions}
+											data={bookOptions}
 											search
 											maxHeight={300}
 											labelField="label"
 											valueField="value"
-											placeholder="Select a book..."
+											placeholder={selectedBookTitle}
 											searchPlaceholder="Search..."
 											value={newStatus}
 											onChange={item => {
-												setNewStatus(item.value);
+												setSelectedBookId(item.value);
+												setSelectedBookTitle(item.label);
 											}}
 										/>
+										<TextInput
+											placeholder="Enter # of pages read..."
+											onChangeText={(text) => {
+												// Remove non-numeric characters and convert to number
+												const numericValue = text.replace(/[^0-9]/g, '');
+												setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
+											}}
+											style={styles.input}
+											keyboardType="numeric"
+										/>
+
                     <View style={styles.modalButtons}>
-                        <Pressable style={styles.button} onPress={addBook}>
+                        <Pressable style={styles.button} onPress={addBookLog}>
                             <Text style={styles.buttonText}>Log</Text>
                         </Pressable>
                         <Pressable
                             style={[styles.button, styles.cancel]}
                             onPress={() => setLogBookModalVisbility(false)}
                         >
-                            <Text style={styles.buttonText} onPress={() => resetBookSelection()}>Cancel</Text>
+                        	<Text style={styles.buttonText} onPress={() => resetBookSelection()}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -312,7 +352,6 @@ const styles = StyleSheet.create({
     container: {flex: 1, paddingTop: 60, paddingHorizontal: 20, backgroundColor: "#fff"},
     searchBarContainer: {flexDirection: "row", alignItems: "center", marginBottom: 15},
     input: {
-        flex: 1,
         height: 40,
         borderWidth: 1,
         borderColor: "#ccc",

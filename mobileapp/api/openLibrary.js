@@ -73,3 +73,40 @@ export async function PutBook(book) {
   }
   return data;
 }
+
+
+/** Add a new entry to the log book dropdown menu
+  * 
+  * @param {[string]} bookId
+	* Book's unique identifier
+  * 
+	* @param {[string]} pagesRead
+	* Number of pages user has read, in regards to the bookId 
+  * 
+  * 
+*/
+export async function createBookLog(log) {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    console.error('No logged-in user.');
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('logs')
+    .insert([{
+      pages: log.pages || 0,
+      book: log.book || null,
+      user: user.id
+    }]);
+
+  if (error) {
+    console.error('Supabase insert error:', error.message);
+    return null;
+  }
+  return data;
+}
