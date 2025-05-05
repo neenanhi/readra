@@ -19,6 +19,7 @@ export default function Bookshelf({navigation}) {
     const [books, setBooks] = useState([]);
 
     const [modalVisible, setModalVisible] = useState(false);
+    const [logBookModalVisibility, setLogBookModalVisbility] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newStatus, setNewStatus] = useState("");
 
@@ -219,6 +220,10 @@ export default function Bookshelf({navigation}) {
                 <Text style={styles.fabText}>＋</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity style={styles.button} onPress={() => setLogBookModalVisbility(true)}>
+                    <Text style={styles.buttonText}>Log a book</Text>
+            </TouchableOpacity>
+
             {/* Add‐book Modal */}
             <Modal transparent visible={modalVisible} animationType="slide">
                 <View style={styles.modalView}>
@@ -242,6 +247,36 @@ export default function Bookshelf({navigation}) {
                         <Pressable
                             style={[styles.button, styles.cancel]}
                             onPress={() => setModalVisible(false)}
+                        >
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Log a book modal */}
+            <Modal transparent visible={logBookModalVisibility} animationType="slide">
+                <View style={styles.modalView}>
+                    <Text style={styles.modalTitle}>Log a book</Text>
+                    <TextInput
+                        placeholder="Title"
+                        style={styles.input}
+                        value={newTitle}
+                        onChangeText={setNewTitle}
+                    />
+                    <TextInput
+                        placeholder="Status (read or wantToRead)"
+                        style={styles.input}
+                        value={newStatus}
+                        onChangeText={setNewStatus}
+                    />
+                    <View style={styles.modalButtons}>
+                        <Pressable style={styles.button} onPress={addBook}>
+                            <Text style={styles.buttonText}>Add</Text>
+                        </Pressable>
+                        <Pressable
+                            style={[styles.button, styles.cancel]}
+                            onPress={() => setLogBookModalVisbility(false)}
                         >
                             <Text style={styles.buttonText}>Cancel</Text>
                         </Pressable>
