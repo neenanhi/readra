@@ -14,6 +14,7 @@ import {
 import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
 import {supabase} from "../Supabase";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Dropdown } from 'react-native-element-dropdown';
 
 export default function Bookshelf({navigation}) {
     const [books, setBooks] = useState([]);
@@ -26,6 +27,13 @@ export default function Bookshelf({navigation}) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
+		// Test
+		const statusOptions = [
+			{ label: 'Want to read', value: 'wantToRead' },
+			{ label: 'Currently reading', value: 'currentlyReading' },
+			{ label: 'Finished reading', value: 'read' },
+		];
+		
 
     // --- Normal app UI below ---
     const searchBooks = async () => {
@@ -140,6 +148,13 @@ export default function Bookshelf({navigation}) {
 
     // load data from user's library
     getLibrary();
+
+		/** Book Logging: Reset Book Information when closing modal */
+		const resetBookSelection = () => {
+			setNewStatus("");
+			setLogBookModalVisbility(false);
+			return;
+		}
 
     const renderBook = ({item}) => (
         <TouchableOpacity
@@ -258,27 +273,33 @@ export default function Bookshelf({navigation}) {
             <Modal transparent visible={logBookModalVisibility} animationType="slide">
                 <View style={styles.modalView}>
                     <Text style={styles.modalTitle}>Log a book</Text>
-                    <TextInput
-                        placeholder="Title"
-                        style={styles.input}
-                        value={newTitle}
-                        onChangeText={setNewTitle}
-                    />
-                    <TextInput
-                        placeholder="Status (read or wantToRead)"
-                        style={styles.input}
-                        value={newStatus}
-                        onChangeText={setNewStatus}
-                    />
+										{/* Replace the Status TextInput with this Dropdown */}
+										<Dropdown
+											style={styles.dropdown}
+											placeholderStyle={styles.placeholderStyle}
+											selectedTextStyle={styles.selectedTextStyle}
+											inputSearchStyle={styles.inputSearchStyle}
+											data={statusOptions}
+											search
+											maxHeight={300}
+											labelField="label"
+											valueField="value"
+											placeholder="Select a book..."
+											searchPlaceholder="Search..."
+											value={newStatus}
+											onChange={item => {
+												setNewStatus(item.value);
+											}}
+										/>
                     <View style={styles.modalButtons}>
                         <Pressable style={styles.button} onPress={addBook}>
-                            <Text style={styles.buttonText}>Add</Text>
+                            <Text style={styles.buttonText}>Log</Text>
                         </Pressable>
                         <Pressable
                             style={[styles.button, styles.cancel]}
                             onPress={() => setLogBookModalVisbility(false)}
                         >
-                            <Text style={styles.buttonText}>Cancel</Text>
+                            <Text style={styles.buttonText} onPress={() => resetBookSelection()}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -407,4 +428,24 @@ const styles = StyleSheet.create({
             { scaleY: 1.2 }
         ]
     },
+		dropdown: {
+			height: 40,
+			borderWidth: 1,
+			borderColor: '#ccc',
+			borderRadius: 10,
+			paddingHorizontal: 10,
+			marginBottom: 15,
+		},
+		placeholderStyle: {
+			fontSize: 16,
+			color: '#999',
+		},
+		selectedTextStyle: {
+			fontSize: 16,
+			color: '#333',
+		},
+		inputSearchStyle: {
+			height: 40,
+			fontSize: 16,
+		},		
 });
