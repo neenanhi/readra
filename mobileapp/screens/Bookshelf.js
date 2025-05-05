@@ -325,6 +325,7 @@ export default function Bookshelf({navigation}) {
 											onChangeText={(text) => {
 												// Remove non-numeric characters and convert to number
 												const numericValue = text.replace(/[^0-9]/g, '');
+												// Sets pages read to 
 												setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
 											}}
 											style={styles.input}
