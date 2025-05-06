@@ -59,6 +59,9 @@ export default function BookDetail({route}) {
             .select("*")
             .eq("isbn", isbn).then(d => {
             setUserBook(d.data[0]);
+        }).then(() => {
+            setEndDate(new Date(userBook["date_finished"]));
+            setStartDate(new Date(userBook["date_started"]));
         });
         getPages(isbn).then(data => {
             setPages(data);
@@ -116,7 +119,18 @@ export default function BookDetail({route}) {
             });
     }
 
-    console.log(userBook);
+    function updateBook() {
+        setLoading(true);
+        supabase
+            .from("book")
+            .update({date_started: startDate, date_finished: endDate})
+            .eq("isbn", isbn)
+            .then(() => {
+                setLoading(false);
+            });
+    }
+
+    console.log(userBook, startDate, endDate);
 
     if (loading) {
         return (
@@ -204,6 +218,7 @@ export default function BookDetail({route}) {
 
                         <View style={styles.modalButtons}>
                             <Pressable style={styles.button} onPress={() => {
+                                updateBook();
                                 setModalVisible(false);
                             }}>
                                 <Text style={styles.buttonText}>Save</Text>
