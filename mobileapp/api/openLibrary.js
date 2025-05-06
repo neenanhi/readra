@@ -112,8 +112,6 @@ export async function getLogData() {
       return null;
     }
 
-    console.log('data', data);
-
     /** Update logData based on user's log data */
     logData['logs'] = data;
     logData['mostPagesLog'] = data[0];

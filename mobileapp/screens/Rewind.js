@@ -17,7 +17,8 @@ const Rewind = () => {
     fetchData();
   }, []);
 
-  const displayLogInfo = () => {
+  /** Displays a user's individual logs */
+  const displayLogs = () => {
     if (!(logData.logs)) {
       return <Text>No logs found</Text>
     }
@@ -31,26 +32,30 @@ const Rewind = () => {
     );
   }
 
+  /** Format date */
+  const mostPagesLogDate = () => {
+    if (!logData.mostPagesLog?.created_at) return "No date available";
+    
+    const date = new Date(logData.mostPagesLog.created_at);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.profileText}>Rewind</Text>
-      
-      <Text>Total Pages Read: {logData.totalPagesRead}</Text>
-      
-      {logData.logs.length > 0 ? (
-        logData.logs.map((log, index) => (
-          <Text key={index}>
-            Book {index + 1}: {log.pages} pages
-          </Text>
-        ))
-      ) : (
-        <Text>No logs found</Text>
-      )}
+      <Text>You have read a total of { logData.totalPagesRead } across all books</Text>
+      <Text>Your most active day was { mostPagesLogDate() }, where you read { logData?.mostPagesLog?.pages || 'unknown'} pages</Text>
+      {/* Function below displays all user log information */}
+      {/* { displayLogs() } */}
     </View>
   );
 };
 
-// ... (keep your existing styles)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
