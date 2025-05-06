@@ -15,6 +15,7 @@ import React, {useEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {supabase} from "../Supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 
 async function getBookData(isbn) {
@@ -44,6 +45,12 @@ export default function BookDetail({route}) {
     const [userBook, setUserBook] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
 
+    // Date pickers state
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [showStartPicker, setShowStartPicker] = useState(false);
+    const [showEndPicker, setShowEndPicker] = useState(false);
+
     useEffect(() => {
         let mounted = true;
         setLoading(true);
@@ -52,6 +59,9 @@ export default function BookDetail({route}) {
             .select("*")
             .eq("isbn", isbn).then(d => {
             setUserBook(d.data[0]);
+        }).then(() => {
+            setEndDate(new Date(userBook["date_finished"]));
+            setStartDate(new Date(userBook["date_started"]));
         });
         getPages(isbn).then(data => {
             setPages(data);
@@ -109,7 +119,18 @@ export default function BookDetail({route}) {
             });
     }
 
-    console.log(userBook);
+    function updateBook() {
+        setLoading(true);
+        supabase
+            .from("book")
+            .update({date_started: startDate, date_finished: endDate})
+            .eq("isbn", isbn)
+            .then(() => {
+                setLoading(false);
+            });
+    }
+
+    console.log(userBook, startDate, endDate);
 
     if (loading) {
         return (
@@ -153,34 +174,63 @@ export default function BookDetail({route}) {
                             <Text style={styles.removeButtonText}>Remove from Library</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
-                            <FontAwesome5 name="edit" size={20} color="#7d819f" />
+                            <FontAwesome5 name="edit" size={20} color="#7d819f"/>
                         </TouchableOpacity>
                     </View>}
             </View>
 
             <Modal transparent visible={modalVisible} animationType="slide">
-                <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Edit {book.title}</Text>
-                    <TextInput
-                        placeholder="start date"
-                        style={styles.input}
-                    />
-                    <TextInput
-                        placeholder="finish date"
-                        style={styles.input}
-                    />
-                    <View style={styles.modalButtons}>
-                        <Pressable style={styles.button} onPress={addBook}>
-                            <Text style={styles.buttonText}>Save</Text>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalTitle}>Edit Dates</Text>
+
+                        <Pressable onPress={() => {
+                            setShowStartPicker(true);
+                            console.log("pressed")
+                        }} style={styles.dateField}>
+                            <Text style={styles.dateFieldText}>Start: {startDate.toLocaleDateString()}</Text>
                         </Pressable>
-                        <Pressable
-                            style={[styles.button, styles.cancel]}
-                            onPress={() => setModalVisible(false)}>
-                            <Text style={styles.buttonText}>Cancel</Text>
+                        <DateTimePickerModal
+                            isVisible={showStartPicker}
+                            mode="date"
+                            onConfirm={date => {
+                                setStartDate(date);
+                                setShowStartPicker(false);
+                            }}
+                            onCancel={() => setShowStartPicker(false)}
+                            headerTextIOS="Select start date"
+                        />
+
+                        <Pressable onPress={() => setShowEndPicker(true)} style={styles.dateField}>
+                            <Text style={styles.dateFieldText}>Finish: {endDate.toLocaleDateString()}</Text>
                         </Pressable>
+                        <DateTimePickerModal
+                            isVisible={showEndPicker}
+                            mode="date"
+                            onConfirm={date => {
+                                setEndDate(date);
+                                setShowEndPicker(false);
+                            }}
+                            onCancel={() => setShowEndPicker(false)}
+                            headerTextIOS="Select finish date"
+                        />
+
+
+                        <View style={styles.modalButtons}>
+                            <Pressable style={styles.button} onPress={() => {
+                                updateBook();
+                                setModalVisible(false);
+                            }}>
+                                <Text style={styles.buttonText}>Save</Text>
+                            </Pressable>
+                            <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
+                                <Text style={styles.buttonText}>Cancel</Text>
+                            </Pressable>
+                        </View>
                     </View>
                 </View>
             </Modal>
+
         </SafeAreaView>
     );
 }
@@ -286,20 +336,56 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     modalView: {
-        marginTop: "60%",
-        marginHorizontal: 20,
-        backgroundColor: "#fff",
+        width: '80%',
+        backgroundColor: '#fff',
         padding: 20,
         borderRadius: 15,
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOpacity: 0.25,
         shadowOffset: {width: 0, height: 2},
         elevation: 5,
     },
-    modalTitle: {fontSize: 18, fontWeight: "bold", marginBottom: 10},
-    modalButtons: {flexDirection: "row", justifyContent: "space-between"},
-    button: {backgroundColor: "#7d819f", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10},
-    cancel: {backgroundColor: "#ccc"},
-    buttonText: {color: "#fff", fontSize: 16},
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    dateField: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 12,
+    },
+    dateFieldText: {
+        fontSize: 16,
+        color: '#333',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 16,
+    },
+    button: {
+        backgroundColor: '#7d819f',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+    cancel: {
+        backgroundColor: '#ccc',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
 });
