@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
-import { getLogData } from "../api/openLibrary";
+import { getLogData } from "../api/logData";
 
 const Rewind = () => {
   const [logData, setLogData] = useState({

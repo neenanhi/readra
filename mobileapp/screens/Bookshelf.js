@@ -1,5 +1,6 @@
 import React, {useLayoutEffect, useState} from "react";
-import { getCoverUrl, PutBook, createBookLog } from "../api/openLibrary";
+import { PutBook } from "../api/openLibrary";
+import { createBookLog } from "../api/logData";
 import {
     View,
     Text,
@@ -22,26 +23,26 @@ export default function Bookshelf({navigation}) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
 
-		// Log Book Modal
-		const [logBookModalVisibility, setLogBookModalVisbility] = useState(false);
+	// Log Book Modal
+	const [logBookModalVisibility, setLogBookModalVisbility] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newStatus, setNewStatus] = useState("");
-		const [bookOptions, setBookOptions] = useState([]);
-		const [selectedBookId, setSelectedBookId] = useState(null);
-		const [selectedBookTitle, setSelectedBookTitle] = useState("Select a book...");
-		const [pagesRead, setPagesRead] = useState(0);
+	const [bookOptions, setBookOptions] = useState([]);
+	const [selectedBookId, setSelectedBookId] = useState(null);
+	const [selectedBookTitle, setSelectedBookTitle] = useState("Select a book...");
+	const [pagesRead, setPagesRead] = useState(0);
 
-		const addBookLog = () => {
-			console.log('adding a book...', selectedBookId, pagesRead);
-			const logInfo = {
-				pages: pagesRead,
-				book: selectedBookId,
-			}
-			console.log('Log info being sent:', logInfo);
-			// Create create log function
-			createBookLog(logInfo);
-			resetBookSelection();
+	const addBookLog = () => {
+		console.log('adding a book...', selectedBookId, pagesRead);
+		const logInfo = {
+			pages: pagesRead,
+			book: selectedBookId,
 		}
+		console.log('Log info being sent:', logInfo);
+		// Create create log function
+		createBookLog(logInfo);
+		resetBookSelection();
+	}
 		
 
     // --- Normal app UI below ---
