@@ -16,6 +16,7 @@ import { Camera, useCameraDevice, useCodeScanner } from "react-native-vision-cam
 import {supabase} from "../Supabase";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Dropdown } from 'react-native-element-dropdown';
+import { BookshelfStyles } from "../styles/BookshelfStyles";
 
 export default function Bookshelf({navigation}) {
     const [books, setBooks] = useState([]);
@@ -39,7 +40,6 @@ export default function Bookshelf({navigation}) {
 			book: selectedBookId,
 		}
 		console.log('Log info being sent:', logInfo);
-		// Create create log function
 		createBookLog(logInfo);
 		resetBookSelection();
 	}
@@ -116,16 +116,17 @@ export default function Bookshelf({navigation}) {
             .select('*')
         setBooks(b.data);
 
-				// Update book dropdown options
-				const options = b.data.map(book => ({
-					label: book.title,
-					value: book.id
-				}));
-				setBookOptions(options);
-		}
+		// Update book dropdown options
+		const options = b.data.map(book => ({
+			label: book.title,
+			value: book.id
+		}));
+		setBookOptions(options);
+	}
 
-		const [scanner, setScanner] = useState(false);
+	const [scanner, setScanner] = useState(false);
     const device = useCameraDevice("back");
+    
     const codeScanner = useCodeScanner({
         codeTypes: ["ean-13"],
         onCodeScanned: (codes) => {
@@ -151,20 +152,20 @@ export default function Bookshelf({navigation}) {
     // --- Scanner view replaces everything when active ---
     if (scanner) {
         return (
-            <View style={styles.cameraContainer}>
+            <View style={BookshelfStyles.cameraContainer}>
                 <Camera
                     style={StyleSheet.absoluteFill}
                     device={device}
                     isActive={true}
                     codeScanner={codeScanner}
                 />
-                <TouchableOpacity style={styles.closeScanner} onPress={() => setScanner(false)}>
-                    <Text style={styles.closeText}>Close Scanner</Text>
+                <TouchableOpacity style={BookshelfStyles.closeScanner} onPress={() => setScanner(false)}>
+                    <Text style={BookshelfStyles.closeText}>Close Scanner</Text>
                 </TouchableOpacity>
                 <MaterialCommunityIcons
                     name="line-scan"
                     size={144}
-                    style={styles.scannerHelper}
+                    style={BookshelfStyles.scannerHelper}
                     color="white"/>
             </View>
         );
@@ -173,28 +174,25 @@ export default function Bookshelf({navigation}) {
     // load data from user's library
     getLibrary();
 
-		for (book in books) {
-			// console.log("book info:", book);
-		}
-
-		/** Book Logging: Reset Book Information when closing modal */
-		const resetBookSelection = () => {
-		  setSelectedBookId(null);
-			setSelectedBookTitle("Select a book...");
-			setPagesRead(0);
-			setLogBookModalVisbility(false);
-		}
+	/** Book Logging: Reset Book Information when closing modal */
+	const resetBookSelection = () => {
+		setSelectedBookId(null);
+		setSelectedBookTitle("Select a book...");
+		setPagesRead(0);
+		setLogBookModalVisbility(false);
+	}
 
     const renderBook = ({item}) => (
         <TouchableOpacity
-            style={styles.card}
+            style={BookshelfStyles.card}
             onPress={() => navigation.navigate('BookDetail', {isbn: item.isbn})}>
             <ImageBackground
                 source={{uri: item.cover_image}}
-                style={styles.cover}
-                imageStyle={styles.coverImage}/>
-            <View style={styles.cardContent}>
-                <Text style={styles.bookTitle} numberOfLines={2}>
+                style={BookshelfStyles.cover}
+                imageStyle={BookshelfStyles.coverImage}
+            />
+            <View style={BookshelfStyles.cardContent}>
+                <Text style={BookshelfStyles.bookTitle} numberOfLines={2}>
                     {item.title}
                 </Text>
             </View>
@@ -202,12 +200,12 @@ export default function Bookshelf({navigation}) {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={BookshelfStyles.container}>
             {/* Search + Profile */}
-            <View style={styles.searchBarContainer}>
+            <View style={BookshelfStyles.searchBarContainer}>
                 <TextInput
                     placeholder="Search for books..."
-                    style={styles.input}
+                    style={BookshelfStyles.input}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     onSubmitEditing={searchBooks}
@@ -215,34 +213,34 @@ export default function Bookshelf({navigation}) {
 
                 {/* Scan button */}
                 <MaterialCommunityIcons
-                    style={styles.iconButton}
+                    style={BookshelfStyles.iconButton}
                     name="barcode-scan"
                     size={24}
                     color="black"
                     onPress={() => setScanner(true)}/>
 
                 <TouchableOpacity
-                    style={styles.profileButton}
+                    style={BookshelfStyles.profileButton}
                     onPress={() => navigation.navigate("Profile")}>
-                    <Text style={styles.profileButtonText}>P</Text>
+                    <Text style={BookshelfStyles.profileButtonText}>P</Text>
                 </TouchableOpacity>
             </View>
 
             {/* Search results */}
-            {searchResults.length > 0 && (
-                <View style={styles.searchResultContainer}>
-                    <Text style={styles.heading}>Search Results</Text>
+            { searchResults.length > 0 && (
+                <View style={BookshelfStyles.searchResultContainer}>
+                    <Text style={BookshelfStyles.heading}>Search Results</Text>
                     <FlatList
                         data={searchResults}
                         keyExtractor={(item, i) => item.key || i.toString()}
                         renderItem={({item}) => (
                             <TouchableOpacity
-                                style={styles.searchItem}
+                                style={BookshelfStyles.searchItem}
                                 onPress={() => navigation.navigate('BookDetail', {
                                     isbn: item.isbns.length > 0 ? item.isbns[0] : null
                                 })}
                             >
-                                <Text style={styles.bookTitle}>{item.title}</Text>
+                                <Text style={BookshelfStyles.bookTitle}>{item.title}</Text>
                             </TouchableOpacity>
                         )}
                         numColumns={4}
@@ -251,7 +249,7 @@ export default function Bookshelf({navigation}) {
             )}
 
             {/* Your library */}
-            <Text style={styles.heading}>Your Library</Text>
+            <Text style={BookshelfStyles.heading}>Your Library</Text>
             <FlatList
                 data={books}
                 keyExtractor={(item) => item.id}
@@ -260,39 +258,39 @@ export default function Bookshelf({navigation}) {
             />
 
             {/* Add‐book FAB */}
-            <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
-                <Text style={styles.fabText}>＋</Text>
+            <TouchableOpacity style={BookshelfStyles.fab} onPress={() => setModalVisible(true)}>
+                <Text style={BookshelfStyles.fabText}>＋</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={() => setLogBookModalVisbility(true)}>
-                    <Text style={styles.buttonText}>Log a book</Text>
+            <TouchableOpacity style={BookshelfStyles.button} onPress={() => setLogBookModalVisbility(true)}>
+                    <Text style={BookshelfStyles.buttonText}>Log a book</Text>
             </TouchableOpacity>
 
             {/* Add‐book Modal */}
             <Modal transparent visible={modalVisible} animationType="slide">
-                <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Add a Book</Text>
+                <View style={BookshelfStyles.modalView}>
+                    <Text style={BookshelfStyles.modalTitle}>Add a Book</Text>
                     <TextInput
                         placeholder="Title"
-                        style={styles.input}
+                        style={BookshelfStyles.input}
                         value={newTitle}
                         onChangeText={setNewTitle}
                     />
                     <TextInput
                         placeholder="Status (read or wantToRead)"
-                        style={styles.input}
+                        style={BookshelfStyles.input}
                         value={newStatus}
                         onChangeText={setNewStatus}
                     />
-                    <View style={styles.modalButtons}>
-                        <Pressable style={styles.button} onPress={addBook}>
-                            <Text style={styles.buttonText}>Add</Text>
+                    <View style={BookshelfStyles.modalButtons}>
+                        <Pressable style={BookshelfStyles.button} onPress={addBook}>
+                            <Text style={BookshelfStyles.buttonText}>Add</Text>
                         </Pressable>
                         <Pressable
-                            style={[styles.button, styles.cancel]}
+                            style={[BookshelfStyles.button, BookshelfStyles.cancel]}
                             onPress={() => setModalVisible(false)}
                         >
-                            <Text style={styles.buttonText}>Cancel</Text>
+                            <Text style={BookshelfStyles.buttonText}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -300,193 +298,49 @@ export default function Bookshelf({navigation}) {
 
             {/* Log a book modal */}
             <Modal transparent visible={logBookModalVisibility} animationType="slide">
-                <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Log a book</Text>
-										{/* Replace the Status TextInput with this Dropdown */}
-										<Dropdown
-											style={styles.dropdown}
-											placeholderStyle={styles.placeholderStyle}
-											selectedTextStyle={styles.selectedTextStyle}
-											inputSearchStyle={styles.inputSearchStyle}
-											data={bookOptions}
-											search
-											maxHeight={300}
-											labelField="label"
-											valueField="value"
-											placeholder={selectedBookTitle}
-											searchPlaceholder="Search..."
-											value={newStatus}
-											onChange={item => {
-												setSelectedBookId(item.value);
-												setSelectedBookTitle(item.label);
-											}}
-										/>
-										<TextInput
-											placeholder="Enter # of pages read..."
-											onChangeText={(text) => {
-												// Remove non-numeric characters and convert to number
-												const numericValue = text.replace(/[^0-9]/g, '');
-												// Sets pages read to 
-												setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
-											}}
-											style={styles.input}
-											keyboardType="numeric"
-										/>
-
-                    <View style={styles.modalButtons}>
-                        <Pressable style={styles.button} onPress={addBookLog}>
-                            <Text style={styles.buttonText}>Log</Text>
+                <View style={BookshelfStyles.modalView}>
+                    <Text style={BookshelfStyles.modalTitle}>Log a book</Text>
+					{/* Replace the Status TextInput with this Dropdown */}
+					<Dropdown
+						style={BookshelfStyles.dropdown}
+						placeholderStyle={BookshelfStyles.placeholderStyle}
+						selectedTextStyle={BookshelfStyles.selectedTextStyle}
+	    				inputSearchStyle={BookshelfStyles.inputSearchStyle}
+						data={bookOptions}
+						search
+						maxHeight={300}
+						labelField="label"
+					    valueField="value"
+					    placeholder={selectedBookTitle}
+						searchPlaceholder="Search..."
+						value={newStatus}
+						onChange={item => {
+							setSelectedBookId(item.value);
+							setSelectedBookTitle(item.label);
+						}}
+					/>
+					<TextInput
+						placeholder="Enter # of pages read..."
+		    			onChangeText={(text) => {
+                            // Remove non-numeric characters and convert to number
+                            const numericValue = text.replace(/[^0-9]/g, '');
+                            // Sets pages read to 
+                            setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
+					    }}
+						style={BookshelfStyles.input}
+						keyboardType="numeric"
+					/>
+                    {/* Buttons */}
+                    <View style={BookshelfStyles.modalButtons}>
+                        <Pressable style={BookshelfStyles.button} onPress={addBookLog}>
+                            <Text style={BookshelfStyles.buttonText}>Log</Text>
                         </Pressable>
-                        <Pressable
-                            style={[styles.button, styles.cancel]}
-                            onPress={() => setLogBookModalVisbility(false)}
-                        >
-                        	<Text style={styles.buttonText} onPress={() => resetBookSelection()}>Cancel</Text>
+                        <Pressable style={BookshelfStyles.button} onPress={() => setLogBookModalVisbility(false)}>
+                        	<Text style={BookshelfStyles.buttonText} onPress={() => resetBookSelection()}>Cancel</Text>
                         </Pressable>
                     </View>
                 </View>
             </Modal>
         </View>
     );
-}
-
-const styles = StyleSheet.create({
-    container: {flex: 1, paddingTop: 60, paddingHorizontal: 20, backgroundColor: "#fff"},
-    searchBarContainer: {flexDirection: "row", alignItems: "center", marginBottom: 15},
-    input: {
-        height: 40,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 10,
-        paddingHorizontal: 10,
-        fontSize: 16,
-        color: "#333",
-    },
-    iconButton: {
-        marginLeft: 8,
-        padding: 8,
-        borderRadius: 8,
-        backgroundColor: '#f0f0f0',
-    },
-    profileButton: {
-        marginLeft: 10,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "#7d819f",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    profileButtonText: {color: "#fff", fontSize: 16},
-
-    heading: {fontSize: 20, fontWeight: "bold", marginVertical: 10, paddingHorizontal: 10},
-
-    searchResultContainer: {flex: 1},
-    searchItem: {flex: 1, padding: 8, marginBottom: 20, alignItems: "center"},
-
-    card: {
-        width: '30%',
-        margin: "1.5%",
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        overflow: 'hidden',
-    },
-    cover: {
-        width: '100%',
-        height: 150,
-    },
-    coverImage: {
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
-    },
-    cardContent: {
-        padding: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    bookTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        textAlign: 'center',
-        lineHeight: 18,
-    },
-
-    fab: {
-        position: "absolute",
-        right: 30,
-        bottom: 40,
-        backgroundColor: "#7d819f",
-        borderRadius: 50,
-        width: 60,
-        height: 60,
-        justifyContent: "center",
-        alignItems: "center",
-        elevation: 5,
-    },
-    fabText: {color: "#fff", fontSize: 30, marginTop: -2},
-
-    modalView: {
-        marginTop: "60%",
-        marginHorizontal: 20,
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 15,
-        shadowColor: "#000",
-        shadowOpacity: 0.25,
-        shadowOffset: {width: 0, height: 2},
-        elevation: 5,
-    },
-    modalTitle: {fontSize: 18, fontWeight: "bold", marginBottom: 10},
-    modalButtons: {flexDirection: "row", justifyContent: "space-between"},
-    button: {backgroundColor: "#7d819f", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10},
-    cancel: {backgroundColor: "#ccc"},
-    buttonText: {color: "#fff", fontSize: 16},
-
-    cameraContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%"
-    },
-    closeScanner: {
-        position: "absolute",
-        top: 40,
-        left: 20,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        padding: 10,
-        borderRadius: 6,
-    },
-    closeText: {color: "#fff", fontSize: 16},
-    scannerHelper: {
-        transform: [
-            { scaleX: 1.5},
-            { scaleY: 1.2 }
-        ]
-    },
-		dropdown: {
-			height: 40,
-			borderWidth: 1,
-			borderColor: '#ccc',
-			borderRadius: 10,
-			paddingHorizontal: 10,
-			marginBottom: 15,
-		},
-		placeholderStyle: {
-			fontSize: 16,
-			color: '#999',
-		},
-		selectedTextStyle: {
-			fontSize: 16,
-			color: '#333',
-		},
-		inputSearchStyle: {
-			height: 40,
-			fontSize: 16,
-		},		
-});
+};
