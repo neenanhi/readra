@@ -34,16 +34,9 @@ export default function Bookshelf({navigation}) {
 	const [pagesRead, setPagesRead] = useState(0);
 
 	const addBookLog = () => {
-		console.log('adding a book...', selectedBookId, pagesRead);
-		const logInfo = {
-			pages: pagesRead,
-			book: selectedBookId,
-		}
-		console.log('Log info being sent:', logInfo);
-		createBookLog(logInfo);
+		createBookLog(pagesRead, selectedBookId);
 		resetBookSelection();
 	}
-		
 
     // --- Normal app UI below ---
     const searchBooks = async () => {

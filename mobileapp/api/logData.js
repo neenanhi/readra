@@ -5,7 +5,7 @@ import { supabase } from "../Supabase";
   * @param {logInfo[string]} bookId    - Book's unique identifier
 	* @param {logInfo[string]} pagesRead - Number of pages user has read, in regards to the bookId 
 */
-export async function createBookLog(log) {
+export async function createBookLog(pagesRead, bookId) {
   const {
     data: { user },
     error: userError,
@@ -19,8 +19,8 @@ export async function createBookLog(log) {
   const { data, error } = await supabase
     .from('logs')
     .insert([{
-      pages: log.pages || 0,
-      book: log.book || null,
+      pages: pagesRead || 0,
+      book: bookId || null,
       user: user.id
     }]);
 
@@ -41,7 +41,7 @@ export async function createBookLog(log) {
 export async function getLogData() {
   try {
     /** Create new log data object. */
-    logData = { logs: [], totalPagesRead: 0, mostPagesLog: 0}
+    logData = { logs: [], totalPagesRead: 0, mostPagesLog: null}
     
     const {
       data: { user },
