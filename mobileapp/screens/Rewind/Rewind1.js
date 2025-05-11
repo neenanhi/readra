@@ -190,3 +190,11 @@ export default function Rewind1({ onNext }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const raf = useRef(null);
   const start = useRef(0);
+
+  useEffect(() => {
+    // Fade in the overlay UI over 400ms
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
