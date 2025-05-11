@@ -67,3 +67,51 @@ const Home = ({navigation}) => {
         console.error('Error saving quote:', err);
       }
     };
+
+    // =====================
+    // Book Fetching
+    // useEffect runs when Home first appears on screen
+    // async function fetchBooks fetches data from the OpenLib API
+    // async to use await, pausing until data is fetched
+    // =====================
+    useEffect(() => {
+        const getBooks = async () => {
+            try {
+                const books = await fetchBooks();
+                // rerender Home with fetched books
+                setBooks(books);
+            } catch (err) {
+                console.error('Error fetching books:', err);
+            } finally {
+                // stop loading spinner once books are fetched
+                setLoading(false);
+            }
+        }
+        const getRecent = async () => {
+            try {
+                const {data, error} = await supabase
+                    .from('book')
+                    .select('*')
+                    .order('created_at', {ascending: false})
+                    .limit(1)
+                if (error) throw error
+                // console.log(data)
+                // need to edit as a json instead of list
+                setRecent(
+                    data.map(book => ({
+                      ...book,
+                      author: Array.isArray(book.author)
+                        ? book.author.join(", ")
+                        : typeof book.author === "string" && book.author.startsWith("[")
+                        ? JSON.parse(book.author).join(", ")
+                        : book.author,
+                    }))
+                  );
+
+            } catch (err) {
+                console.error('Error fetching recent books:', err)
+            }
+        };
+    //     getBooks();
+    //     getRecent();
+    // }, []);
