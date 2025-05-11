@@ -61,3 +61,9 @@ const Home = ({navigation}) => {
         if (!existingQuoteId && result.data?.quote_id) {
           setExistingQuoteId(result.data.quote_id);
         }
+
+        setIsEditingQuote(false);
+      } catch (err) {
+        console.error('Error saving quote:', err);
+      }
+    };
