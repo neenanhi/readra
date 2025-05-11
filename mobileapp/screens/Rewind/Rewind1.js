@@ -241,3 +241,13 @@ export default function Rewind1({ onNext }) {
     if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
       console.warn("Fragment shader compile error:", gl.getShaderInfoLog(fs));
     }
+
+    // Link program
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.warn("Program link error:", gl.getProgramInfoLog(program));
+    }
+    gl.useProgram(program);
