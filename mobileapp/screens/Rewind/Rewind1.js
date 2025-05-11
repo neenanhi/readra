@@ -198,3 +198,11 @@ export default function Rewind1({ onNext }) {
       duration: 400,
       useNativeDriver: true,
     }).start();
+
+    // Clean up on unmount
+    return () => {
+      raf.current && cancelAnimationFrame(raf.current);
+    };
+  }, []);
+
+ 
