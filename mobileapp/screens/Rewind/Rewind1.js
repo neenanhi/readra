@@ -215,4 +215,29 @@ export default function Rewind1({ onNext }) {
         gl_Position = vec4(a_position, 0, 1);
       }
     `;
-    
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, vertexShaderSource);
+    gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+      console.warn("Vertex shader compile error:", gl.getShaderInfoLog(vs));
+    }
+
+    // Compile fragment shader (example ripple effect)
+    const fragmentShaderSource = `
+      precision highp float;
+      varying vec2 v_uv;
+      uniform float u_Time;
+      void main() {
+        float t = u_Time;
+        float r = distance(v_uv, vec2(0.5, 0.5));
+        float ripple = sin((r - t * 0.5) * 20.0) * 0.5 + 0.5;
+        vec3 color = mix(vec3(0.1, 0.2, 0.4), vec3(1.0, 0.867, 0.502), ripple);
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, fragmentShaderSource);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+      console.warn("Fragment shader compile error:", gl.getShaderInfoLog(fs));
+    }
