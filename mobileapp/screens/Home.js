@@ -56,3 +56,8 @@ const Home = ({navigation}) => {
             .select('quote_id, text, author')
             .single();
         }
+
+        if (result.error) throw result.error;
+        if (!existingQuoteId && result.data?.quote_id) {
+          setExistingQuoteId(result.data.quote_id);
+        }
