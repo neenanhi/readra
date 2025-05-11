@@ -251,3 +251,15 @@ export default function Rewind1({ onNext }) {
       console.warn("Program link error:", gl.getProgramInfoLog(program));
     }
     gl.useProgram(program);
+
+    // Look up uniform location
+    const uTimeLocation = gl.getUniformLocation(program, "u_Time");
+
+    // Set up full-screen quad
+    const quadVerts = new Float32Array([
+      -1, -1,  1, -1,  -1, 1,
+      -1,  1,  1, -1,   1, 1,
+    ]);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, quadVerts, gl.STATIC_DRAW);
