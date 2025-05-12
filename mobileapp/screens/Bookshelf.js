@@ -12,7 +12,7 @@ import {
     Button, Image, ImageBackground,
 } from "react-native";
 import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
-import {supabase} from "../Supabase";
+import {supabase, isbndbGetHeaders, isbndbPostHeaders} from "../Supabase";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function Bookshelf({navigation}) {
@@ -27,53 +27,63 @@ export default function Bookshelf({navigation}) {
 
 
     // --- Normal app UI below ---
+    const isISBN = (query) => /^[0-9]{10,13}$/.test(query.replace(/-/g, ''));
     const searchBooks = async () => {
-        if (!searchQuery) {
-            console.log("no search query");
-            return;
-        }
+        if (!searchQuery) return;
+
         try {
-            console.log(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
-            const data = await response.json();
+            let data;
 
-            const processed = data.docs.map(book => {
-                const result = {
-                    title: book.title || null,
-                    authors: book.author_name || [],
-                    isbns: []
-                };
+            if (isISBN(searchQuery)) {
+                // POST /books with ISBN array
+                // console.log("POST payload:", `isbns=${searchQuery}`);
 
-                // Check for ISBN in keys
-                for (const key in book) {
-                    const keyMatch = key.match(/^isbn_(\d{10,13})$/);
-                    if (keyMatch) {
-                        result.isbns.push(keyMatch[1]);
-                    }
+                const response = await fetch('https://api2.isbndb.com/books', {
+                    method: 'POST',
+                    headers: isbndbPostHeaders,
+                    body: `isbns=${searchQuery}`
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    console.error("ISBN Search error:", err.message);
+                    return;
                 }
 
-                // Check for ISBN in ia array
-                if (Array.isArray(book.ia)) {
-                    for (const val of book.ia) {
-                        const valMatch = val.match(/^isbn_(\d{10,13})$/);
-                        if (valMatch) {
-                            result.isbns.push(valMatch[1]);
-                        }
-                    }
-                }
-                // If we found any ISBNs, return the result
-                if (result.isbns.length > 0) return result;
-                else return null;
-            })
-                .filter(Boolean)
-                .slice(0, 25);
+                data = await response.json();
+            } else {
+                // GET /books/{query}
+                const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
+                    headers: isbndbGetHeaders
+                });
 
-            console.log("Processed search results:", processed);
+                if (!response.ok) {
+                    const err = await response.json();
+                    console.error("Text Search error:", err.message);
+                    return;
+                }
+
+                data = await response.json();
+            }
+            // console.log(data)
+            // {"data": [], "requested": 0, "total": 0}
+            const books = data.books || (data.book ? [data.book] : []);
+            // console.log(books)
+            //[]
+            const processed = books.map(book => ({
+                title: book.title,
+                authors: book.authors || [],
+                isbns: [book.isbn13 || book.isbn],
+                cover_image: book.image
+            }));
+            console.log(processed)
+            // {"authors": ["Sun Tzu"], "cover_image": "https://images.isbndb.com/covers/1379063488707.jpg", "isbns": ["9798309355259"], "title": "The Art of War Sun Tzu - Complete Edition: The New Modern English Translation (Translated and Annotated)"},
             setSearchResults(processed);
         } catch (err) {
-            console.error("Error fetching books:", err);
+            console.error("Fetch error:", err);
         }
     };
+
 
     const addBook = async () => {
         const book = {id: Date.now().toString(), title: newTitle, status: newStatus};
