@@ -19,13 +19,12 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { BookshelfStyles } from "../styles/BookshelfStyles";
 
 export default function Bookshelf({navigation}) {
+    // Books
     const [books, setBooks] = useState([]);
-    const [modalVisible, setModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-
 	// Log Book Modal
-	const [logBookModalVisibility, setLogBookModalVisbility] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const [newStatus, setNewStatus] = useState("");
 	const [bookOptions, setBookOptions] = useState([]);
@@ -172,7 +171,7 @@ export default function Bookshelf({navigation}) {
 		setSelectedBookId(null);
 		setSelectedBookTitle("Select a book...");
 		setPagesRead(0);
-		setLogBookModalVisbility(false);
+		setModalVisible(false);
 	}
 
     const renderBook = ({item}) => (
@@ -250,47 +249,13 @@ export default function Bookshelf({navigation}) {
                 numColumns={3}
             />
 
-            {/* Add‐book FAB */}
+            {/* Log a booka FAB */}
             <TouchableOpacity style={BookshelfStyles.fab} onPress={() => setModalVisible(true)}>
                 <Text style={BookshelfStyles.fabText}>＋</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={BookshelfStyles.button} onPress={() => setLogBookModalVisbility(true)}>
-                    <Text style={BookshelfStyles.buttonText}>Log a book</Text>
-            </TouchableOpacity>
-
-            {/* Add‐book Modal */}
-            <Modal transparent visible={modalVisible} animationType="slide">
-                <View style={BookshelfStyles.modalView}>
-                    <Text style={BookshelfStyles.modalTitle}>Add a Book</Text>
-                    <TextInput
-                        placeholder="Title"
-                        style={BookshelfStyles.input}
-                        value={newTitle}
-                        onChangeText={setNewTitle}
-                    />
-                    <TextInput
-                        placeholder="Status (read or wantToRead)"
-                        style={BookshelfStyles.input}
-                        value={newStatus}
-                        onChangeText={setNewStatus}
-                    />
-                    <View style={BookshelfStyles.modalButtons}>
-                        <Pressable style={BookshelfStyles.button} onPress={addBook}>
-                            <Text style={BookshelfStyles.buttonText}>Add</Text>
-                        </Pressable>
-                        <Pressable
-                            style={[BookshelfStyles.button, BookshelfStyles.cancel]}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={BookshelfStyles.buttonText}>Cancel</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
-
             {/* Log a book modal */}
-            <Modal transparent visible={logBookModalVisibility} animationType="slide">
+            <Modal transparent visible={modalVisible} animationType="slide">
                 <View style={BookshelfStyles.modalView}>
                     <Text style={BookshelfStyles.modalTitle}>Log a book</Text>
 					{/* Replace the Status TextInput with this Dropdown */}
@@ -328,7 +293,7 @@ export default function Bookshelf({navigation}) {
                         <Pressable style={BookshelfStyles.button} onPress={addBookLog}>
                             <Text style={BookshelfStyles.buttonText}>Log</Text>
                         </Pressable>
-                        <Pressable style={BookshelfStyles.button} onPress={() => setLogBookModalVisbility(false)}>
+                        <Pressable style={BookshelfStyles.button} onPress={() => setModalVisible(false)}>
                         	<Text style={BookshelfStyles.buttonText} onPress={() => resetBookSelection()}>Cancel</Text>
                         </Pressable>
                     </View>

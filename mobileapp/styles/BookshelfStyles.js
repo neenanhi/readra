@@ -91,7 +91,7 @@ export const BookshelfStyles = StyleSheet.create({
         alignItems: "center",
         elevation: 5,
     },
-    fabText: {color: "#fff", fontSize: 30, marginTop: -2},
+    fabText: {color: "#fff", fontSize: 30, marginTop: -6},
 
     modalView: {
         marginTop: "60%",
