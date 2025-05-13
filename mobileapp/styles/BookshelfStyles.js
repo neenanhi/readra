@@ -15,6 +15,7 @@ export const BookshelfStyles = StyleSheet.create({
   },
 
   input: {
+    flex: 1,
     height: 40,
     borderWidth: 1,
     borderColor: "#ccc",
