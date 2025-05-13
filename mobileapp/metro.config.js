@@ -3,6 +3,7 @@ const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path"); // Make sure 'path' is required
 
 const config = getDefaultConfig(__dirname);
+config.resolver.sourceExts.push("env");
 
 config.resolver = {
   ...config.resolver, // Preserve existing resolver settings
