@@ -169,6 +169,22 @@ function onContextCreate(gll) {
     // Clear <canvas>
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    const quadVerts = new Float32Array([
+        // two triangles for a fullscreen quad
+        1, -1,
+        -1, -1,
+        -1,  1,
+        1, -1,
+        1,  1,
+        -1,  1,
+    ]);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVerts), gl.STATIC_DRAW);
+
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+
     requestAnimationFrame(tick);
 }
 
@@ -185,47 +201,12 @@ function tick() {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // var tri1 = new Float32Array([
-    //     1.0,  -1.0,  Math.cos(g_seconds),  Math.sin(g_seconds),  Math.tan(g_seconds),
-    //     1.0, 1.0,  Math.tan(g_seconds),  Math.cos(g_seconds),  Math.sin(g_seconds),
-    //     -1.0, 1.0,  Math.sin(g_seconds),  Math.tan(g_seconds),  Math.cos(g_seconds),
-    // ]);
-    //
-    // var tri2 = new Float32Array([
-    //     1.0,  -1.0,  Math.sin(g_seconds),  0.0,  0.0,
-    //     -1.0, -1.0,  0.0,  Math.tan(g_seconds),  0.0,
-    //     -1.0, 1.0,  0.0,  0.0,  Math.cos(g_seconds),
-    // ]);
-
-    drawTriangle([1, -1, -1, -1, -1, 1]);
-    drawTriangle([1, -1, 1, 1, -1, 1]);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     gl.flush();
     gl.endFrameEXP();
 
     requestAnimationFrame(tick);
-}
-
-function drawTriangle(verticesColors) {
-    // const FSIZE = verticesColors.BYTES_PER_ELEMENT;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesColors), gl.DYNAMIC_DRAW);
-
-    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(a_Position);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-}
-
-function drawTriangle3D(vertices) {
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
-    gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(a_Position);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
 function loadShader(gl, type, source) {
