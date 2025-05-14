@@ -62,9 +62,9 @@ export async function getTopBooks() {
   // Grab user's top authors (ignores null and empty values)
   const { data, error } = await supabase
     .from('book')
-    .select('title, rating')
-    .not('rating', 'is', null)
-    .order('rating', { ascending: true })
+    .select('title, user_rating')
+    .not('user_rating', 'is', null)
+    .order('user_rating', { ascending: true })
     .limit(3);
 
   if (error) {

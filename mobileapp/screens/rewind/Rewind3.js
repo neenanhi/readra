@@ -30,7 +30,7 @@ const Rewind3 = () => {
 
   // Helper function to display book ratings and titles
   const renderBooks = () => topRatedBooks?.map((book) => {
-    return <Text>{book.title} {book.rating}</Text>
+    return <Text>{book.title} {book.user_rating}</Text>
   });
 
   return (
