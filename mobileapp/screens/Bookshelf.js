@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useState} from "react";
+import React, {useEffect, useLayoutEffect, useState} from "react";
 import { PutBook } from "../api/openLibrary";
 import { createBookLog } from "../api/logData";
 import {
@@ -164,7 +164,9 @@ export default function Bookshelf({navigation}) {
     }
 
     // load data from user's library
-    getLibrary();
+    useEffect(() => {
+        getLibrary();
+    }, []);
 
 	/** Book Logging: Reset Book Information when closing modal */
 	const resetBookSelection = () => {
