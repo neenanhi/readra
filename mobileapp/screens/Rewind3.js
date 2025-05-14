@@ -11,7 +11,7 @@ const Rewind3 = () => {
   /** Fetches top 3 authors and books, then plays animation */
   useEffect(() => {
     const fetchData = async () => {
-      const rewind3Data = getRewind3Data();
+      const rewind3Data = await getRewind3Data();
       setTopAuthors(rewind3Data.topAuthors || []);
       setTopRatedBooks(rewind3Data.topBooks || []);
 
@@ -33,15 +33,17 @@ const Rewind3 = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionHeader}>Top Rated Books</Text>
       {/* Render top 3 rated book titles + ratings */}
+      <Text style={styles.sectionHeader}>Top Rated Books</Text>
       {topRatedBooks.length === 0 ? 
         <Text>Loading top books...</Text> : renderBooks()
       }
+      
+      {/* Render top 3 authors */}      
+      <Text style={styles.sectionHeader}>Top Rated Authors</Text>
       <Animated.Text style={[styles.animatedText, { opacity: fadeAnim }]}>
-        {/* Render top 3 authors */}
         {topAuthors.length === 0 ?
-          <Text>Loading top books...</Text> : topAuthors.join("\n")
+          <Text>Loading top authors...</Text> : topAuthors.join("\n")
         }
       </Animated.Text>
     </View>

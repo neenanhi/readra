@@ -27,7 +27,8 @@
     "expo": "~52.0.41",
     "expo-camera": "~16.0.18",
     "expo-gl": "~15.0.5",
-    "expo-linear-gradient": "^14.1.4",
+    "expo-linear-gradient": "~14.0.2",
+    "expo-modules-core": "~2.2.3",
     "expo-status-bar": "~2.0.1",
     "expo-three": "^8.0.0",
     "gsap": "^3.13.0",
@@ -50,8 +51,7 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "url": "^0.11.4",
-    "util": "^0.12.5",
-    "expo-modules-core": "~2.2.3"
+    "util": "^0.12.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
