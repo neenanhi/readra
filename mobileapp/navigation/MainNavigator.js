@@ -10,7 +10,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Bookshelf from "../screens/Bookshelf";
 import Home from "../screens/Home";
 import BookDetail from "../screens/BookDetail";
-import Rewind from "../screens/Rewind";
+import Rewind1 from "../screens/Rewind1";
 
 const Tab = createBottomTabNavigator();
 
@@ -40,7 +40,6 @@ export default function MainNavigator() {
         initialRouteName="Home"
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: "#2E3A59",
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
             height: 80,
@@ -109,7 +108,8 @@ export default function MainNavigator() {
         {/* Rewind Screen */}
         <Tab.Screen
           name="Rewind"
-          component={Rewind}
+          component={Rewind1}
+
           options={{
             tabBarIcon: () => (
               <Image
