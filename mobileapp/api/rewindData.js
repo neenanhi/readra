@@ -48,9 +48,6 @@ export async function getRewind3Data() {
     .sort((a, b) => b.user_rating - a.user_rating)
     .slice(0, 3)
     .map(book => ({ title: book.title, user_rating: book.user_rating }));
-
-  console.log("top authors", topAuthors);
-  console.log('top rated books', ratedBooks);
   
   return {
     topAuthors: topAuthors,
