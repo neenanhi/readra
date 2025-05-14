@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Animated } from "react-native";
 import { useEffect, useState, useRef } from "react";
-import { getTopAuthors, getTopBooks } from "../api/rewindData";
+import { getRewind3Data } from "../api/rewindData";
 
 const Rewind3 = () => {
   const [topAuthors, setTopAuthors] = useState([]);
@@ -11,11 +11,9 @@ const Rewind3 = () => {
   /** Fetches top 3 authors and books, then plays animation */
   useEffect(() => {
     const fetchData = async () => {
-      const authorData = await getTopAuthors();
-      setTopAuthors(authorData);
-      
-      const ratingData = await getTopBooks();
-      setTopRatedBooks(ratingData);
+      const rewind3Data = getRewind3Data();
+      setTopAuthors(rewind3Data.topAuthors || []);
+      setTopRatedBooks(rewind3Data.topBooks || []);
 
       // Start fade-in animation once data is loaded
       Animated.timing(fadeAnim, {
