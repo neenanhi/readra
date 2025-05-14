@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useState} from "react";
+import React, {useEffect, useLayoutEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {
     View,
@@ -12,7 +12,7 @@ import {
     Button, Image, ImageBackground,
 } from "react-native";
 import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
-import {supabase, isbndbGetHeaders, isbndbPostHeaders} from "../Supabase";
+import {supabase, isbndbGetHeaders} from "../Supabase";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function Bookshelf({navigation}) {
@@ -35,50 +35,35 @@ export default function Bookshelf({navigation}) {
             let data;
 
             if (isISBN(searchQuery)) {
-                // POST /books with ISBN array
-                // console.log("POST payload:", `isbns=${searchQuery}`);
+            const response = await fetch(`https://api2.isbndb.com/book/${encodeURIComponent(searchQuery)}`, {
+                headers: isbndbGetHeaders
+            });
 
-                const response = await fetch('https://api2.isbndb.com/books', {
-                    method: 'POST',
-                    headers: isbndbPostHeaders,
-                    body: `isbns=${searchQuery}`
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    console.error("ISBN Search error:", err.message);
-                    return;
-                }
-
-                data = await response.json();
-            } else {
-                // GET /books/{query}
-                const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
-                    headers: isbndbGetHeaders
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    console.error("Text Search error:", err.message);
-                    return;
-                }
-
-                data = await response.json();
+            if (!response.ok) {
+                const err = await response.json();
+                console.error("ISBN Search error:", err.message);
+                return;
             }
-            // console.log(data)
-            // {"data": [], "requested": 0, "total": 0}
-            const books = data.books || (data.book ? [data.book] : []);
-            // console.log(books)
-            //[]
-            const processed = books.map(book => ({
-                title: book.title,
-                authors: book.authors || [],
-                isbns: [book.isbn13 || book.isbn],
-                cover_image: book.image
-            }));
-            console.log(processed)
-            // {"authors": ["Sun Tzu"], "cover_image": "https://images.isbndb.com/covers/1379063488707.jpg", "isbns": ["9798309355259"], "title": "The Art of War Sun Tzu - Complete Edition: The New Modern English Translation (Translated and Annotated)"},
-            setSearchResults(processed);
+
+            const result = await response.json();
+            data = { books: [result.book] };  // wrap single result in a books array
+            } else {
+            const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
+                headers: isbndbGetHeaders
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                console.error("Text Search error:", err.message);
+                return;
+            }
+
+            data = await response.json();
+            }
+
+            const books = data || [];
+            // console.log(processed)
+            setSearchResults(books);
         } catch (err) {
             console.error("Fetch error:", err);
         }
@@ -148,7 +133,9 @@ export default function Bookshelf({navigation}) {
     }
 
     // load data from user's library
-    getLibrary();
+    useEffect(() => {
+        getLibrary();
+    }, []);
 
     const renderBook = ({item}) => (
         <TouchableOpacity
@@ -194,17 +181,19 @@ export default function Bookshelf({navigation}) {
             </View>
 
             {/* Search results */}
+            {/* {console.log(searchResults)} */}
+            {}
             {searchResults.length > 0 && (
                 <View style={styles.searchResultContainer}>
                     <Text style={styles.heading}>Search Results</Text>
                     <FlatList
                         data={searchResults}
-                        keyExtractor={(item, i) => item.key || i.toString()}
+                        keyExtractor={(item, i) => item.isbn || i.toString()}
                         renderItem={({item}) => (
                             <TouchableOpacity
                                 style={styles.searchItem}
                                 onPress={() => navigation.navigate('BookDetail', {
-                                    isbn: item.isbns.length > 0 ? item.isbns[0] : null
+                                    isbn: item.isbn
                                 })}
                             >
                                 <Text style={styles.bookTitle}>{item.title}</Text>

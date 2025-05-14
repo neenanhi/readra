@@ -13,26 +13,38 @@ import {
 } from "react-native";
 import React, {useEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
-import {supabase} from "../Supabase";
+import {supabase, isbndbGetHeaders} from "../Supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-
-async function getBookData(isbn) {
-    const response = await axios({
-        method: 'get',
-        url: `https://openlibrary.org/search.json?q=${isbn}`
-    });
-    return response.data["docs"][0];
+export async function getBookData(isbn) {
+    try {
+        const response = await axios.get(`https://api2.isbndb.com/book/${isbn}`, {
+            headers: isbndbGetHeaders
+        });
+        // console.log("printing")
+        // console.log(response.data.book)
+        return response.data.book;
+    } catch (error) {
+        console.error(`Error fetching book data for ISBN ${isbn}:`, error.response?.data || error.message);
+        return null;
+    }
 }
 
-async function getPages(isbn) {
-    const response = await axios({
-        method: 'get',
-        url: `https://openlibrary.org/isbn/${isbn}.json`
-    });
-    return response.data["number_of_pages"];
+
+export async function getPages(isbn) {
+    try {
+        const response = await axios.get(`https://api2.isbndb.com/book/${isbn}`, {
+            headers: isbndbGetHeaders
+        });
+
+        return response.data.book?.pages || null;
+    } catch (error) {
+        console.error(`Error fetching page count for ISBN ${isbn}:`, error.response?.data || error.message);
+        return null;
+    }
 }
+
 
 // export default function BookDetail({isbn}) {
 export default function BookDetail({route}) {
@@ -54,24 +66,33 @@ export default function BookDetail({route}) {
     useEffect(() => {
         let mounted = true;
         setLoading(true);
+
+        // Fetch user-specific book record from Supabase
         supabase
             .from('book')
-            .select("*")
-            .eq("isbn", isbn).then(d => {
-            setUserBook(d.data[0]);
-        }).then(() => {
-            setEndDate(new Date(userBook["date_finished"]));
-            setStartDate(new Date(userBook["date_started"]));
-        });
+            .select('*')
+            .eq('isbn', isbn)
+            .then(d => {
+                setUserBook(d.data[0]);
+            })
+            .then(() => {
+                setEndDate(new Date(userBook?.date_finished));
+                setStartDate(new Date(userBook?.date_started));
+            });
+
+        // Fetch page count from ISBNdb
         getPages(isbn).then(data => {
-            setPages(data);
+            if (mounted) setPages(data);
         });
+
+        // Fetch book metadata from ISBNdb
         getBookData(isbn)
             .then(data => {
                 if (!mounted) return;
                 if (data) {
-                    data["isbn"] = isbn;
-                    data["cover_image"] = `https://covers.openlibrary.org/b/id/${data.cover_i}-M.jpg`
+                    data.isbn = isbn;
+                    data.cover_image = data.cover_image || data.image || data.image_original || null;
+                    // console.log(data.cover_image)
                     setBook(data);
                 } else {
                     setError(new Error("No book found"));
@@ -83,8 +104,9 @@ export default function BookDetail({route}) {
             .finally(() => {
                 if (mounted) setLoading(false);
             });
+
         return () => {
-            mounted = false
+            mounted = false;
         };
     }, [isbn]);
 
@@ -130,7 +152,7 @@ export default function BookDetail({route}) {
             });
     }
 
-    console.log(userBook, startDate, endDate);
+    // console.log(userBook, startDate, endDate);
 
     if (loading) {
         return (
@@ -148,11 +170,12 @@ export default function BookDetail({route}) {
                 <View style={styles.infoColumn}>
                     <Text style={styles.title}>{book.title} ({pages} pages)</Text>
                     <Text style={styles.author}>
-                        by {book.author_name?.[0] || "Unknown"}
+                        by {book.authors?.[0] || "Unknown"}
                     </Text>
                 </View>
                 <Image
-                    source={{uri: getCoverUrl(book.cover_i)}}
+                
+                    source={{ uri: getCoverUrl(book) }}
                     style={styles.cover}
                     resizeMode="cover"
                 />

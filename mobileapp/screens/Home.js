@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator } from 'react-native';
-import { fetchBooks } from '../api/openLibrary';
+import { getCoverUrl, fetchBooks } from '../api/openLibrary';
 import BookCard from '../components/BookCard';
 import { UserContext } from '../context/UserContext';
 
