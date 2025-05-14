@@ -109,6 +109,7 @@ export default function MainNavigator() {
         <Tab.Screen
           name="Rewind"
           component={Rewind1}
+
           options={{
             tabBarIcon: () => (
               <Image
