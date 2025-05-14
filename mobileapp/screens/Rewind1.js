@@ -10,49 +10,41 @@ var VSHADER_SOURCE = `
 
 // Fragment shader program
 var FSHADER_SOURCE = `
+// FSHADER_SOURCE
 precision mediump float;
 
-uniform vec2  u_Resolution;
-uniform float u_Time;
+uniform vec2  u_Resolution;  // in pixels
+uniform float u_Time;        // seconds since start
 
-const float PI = 3.141592653589793;
-
-vec3 hue2rgb(float h) {
-  vec3 c = abs(fract(h + vec3(0.0, 0.333, 0.667)) * 6.0 - 3.0) - 1.0;
-  return clamp(c, 0.0, 1.0);
+// cheap 2D hash
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy / u_Resolution) * 3.0 - 1.5;
-  uv.x *= u_Resolution.x / u_Resolution.y;
+  // normalize to [0,1]
+  vec2 st = gl_FragCoord.xy / u_Resolution;
 
-  // polar coords
-  float r     = length(uv);
-  float theta = atan(uv.y, uv.x);
+  // rotate coords for more motion
+  float ang = u_Time * 0.2;
+  mat2 rot = mat2(
+    cos(ang), -sin(ang),
+    sin(ang),  cos(ang)
+  );
+  st = rot * (st - 0.5) + 0.5;
 
-  // number of triangular wedges
-  float M = 6.0;
+  // build three differently scaled “noise” layers
+  float r = hash(st * 8.0 + u_Time * 0.3);
+  float g = hash(st * 16.0 - u_Time * 0.5 + 1.0);
+  float b = hash(st * 32.0 + u_Time * 0.8 + 2.0);
 
-  // rotate pattern slowly
-  float rot = u_Time * 0.4;
-  theta += rot;
+  // smooth out the result
+  r = smoothstep(0.2, 0.8, r);
+  g = smoothstep(0.2, 0.8, g);
+  b = smoothstep(0.2, 0.8, b);
 
-  // map angle into one wedge and reflect for symmetry
-  float wedge = mod(theta, 2.0*PI/M) / (3.0*PI/M);
-  wedge = abs(wedge * 3.0 - 1.5);
-
-  // carve out a triangle shape: taper by radius
-  float tri = smoothstep(0.95, 0.90, wedge + r * 0.3);
-
-  float hue = fract(wedge * 0.9 + r * 0.8 + u_Time * 0.4);
-  vec3 col = hue2rgb(hue);
-
-  vec3 bg = vec3(0.2, 0.2, 0.15);
-  vec3 color = mix(bg, col, tri);
-
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(r, g, b, 1.0);
 }
-
 `;
 
 let vertexBuffer, a_Position, u_Resolution, u_Time, gl;
