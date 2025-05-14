@@ -1,77 +1,65 @@
-import { View, Text, StyleSheet } from "react-native";
-import { useEffect, useState } from "react";
-import { getTopAuthors } from "../../api/rewindData";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import { getTopAuthors, getTopBooks } from "../../api/rewindData";
 
 const Rewind3 = () => {
   const [topAuthors, setTopAuthors] = useState([]);
+  const [topRatedBooks, setTopRatedBooks] = useState([]);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  /** Fetches top 3 authors and books, then plays animation */
   useEffect(() => {
-    const fetchTopAuthors = async () => {
-      const data = await getTopAuthors();
-      setTopAuthors(data);
+    const fetchData = async () => {
+      const authorData = await getTopAuthors();
+      setTopAuthors(authorData);
+      
+      const ratingData = await getTopBooks();
+      setTopRatedBooks(ratingData);
+
+      // Start fade-in animation once data is loaded
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      }).start();
     }
-    fetchTopAuthors();
+
+    fetchData();
   }, []);
 
-  // const [logData, setLogData] = useState({
-  //   logs: [],
-  //   totalPagesRead: 0,
-  //   mostPagesLog: null,
-  // });
+  // Helper function to display book ratings and titles
+  const renderBooks = () => topRatedBooks?.map((book) => {
+    return <Text>{book.title} {book.rating}</Text>
+  });
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const data = await getLogData();
-  //     setLogData(data);
-  //   };
-  //   fetchData();
-  // }, []);
-
-  // /** Displays a user's individual logs */
-  // const displayLogs = () => {
-  //   if (!(logData.logs)) {
-  //     return <Text>No logs found</Text>
-  //   }
-
-  //   return (
-  //     logData.logs.map((log, index) => (
-  //       <Text key={index}>
-  //         Log #{index + 1}: {log.pages} pages
-  //       </Text>
-  //     ))
-  //   );
-  // }
-
-  // /** Format date */
-  // const mostPagesLogDate = () => {
-  //   if (!logData.mostPagesLog?.created_at) return "No date available";
-    
-  //   const date = new Date(logData.mostPagesLog.created_at);
-  //   return date.toLocaleDateString('en-US', {
-  //     weekday: 'long',
-  //     year: 'numeric',
-  //     month: 'long',
-  //     day: 'numeric'
-  //   });
-  // }
-
-  return (
-    <Text>{ topAuthors }</Text>
-  );
+return (
+  <View style={styles.container}>
+    <Text style={styles.sectionHeader}>Top Rated Books</Text>
+    {topRatedBooks.length === 0 ? 
+      <Text style={styles.bookText}>"Loading top books..."</Text> 
+      : renderBooks()
+    }
+    <Animated.Text style={[styles.animatedText, { opacity: fadeAnim }]}>
+      {topAuthors.length > 0
+        ? topAuthors.join("\n")
+        : "Loading top authors..."}
+    </Animated.Text>
+  </View>
+);
 };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: "center",
-//     alignItems: "center",
-//     backgroundColor: "#f0f0f0",
-//   },
-//   profileText: {
-//     fontSize: 24,
-//     fontWeight: "bold",
-//     color: "#333",
-//   },a
-// });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  animatedText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: '#7d819f'
+  },
+});
 
 export default Rewind3;
