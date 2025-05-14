@@ -1,5 +1,5 @@
 // TODO: Replace hardcoded "fantasy" with selected genre
-import {supabase} from '../Supabase';
+import { supabase } from '../Supabase';
 
 
 export async function fetchBooks() {
