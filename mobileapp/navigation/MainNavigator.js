@@ -3,13 +3,13 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text, StyleSheet, Image, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 // Component Imports
 import Bookshelf from "../screens/Bookshelf";
 import Home from "../screens/Home";
 import BookDetail from "../screens/BookDetail";
+import PromptScreen from "../screens/PromptScreen";
 import Rewind1 from "../screens/Rewind1";
 
 const Tab = createBottomTabNavigator();
@@ -26,12 +26,15 @@ const Stack = createNativeStackNavigator();
 function BookshelfStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="BookshelfMain" component={Bookshelf} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="BookshelfMain"
+        component={Bookshelf}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="BookDetail" component={BookDetail} />
     </Stack.Navigator>
   );
 }
-
 
 export default function MainNavigator() {
   return (
@@ -75,7 +78,6 @@ export default function MainNavigator() {
         <Tab.Screen
           name="Add a Book"
           component={BookshelfStack}
-
           options={{
             tabBarIcon: () => (
               <View
@@ -109,7 +111,6 @@ export default function MainNavigator() {
         <Tab.Screen
           name="Rewind"
           component={Rewind1}
-
           options={{
             tabBarIcon: () => (
               <Image
