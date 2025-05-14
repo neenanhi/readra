@@ -33,20 +33,21 @@ const Rewind3 = () => {
     return <Text>{book.title} {book.rating}</Text>
   });
 
-return (
-  <View style={styles.container}>
-    <Text style={styles.sectionHeader}>Top Rated Books</Text>
-    {topRatedBooks.length === 0 ? 
-      <Text style={styles.bookText}>"Loading top books..."</Text> 
-      : renderBooks()
-    }
-    <Animated.Text style={[styles.animatedText, { opacity: fadeAnim }]}>
-      {topAuthors.length > 0
-        ? topAuthors.join("\n")
-        : "Loading top authors..."}
-    </Animated.Text>
-  </View>
-);
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionHeader}>Top Rated Books</Text>
+      {/* Render top 3 rated book titles + ratings */}
+      {topRatedBooks.length === 0 ? 
+        <Text>Loading top books...</Text> : renderBooks()
+      }
+      <Animated.Text style={[styles.animatedText, { opacity: fadeAnim }]}>
+        {/* Render top 3 authors */}
+        {topAuthors.length === 0 ?
+          <Text>Loading top books...</Text> : topAuthors.join("\n")
+        }
+      </Animated.Text>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
