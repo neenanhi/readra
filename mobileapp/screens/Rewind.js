@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import { getLogData } from "../api/logData";
+import Rewind3 from "./Rewind3";
 
 const Rewind = () => {
   const [logData, setLogData] = useState({
@@ -52,6 +53,7 @@ const Rewind = () => {
       <Text>Your most active day was { mostPagesLogDate() }, where you read { logData?.mostPagesLog?.pages || 'unknown'} pages</Text>
       {/* Function below displays all user log information */}
       {/* { displayLogs() } */}
+      <Rewind3/>
     </View>
   );
 };
