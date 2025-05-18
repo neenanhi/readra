@@ -22,7 +22,7 @@ const Home = ({navigation}) => {
     const [isEditingQuote, setIsEditingQuote] = useState(false);
     const [quoteInput, setQuoteInput] = useState("");
     const [quoteAuthor, setQuoteAuthor] = useState("");
-    
+
     const [existingQuoteId, setExistingQuoteId] = useState(null);
     const { session, displayName } = useContext(UserContext);
 
@@ -74,9 +74,9 @@ const Home = ({navigation}) => {
                 console.error('Error fetching recent books:', err)
             }
         }
-        getBooks();
-        getRecent();
-    }, []);
+    //     getBooks();
+    //     getRecent();
+    // }, []);
 
 
     return (
