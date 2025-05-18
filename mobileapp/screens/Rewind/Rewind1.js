@@ -303,3 +303,18 @@ export default function Rewind1({ onNext }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  glBackground: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(246,234,153,0.15)", // subtle cream
+  },
+});
