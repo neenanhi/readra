@@ -25,6 +25,13 @@ const Home = ({navigation}) => {
     const [existingQuoteId, setExistingQuoteId] = useState(null);
     const { session, displayName } = useContext(UserContext);
 
+    const saveQuote = async () => {
+      try {
+        if (!session || !session.user) return;
+        const userId = session.user.id;
+        const payload = {
+        
+
     // =====================
     // Book Fetching
     // useEffect runs when Home first appears on screen
@@ -69,23 +76,16 @@ const Home = ({navigation}) => {
                 console.error('Error fetching recent books:', err)
             }
         };
-  
+    
 
     return (
         <SafeAreaView style={styles.safe}>
-        <Pressable 
-            style={styles.container}
-            onPress={() => {
-                if (isEditingQuote) {saveQuote();}
-            }}
-        >
             {/* Greeting */}
             <View style={styles.greetingContainer}>
                 <Text style={styles.greetingText}> Hello, {displayName}!</Text>
             </View>
             
             {/* Quote (press to edit) */}
-            {isEditingQuote ? (
                 <View style={styles.quoteBox}>
                 <TextInput
                     style={styles.quoteInput}
@@ -105,11 +105,6 @@ const Home = ({navigation}) => {
                     value={quoteAuthor}
                     onChangeText={setQuoteAuthor}
                 />
-
-                {/* Save Button */}
-                <TouchableOpacity style={styles.saveButton} onPress={saveQuote}>
-                    <Text style={styles.saveButtonLabel}>Save</Text>
-                </TouchableOpacity>
 
             </View>
             ) : (
@@ -180,7 +175,6 @@ const Home = ({navigation}) => {
             </TouchableOpacity>
             )}
 
-        </Pressable>
         </SafeAreaView>
     );
 };
@@ -280,6 +274,10 @@ const styles = StyleSheet.create({
   scrollRow: {
     marginBottom: SPACING.md,
   },
+
+  // (These bookCard/bookCover/... styles are actually defined inside your
+  // <BookCard> component, so you can remove them from Home if they’re not used here.)
+
   recentCard: {
     flexDirection: 'row',
     alignItems: 'center',
