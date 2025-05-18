@@ -276,3 +276,8 @@ export default function Rewind1({ onNext }) {
       const now = performance.now();
       const elapsed = now - start.current;
       const t = elapsed * 0.001; // seconds
+
+      gl.uniform1f(uTimeLocation, t);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      gl.endFrameEXP();
