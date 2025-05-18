@@ -1,3 +1,4 @@
+// Home.js
 import React, {useEffect, useContext, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, Platform, StatusBar} from 'react-native';
 import {getCoverUrl, fetchBooks} from '../api/openLibrary';
@@ -21,6 +22,9 @@ const Home = ({navigation}) => {
     const [isEditingQuote, setIsEditingQuote] = useState(false);
     const [quoteInput, setQuoteInput] = useState("");
     const [quoteAuthor, setQuoteAuthor] = useState("");
+    
+    const [existingQuoteId, setExistingQuoteId] = useState(null);
+    const { session, displayName } = useContext(UserContext);
 
     const saveQuote = () => {
         setIsEditingQuote(false);
