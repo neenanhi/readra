@@ -18,17 +18,12 @@ const Home = ({navigation}) => {
     const [books, setBooks] = useState([]);
     const [recent, setRecent] = useState(null);
     const [loading, setLoading] = useState(true);
-    const {displayName} = useContext(UserContext);
     const [isEditingQuote, setIsEditingQuote] = useState(false);
     const [quoteInput, setQuoteInput] = useState("");
     const [quoteAuthor, setQuoteAuthor] = useState("");
 
     const [existingQuoteId, setExistingQuoteId] = useState(null);
     const { session, displayName } = useContext(UserContext);
-
-    const saveQuote = () => {
-        setIsEditingQuote(false);
-    };
 
     // =====================
     // Book Fetching
@@ -73,11 +68,8 @@ const Home = ({navigation}) => {
             } catch (err) {
                 console.error('Error fetching recent books:', err)
             }
-        }
-    //     getBooks();
-    //     getRecent();
-    // }, []);
-
+        };
+  
 
     return (
         <SafeAreaView style={styles.safe}>
@@ -288,10 +280,6 @@ const styles = StyleSheet.create({
   scrollRow: {
     marginBottom: SPACING.md,
   },
-
-  // (These bookCard/bookCover/... styles are actually defined inside your
-  // <BookCard> component, so you can remove them from Home if they’re not used here.)
-
   recentCard: {
     flexDirection: 'row',
     alignItems: 'center',
