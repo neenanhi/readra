@@ -271,3 +271,8 @@ export default function Rewind1({ onNext }) {
     // Initialize timing
     start.current = performance.now();
     const DURATION = 3000; // run animation for 3 seconds
+
+    function render() {
+      const now = performance.now();
+      const elapsed = now - start.current;
+      const t = elapsed * 0.001; // seconds
