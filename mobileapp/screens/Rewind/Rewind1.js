@@ -281,3 +281,25 @@ export default function Rewind1({ onNext }) {
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.endFrameEXP();
+
+      if (elapsed < DURATION) {
+        raf.current = requestAnimationFrame(render);
+      }
+    }
+
+    // Kick off the loop
+    gl.clearColor(0.1, 0.2, 0.4, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.endFrameEXP();
+    raf.current = requestAnimationFrame(render);
+  }
+
+  return (
+    <View style={styles.container}>
+      <GLView style={styles.glBackground} onContextCreate={onContextCreate} />
+      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+        <RewindScreen1 onNext={onNext} />
+      </Animated.View>
+    </View>
+  );
+}
