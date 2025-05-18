@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
-import { getLogData } from "../api/logData";
+import { getLogData } from "../../api/logData";
 import Rewind3 from "./Rewind3";
 
-const Rewind = () => {
+const Rewind2 = () => {
   const [logData, setLogData] = useState({
     logs: [],
     totalPagesRead: 0,
@@ -72,4 +72,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Rewind;
+export default Rewind2;

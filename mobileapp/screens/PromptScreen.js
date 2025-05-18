@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import OpenAI from "openai";
-import { OPENAI_API_KEY } from "@env";
+let OPENAI_API_KEY = "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";
 import readingPersonalityData from "../data/readingPersonality.json";
 
 const client = new OpenAI({
