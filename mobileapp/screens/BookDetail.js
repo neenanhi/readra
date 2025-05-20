@@ -165,95 +165,95 @@ export default function BookDetail({route}) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/*<ScrollView contentContainerStyle={styles.scrollContent}>*/}
-            <View style={styles.topRow}>
-                <View style={styles.infoColumn}>
-                    <Text style={styles.title}>{book.title} ({pages} pages)</Text>
-                    <Text style={styles.author}>
-                        by {book.authors?.[0] || "Unknown"}
-                    </Text>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <View style={styles.topRow}>
+                    <View style={styles.infoColumn}>
+                        <Text style={styles.title}>{book.title} ({pages} pages)</Text>
+                        <Text style={styles.author}>
+                            by {book.authors?.[0] || "Unknown"}
+                        </Text>
+                    </View>
+                    <Image
+                    
+                        source={{ uri: getCoverUrl(book) }}
+                        style={styles.cover}
+                        resizeMode="cover"
+                    />
                 </View>
-                <Image
-                
-                    source={{ uri: getCoverUrl(book) }}
-                    style={styles.cover}
-                    resizeMode="cover"
-                />
-            </View>
 
-            <Text style={styles.description}>
-                {book.description
-                    ? book.description.slice(0, 150) + "…"
-                    : "No description available."}
-            </Text>
+                <Text style={styles.description}>
+                    {book.description
+                        ? book.description.slice(0, 150) + "…"
+                        : "No description available."}
+                </Text>
 
-            <View style={{width: '100%'}}>
-                {userBook === undefined ?
-                    <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
-                        <Text style={{color: '#7D819F', textAlign: 'center'}}>Add to Library</Text>
-                    </TouchableOpacity> :
-                    <View style={styles.inLibRow}>
-                        <TouchableOpacity style={styles.removeButton} onPress={removeBook}>
-                            <Text style={styles.removeButtonText}>Remove from Library</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
-                            <FontAwesome5 name="edit" size={20} color="#7d819f"/>
-                        </TouchableOpacity>
-                    </View>}
-            </View>
+                <View style={{width: '100%'}}>
+                    {userBook === undefined ?
+                        <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
+                            <Text style={{color: '#7D819F', textAlign: 'center'}}>Add to Library</Text>
+                        </TouchableOpacity> :
+                        <View style={styles.inLibRow}>
+                            <TouchableOpacity style={styles.removeButton} onPress={removeBook}>
+                                <Text style={styles.removeButtonText}>Remove from Library</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
+                                <FontAwesome5 name="edit" size={20} color="#7d819f"/>
+                            </TouchableOpacity>
+                        </View>}
+                </View>
 
-            <Modal transparent visible={modalVisible} animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTitle}>Edit Dates</Text>
+                <Modal transparent visible={modalVisible} animationType="slide">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalTitle}>Edit Dates</Text>
 
-                        <Pressable onPress={() => {
-                            setShowStartPicker(true);
-                            console.log("pressed")
-                        }} style={styles.dateField}>
-                            <Text style={styles.dateFieldText}>Start: {startDate.toLocaleDateString()}</Text>
-                        </Pressable>
-                        <DateTimePickerModal
-                            isVisible={showStartPicker}
-                            mode="date"
-                            onConfirm={date => {
-                                setStartDate(date);
-                                setShowStartPicker(false);
-                            }}
-                            onCancel={() => setShowStartPicker(false)}
-                            headerTextIOS="Select start date"
-                        />
-
-                        <Pressable onPress={() => setShowEndPicker(true)} style={styles.dateField}>
-                            <Text style={styles.dateFieldText}>Finish: {endDate.toLocaleDateString()}</Text>
-                        </Pressable>
-                        <DateTimePickerModal
-                            isVisible={showEndPicker}
-                            mode="date"
-                            onConfirm={date => {
-                                setEndDate(date);
-                                setShowEndPicker(false);
-                            }}
-                            onCancel={() => setShowEndPicker(false)}
-                            headerTextIOS="Select finish date"
-                        />
-
-
-                        <View style={styles.modalButtons}>
-                            <Pressable style={styles.button} onPress={() => {
-                                updateBook();
-                                setModalVisible(false);
-                            }}>
-                                <Text style={styles.buttonText}>Save</Text>
+                            <Pressable onPress={() => {
+                                setShowStartPicker(true);
+                                console.log("pressed")
+                            }} style={styles.dateField}>
+                                <Text style={styles.dateFieldText}>Start: {startDate.toLocaleDateString()}</Text>
                             </Pressable>
-                            <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
-                                <Text style={styles.buttonText}>Cancel</Text>
+                            <DateTimePickerModal
+                                isVisible={showStartPicker}
+                                mode="date"
+                                onConfirm={date => {
+                                    setStartDate(date);
+                                    setShowStartPicker(false);
+                                }}
+                                onCancel={() => setShowStartPicker(false)}
+                                headerTextIOS="Select start date"
+                            />
+
+                            <Pressable onPress={() => setShowEndPicker(true)} style={styles.dateField}>
+                                <Text style={styles.dateFieldText}>Finish: {endDate.toLocaleDateString()}</Text>
                             </Pressable>
+                            <DateTimePickerModal
+                                isVisible={showEndPicker}
+                                mode="date"
+                                onConfirm={date => {
+                                    setEndDate(date);
+                                    setShowEndPicker(false);
+                                }}
+                                onCancel={() => setShowEndPicker(false)}
+                                headerTextIOS="Select finish date"
+                            />
+
+
+                            <View style={styles.modalButtons}>
+                                <Pressable style={styles.button} onPress={() => {
+                                    updateBook();
+                                    setModalVisible(false);
+                                }}>
+                                    <Text style={styles.buttonText}>Save</Text>
+                                </Pressable>
+                                <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
+                                    <Text style={styles.buttonText}>Cancel</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
-
+                </Modal>
+            </ScrollView>
         </SafeAreaView>
     );
 }

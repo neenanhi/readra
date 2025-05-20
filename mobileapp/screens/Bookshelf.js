@@ -1,4 +1,5 @@
-import React, {useEffect, useLayoutEffect, useState} from "react";
+import React, {useEffect, useLayoutEffect, useState } from "react";
+import { ScrollView } from 'react-native';
 import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {
     View,
@@ -45,24 +46,23 @@ export default function Bookshelf({navigation}) {
                 return;
             }
 
-            const result = await response.json();
-            data = { books: [result.book] };  // wrap single result in a books array
-            } else {
-            const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
-                headers: isbndbGetHeaders
-            });
-
-            if (!response.ok) {
-                const err = await response.json();
-                console.error("Text Search error:", err.message);
-                return;
-            }
-
             data = await response.json();
+            } else {
+                const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
+                    headers: isbndbGetHeaders
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    console.error("Text Search error:", err.message);
+                    return;
+                }
+
+                data = await response.json();
             }
 
-            const books = data || [];
-            // console.log(processed)
+            const books = data.books || [];
+            // console.log(books)
             setSearchResults(books);
         } catch (err) {
             console.error("Fetch error:", err);
@@ -84,6 +84,8 @@ export default function Bookshelf({navigation}) {
             .from("book")
             .select('*')
         setBooks(b.data);
+        // Refresh library
+        await getLibrary();
     }
 
     const [scanner, setScanner] = useState(false);
@@ -137,21 +139,24 @@ export default function Bookshelf({navigation}) {
         getLibrary();
     }, []);
 
-    const renderBook = ({item}) => (
+    const renderBookCard = ({ item }) => (
         <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('BookDetail', {isbn: item.isbn})}>
+            onPress={() => navigation.navigate('BookDetail', { isbn: item.isbn })}
+        >
             <ImageBackground
-                source={{uri: item.cover_image}}
-                style={styles.cover}
-                imageStyle={styles.coverImage}/>
+            source={{ uri: item.cover_image || item.image || 'https://via.placeholder.com/100x150?text=No+Cover' }}
+            style={styles.cover}
+            imageStyle={styles.coverImage}
+            />
             <View style={styles.cardContent}>
-                <Text style={styles.bookTitle} numberOfLines={2}>
-                    {item.title}
-                </Text>
+            <Text style={styles.bookTitle} numberOfLines={2}>
+                {item.title}
+            </Text>
             </View>
         </TouchableOpacity>
     );
+
 
     return (
         <View style={styles.container}>
@@ -182,36 +187,30 @@ export default function Bookshelf({navigation}) {
 
             {/* Search results */}
             {/* {console.log(searchResults)} */}
-            {}
-            {searchResults.length > 0 && (
-                <View style={styles.searchResultContainer}>
+            {Array.isArray(searchResults) && searchResults.length > 0 && (
+                <View>
                     <Text style={styles.heading}>Search Results</Text>
-                    <FlatList
+                    <View style={{ maxHeight: 200 }}>
+                        <FlatList
                         data={searchResults}
-                        keyExtractor={(item, i) => item.isbn || i.toString()}
-                        renderItem={({item}) => (
-                            <TouchableOpacity
-                                style={styles.searchItem}
-                                onPress={() => navigation.navigate('BookDetail', {
-                                    isbn: item.isbn
-                                })}
-                            >
-                                <Text style={styles.bookTitle}>{item.title}</Text>
-                            </TouchableOpacity>
-                        )}
-                        numColumns={4}
-                    />
+                        keyExtractor={(item, index) => item.isbn || item.isbn13 || index.toString()}
+                        renderItem={renderBookCard}
+                        numColumns={3}
+                        />
+                    </View>
                 </View>
             )}
+
 
             {/* Your library */}
             <Text style={styles.heading}>Your Library</Text>
             <FlatList
                 data={books}
                 keyExtractor={(item) => item.id}
-                renderItem={renderBook}
+                renderItem={renderBookCard}
                 numColumns={3}
             />
+            {/* {console.log(books)} */}
 
             {/* Add‐book FAB */}
             <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
