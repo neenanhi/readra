@@ -49,6 +49,9 @@ export default function MainNavigator() {
             display: "flex",
             justifyContent: "center",
             backgroundColor: "#2e3a59",
+            borderColor: '#2e3a59',
+            borderWidth: 1,
+            position: 'absolute',
           },
           tabBarItemStyle: {
             margin: "auto",
