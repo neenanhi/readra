@@ -18,12 +18,13 @@ jobs:
       - name: Install dependencies
         run: |
           cd mobileapp/
+          yarn add expo
           npm install
 
       - name: Start Expo and verify it boots
         run: |
           # Start Expo in the background, capturing all output
-          npx expo start --non-interactive --max-workers 1 &> expo.log &
+          npx expo start --max-workers 1 &> expo.log &
           PID=$!
 
           echo "⏳ Waiting for Metro Bundler to be ready..."
