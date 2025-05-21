@@ -1,33 +1,46 @@
 name: Verify Expo Starts
 
 on:
-  push:        # runs on every push
+  push:        # every push, all branches
   pull_request:
 
 jobs:
   expo-start:
     runs-on: ubuntu-latest
+    env:
+      CI: true
+
+    # default run directory is the Expo project
+    defaults:
+      run:
+        working-directory: mobileapp
 
     steps:
-      - name: Check out repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
-      - name: Install dependencies
-        run: |
-          cd mobileapp/
-          yarn add expo
-          npm install
+      - name: Install global expo-cli
+        run: npm install -g expo-cli
 
-      - name: Start Expo and verify it boots
+      - name: Install project dependencies
+        run: npm ci
+
+      # if your package.json really doesn’t list "expo" in deps, this ensures it’s there
+      - name: Ensure expo SDK is installed
+        run: npm install expo@latest --save
+
+      - name: Start Expo and verify Metro Bundler
         run: |
-          # Start Expo in the background, capturing all output
-          npx expo start --max-workers 1 &> expo.log &
+          # start Expo in background, log everything
+          expo start --tunnel &> expo.log &
           PID=$!
 
-          echo "⏳ Waiting for Metro Bundler to be ready..."
+          echo "⏳ Waiting for Metro Bundler to be ready…"
           for i in {1..30}; do
             if grep -q "Metro Bundler ready" expo.log; then
               echo "✅ Metro Bundler is up!"
