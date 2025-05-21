@@ -25,6 +25,8 @@ jobs:
 
       - name: Start Expo and verify it boots
         run: |
+          cd mobileapp/
+          
           # Start Expo in the background, capturing all output
           npx expo start --non-interactive --max-workers 1 &> expo.log &
           PID=$!
