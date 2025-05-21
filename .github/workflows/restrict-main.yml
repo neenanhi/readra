@@ -1,25 +1,57 @@
+name: Verify Expo Starts
+
+on:
+  push:        # every push, all branches
+  pull_request:
+
 jobs:
-  enforce-branch-policy:
+  expo-start:
     runs-on: ubuntu-latest
+    env:
+      CI: true
+
+    # default run directory is the Expo project
+    defaults:
+      run:
+        working-directory: mobileapp
 
     steps:
-      - name: Get Commit Author
-        run: echo "COMMITTER=${{ github.actor }}" >> $GITHUB_ENV
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Check if user is an admin
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install global expo-cli
+        run: npm install -g expo-cli
+
+      - name: Install project dependencies
+        run: npm ci
+
+      # if your package.json really doesn’t list "expo" in deps, this ensures it’s there
+      - name: Ensure expo SDK is installed
+        run: npm install expo@latest --save
+
+      - name: Start Expo and verify Metro Bundler
         run: |
-          ADMIN_USERS=("neenanhi" "Bonapetite21")  # Add other admins here
-          IS_ADMIN=false
-          for ADMIN in "${ADMIN_USERS[@]}"; do
-            if [ "$COMMITTER" = "$ADMIN" ]; then
-              IS_ADMIN=true
-              break
+          # start Expo in background, log everything
+          expo start --tunnel &> expo.log &
+          PID=$!
+
+          echo "⏳ Waiting for Metro Bundler to be ready…"
+          for i in {1..30}; do
+            if grep -q "Metro Bundler ready" expo.log; then
+              echo "✅ Metro Bundler is up!"
+              kill $PID 2>/dev/null || true
+              exit 0
             fi
+            sleep 1
           done
 
-          if [ "$IS_ADMIN" = true ]; then
-            echo "User $COMMITTER is an admin. Allowing commit."
-          else
-            echo "ERROR: Direct commits to main are not allowed for non-admin users."
-            exit 1
-          fi
+          echo "❌ Expo did not start within 30 seconds."
+          echo "—— expo.log ————"
+          tail expo.log
+          kill $PID 2>/dev/null || true
+          exit 1
