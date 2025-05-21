@@ -139,17 +139,21 @@ const Rewind3 = () => {
       />
       <View style={styles.overlay}>
         <Text style={styles.sectionHeader}>Top Rated Books</Text>
-        {topRatedBooks.length === 0 ? (
-          <Text style={styles.text}>Loading top books...</Text>
-        ) : (
-          renderBooks()
-        )}
+        <Animated.View style={{ opacity: fadeAnim }}>
+          {topRatedBooks.length === 0 ? (
+            <Text style={styles.text}>Loading top books...</Text>
+          ) : (
+            renderBooks()
+          )}
+        </Animated.View>
         <Text style={styles.sectionHeader}>Top Rated Authors</Text>
-        <Animated.Text style={[styles.animatedText, { opacity: fadeAnim }]}>
-          {topAuthors.length === 0
-            ? "Loading top authors..."
-            : topAuthors.join("\n")}
-        </Animated.Text>
+        <Animated.View style={{ opacity: fadeAnim }}>
+          <Text style={styles.text}>
+            {topAuthors.length === 0
+              ? "Loading top authors..."
+              : topAuthors.join("\n")}
+          </Text>
+        </Animated.View>
       </View>
     </View>
   );
@@ -175,6 +179,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'black',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+    marginTop: 70,
   },
   animatedText: {
     fontSize: 20,
