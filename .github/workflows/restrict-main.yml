@@ -30,7 +30,7 @@ jobs:
         run: npm install
 
       - name: Fix Expo SDK dependency versions
-        run: npx expo doctor --fix-dependencies --yes
+        run: npx expo-doctor --fix-dependencies --yes
 
       - name: Start Expo and verify Metro Bundler
         run: |
