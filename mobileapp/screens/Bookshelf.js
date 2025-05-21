@@ -1,6 +1,7 @@
-import React, {useEffect, useLayoutEffect, useState} from "react";
-import { PutBook } from "../api/openLibrary";
-import { createBookLog } from "../api/logData";
+import React, {useEffect, useLayoutEffect, useState } from "react";
+import { ScrollView } from 'react-native';
+import {getCoverUrl, PutBook} from "../api/openLibrary";
+
 import {
     View,
     Text,
@@ -12,8 +13,10 @@ import {
     Pressable,
     ImageBackground,
 } from "react-native";
-import { Camera, useCameraDevice, useCodeScanner } from "react-native-vision-camera";
-import {supabase} from "../Supabase";
+
+import {Camera, useCameraDevice, useCodeScanner} from "react-native-vision-camera";
+import {supabase, isbndbGetHeaders} from "../Supabase";
+
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Dropdown } from 'react-native-element-dropdown';
 import { BookshelfStyles } from "../styles/BookshelfStyles";
@@ -38,53 +41,45 @@ export default function Bookshelf({navigation}) {
 	}
 
     // --- Normal app UI below ---
+    const isISBN = (query) => /^[0-9]{10,13}$/.test(query.replace(/-/g, ''));
     const searchBooks = async () => {
-        if (!searchQuery) {
-            console.log("no search query");
-            return;
-        }
+        if (!searchQuery) return;
+
         try {
-            console.log(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
-            const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}`);
-            const data = await response.json();
+            let books = [];
 
-            const processed = data.docs.map(book => {
-                const result = {
-                    title: book.title || null,
-                    authors: book.author_name || [],
-                    isbns: []
-                };
-
-                // Check for ISBN in keys
-                for (const key in book) {
-                    const keyMatch = key.match(/^isbn_(\d{10,13})$/);
-                    if (keyMatch) {
-                        result.isbns.push(keyMatch[1]);
-                    }
+            if(isISBN(searchQuery)){
+                const response = await fetch(`https://api2.isbndb.com/book/${encodeURIComponent(searchQuery)}`, {
+                    headers: isbndbGetHeaders,
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    books = [data.book]; // normalize to array
+                } else {
+                    console.error("ISBN Search error:", await response.text());
+                    return;
                 }
-
-                // Check for ISBN in ia array
-                if (Array.isArray(book.ia)) {
-                    for (const val of book.ia) {
-                        const valMatch = val.match(/^isbn_(\d{10,13})$/);
-                        if (valMatch) {
-                            result.isbns.push(valMatch[1]);
-                        }
-                    }
+            }
+            else{
+                const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
+                    headers: isbndbGetHeaders,
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    books = data.books;
+                } else {
+                    console.error("Text Search error:", await response.text());
+                    return;
                 }
-                // If we found any ISBNs, return the result
-                if (result.isbns.length > 0) return result;
-                else return null;
-            })
-                .filter(Boolean)
-                .slice(0, 25);
+            }
 
-            console.log("Processed search results:", processed);
-            setSearchResults(processed);
+            setSearchResults(books);
+
         } catch (err) {
-            console.error("Error fetching books:", err);
+            console.error("Fetch error:", err);
         }
     };
+
 
     const addBook = async () => {
         const book = {id: Date.now().toString(), title: newTitle, status: newStatus};
@@ -96,7 +91,7 @@ export default function Bookshelf({navigation}) {
 					label: newTitle,
 					value: book.id
 				}]);
-				
+
 				setNewTitle("");
         setNewStatus("");
         setModalVisible(false);
@@ -107,6 +102,9 @@ export default function Bookshelf({navigation}) {
             .from("book")
             .select('*')
         setBooks(b.data);
+        // Refresh library
+        await getLibrary();
+
 
 		// Update book dropdown options
 		const options = b.data.map(book => ({
@@ -118,7 +116,7 @@ export default function Bookshelf({navigation}) {
 
 	const [scanner, setScanner] = useState(false);
     const device = useCameraDevice("back");
-    
+
     const codeScanner = useCodeScanner({
         codeTypes: ["ean-13"],
         onCodeScanned: (codes) => {
@@ -141,57 +139,32 @@ export default function Bookshelf({navigation}) {
         });
     }, [navigation, scanner]);
 
-    // --- Scanner view replaces everything when active ---
-    if (scanner) {
-        return (
-            <View style={BookshelfStyles.cameraContainer}>
-                <Camera
-                    style={StyleSheet.absoluteFill}
-                    device={device}
-                    isActive={true}
-                    codeScanner={codeScanner}
-                />
-                <TouchableOpacity style={BookshelfStyles.closeScanner} onPress={() => setScanner(false)}>
-                    <Text style={BookshelfStyles.closeText}>Close Scanner</Text>
-                </TouchableOpacity>
-                <MaterialCommunityIcons
-                    name="line-scan"
-                    size={144}
-                    style={BookshelfStyles.scannerHelper}
-                    color="white"/>
-            </View>
-        );
-    }
 
     // load data from user's library
     useEffect(() => {
         getLibrary();
     }, []);
 
-	/** Book Logging: Reset Book Information when closing modal */
-	const resetBookSelection = () => {
-		setSelectedBookId(null);
-		setSelectedBookTitle("Select a book...");
-		setPagesRead(0);
-		setModalVisible(false);
-	}
 
-    const renderBook = ({item}) => (
+    const renderBookCard = ({ item }) => (
         <TouchableOpacity
-            style={BookshelfStyles.card}
-            onPress={() => navigation.navigate('BookDetail', {isbn: item.isbn})}>
+            style={styles.card}
+            onPress={() => navigation.navigate('BookDetail', { isbn: item.isbn })}
+        >
             <ImageBackground
-                source={{uri: item.cover_image}}
-                style={BookshelfStyles.cover}
-                imageStyle={BookshelfStyles.coverImage}
+            source={{ uri: item.cover_image || item.image || 'https://via.placeholder.com/100x150?text=No+Cover' }}
+            style={styles.cover}
+            imageStyle={styles.coverImage}
             />
-            <View style={BookshelfStyles.cardContent}>
-                <Text style={BookshelfStyles.bookTitle} numberOfLines={2}>
-                    {item.title}
-                </Text>
+            <View style={styles.cardContent}>
+            <Text style={styles.bookTitle} numberOfLines={2}>
+                {item.title}
+            </Text>
+
             </View>
         </TouchableOpacity>
     );
+
 
     return (
         <View style={BookshelfStyles.container}>
@@ -212,6 +185,32 @@ export default function Bookshelf({navigation}) {
                     size={24}
                     color="black"
                     onPress={() => setScanner(true)}/>
+                {/* Scanner overlay using Modal */}
+                {scanner && (
+                <Modal visible transparent animationType="slide">
+                    <View style={styles.cameraContainer}>
+                    <Camera
+                        style={StyleSheet.absoluteFill}
+                        device={device}
+                        isActive={true}
+                        codeScanner={codeScanner}
+                    />
+                    <TouchableOpacity
+                        style={styles.closeScanner}
+                        onPress={() => setScanner(false)}
+                    >
+                        <Text style={styles.closeText}>Close Scanner</Text>
+                    </TouchableOpacity>
+                    <MaterialCommunityIcons
+                        name="line-scan"
+                        size={144}
+                        style={styles.scannerHelper}
+                        color="white"
+                    />
+                    </View>
+                </Modal>
+                )}
+
 
                 <TouchableOpacity
                     style={BookshelfStyles.profileButton}
@@ -221,35 +220,31 @@ export default function Bookshelf({navigation}) {
             </View>
 
             {/* Search results */}
-            { searchResults.length > 0 && (
-                <View style={BookshelfStyles.searchResultContainer}>
-                    <Text style={BookshelfStyles.heading}>Search Results</Text>
-                    <FlatList
+            {/* {console.log(searchResults)} */}
+            {Array.isArray(searchResults) && searchResults.length > 0 && (
+                <View>
+                    <Text style={styles.heading}>Search Results</Text>
+                    <View style={{ maxHeight: 200 }}>
+                        <FlatList
                         data={searchResults}
-                        keyExtractor={(item, i) => item.key || i.toString()}
-                        renderItem={({item}) => (
-                            <TouchableOpacity
-                                style={BookshelfStyles.searchItem}
-                                onPress={() => navigation.navigate('BookDetail', {
-                                    isbn: item.isbns.length > 0 ? item.isbns[0] : null
-                                })}
-                            >
-                                <Text style={BookshelfStyles.bookTitle}>{item.title}</Text>
-                            </TouchableOpacity>
-                        )}
-                        numColumns={4}
-                    />
+                        keyExtractor={(item, index) => item.isbn || item.isbn13 || index.toString()}
+                        renderItem={renderBookCard}
+                        numColumns={3}
+                        />
+                    </View>
                 </View>
             )}
+
 
             {/* Your library */}
             <Text style={BookshelfStyles.heading}>Your Library</Text>
             <FlatList
                 data={books}
                 keyExtractor={(item) => item.id}
-                renderItem={renderBook}
+                renderItem={renderBookCard}
                 numColumns={3}
             />
+            {/* {console.log(books)} */}
 
             {/* Log a booka FAB */}
             <TouchableOpacity style={BookshelfStyles.fab} onPress={() => setModalVisible(true)}>
@@ -284,7 +279,7 @@ export default function Bookshelf({navigation}) {
 		    			onChangeText={(text) => {
                             // Remove non-numeric characters and convert to number
                             const numericValue = text.replace(/[^0-9]/g, '');
-                            // Sets pages read to 
+                            // Sets pages read to
                             setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
 					    }}
 						style={BookshelfStyles.input}

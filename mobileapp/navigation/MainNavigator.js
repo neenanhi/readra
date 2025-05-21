@@ -10,7 +10,8 @@ import Bookshelf from "../screens/Bookshelf";
 import Home from "../screens/Home";
 import BookDetail from "../screens/BookDetail";
 import PromptScreen from "../screens/PromptScreen";
-import Rewind1 from "../screens/Rewind1";
+import Rewind1 from "../screens/Rewind/Rewind1";
+import {Rewind} from "../screens/RewindManager";
 
 const Tab = createBottomTabNavigator();
 
@@ -113,7 +114,7 @@ export default function MainNavigator() {
         {/* Rewind Screen */}
         <Tab.Screen
           name="Rewind"
-          component={Rewind1}
+          component={Rewind}
           options={{
             tabBarIcon: () => (
               <Image
