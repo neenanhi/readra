@@ -13,26 +13,38 @@ import {
 } from "react-native";
 import React, {useEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
-import {supabase} from "../Supabase";
+import {supabase, isbndbGetHeaders} from "../Supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-
-async function getBookData(isbn) {
-    const response = await axios({
-        method: 'get',
-        url: `https://openlibrary.org/search.json?q=${isbn}`
-    });
-    return response.data["docs"][0];
+export async function getBookData(isbn) {
+    try {
+        const response = await axios.get(`https://api2.isbndb.com/book/${isbn}`, {
+            headers: isbndbGetHeaders
+        });
+        // console.log("printing")
+        // console.log(response.data.book)
+        return response.data.book;
+    } catch (error) {
+        console.error(`Error fetching book data for ISBN ${isbn}:`, error.response?.data || error.message);
+        return null;
+    }
 }
 
-async function getPages(isbn) {
-    const response = await axios({
-        method: 'get',
-        url: `https://openlibrary.org/isbn/${isbn}.json`
-    });
-    return response.data["number_of_pages"];
+
+export async function getPages(isbn) {
+    try {
+        const response = await axios.get(`https://api2.isbndb.com/book/${isbn}`, {
+            headers: isbndbGetHeaders
+        });
+
+        return response.data.book?.pages || null;
+    } catch (error) {
+        console.error(`Error fetching page count for ISBN ${isbn}:`, error.response?.data || error.message);
+        return null;
+    }
 }
+
 
 // export default function BookDetail({isbn}) {
 export default function BookDetail({route}) {
@@ -54,24 +66,33 @@ export default function BookDetail({route}) {
     useEffect(() => {
         let mounted = true;
         setLoading(true);
+
+        // Fetch user-specific book record from Supabase
         supabase
             .from('book')
-            .select("*")
-            .eq("isbn", isbn).then(d => {
-            setUserBook(d.data[0]);
-        }).then(() => {
-            setEndDate(new Date(userBook["date_finished"]));
-            setStartDate(new Date(userBook["date_started"]));
-        });
+            .select('*')
+            .eq('isbn', isbn)
+            .then(d => {
+                setUserBook(d.data[0]);
+            })
+            .then(() => {
+                setEndDate(new Date(userBook?.date_finished));
+                setStartDate(new Date(userBook?.date_started));
+            });
+
+        // Fetch page count from ISBNdb
         getPages(isbn).then(data => {
-            setPages(data);
+            if (mounted) setPages(data);
         });
+
+        // Fetch book metadata from ISBNdb
         getBookData(isbn)
             .then(data => {
                 if (!mounted) return;
                 if (data) {
-                    data["isbn"] = isbn;
-                    data["cover_image"] = `https://covers.openlibrary.org/b/id/${data.cover_i}-M.jpg`
+                    data.isbn = isbn;
+                    data.cover_image = data.cover_image || data.image || data.image_original || null;
+                    // console.log(data.cover_image)
                     setBook(data);
                 } else {
                     setError(new Error("No book found"));
@@ -83,8 +104,9 @@ export default function BookDetail({route}) {
             .finally(() => {
                 if (mounted) setLoading(false);
             });
+
         return () => {
-            mounted = false
+            mounted = false;
         };
     }, [isbn]);
 
@@ -130,7 +152,7 @@ export default function BookDetail({route}) {
             });
     }
 
-    console.log(userBook, startDate, endDate);
+    // console.log(userBook, startDate, endDate);
 
     if (loading) {
         return (
@@ -143,94 +165,95 @@ export default function BookDetail({route}) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/*<ScrollView contentContainerStyle={styles.scrollContent}>*/}
-            <View style={styles.topRow}>
-                <View style={styles.infoColumn}>
-                    <Text style={styles.title}>{book.title} ({pages} pages)</Text>
-                    <Text style={styles.author}>
-                        by {book.author_name?.[0] || "Unknown"}
-                    </Text>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <View style={styles.topRow}>
+                    <View style={styles.infoColumn}>
+                        <Text style={styles.title}>{book.title} ({pages} pages)</Text>
+                        <Text style={styles.author}>
+                            by {book.authors?.[0] || "Unknown"}
+                        </Text>
+                    </View>
+                    <Image
+                    
+                        source={{ uri: getCoverUrl(book) }}
+                        style={styles.cover}
+                        resizeMode="cover"
+                    />
                 </View>
-                <Image
-                    source={{uri: getCoverUrl(book.cover_i)}}
-                    style={styles.cover}
-                    resizeMode="cover"
-                />
-            </View>
 
-            <Text style={styles.description}>
-                {book.description
-                    ? book.description.slice(0, 150) + "…"
-                    : "No description available."}
-            </Text>
+                <Text style={styles.description}>
+                    {book.description
+                        ? book.description.slice(0, 150) + "…"
+                        : "No description available."}
+                </Text>
 
-            <View style={{width: '100%'}}>
-                {userBook === undefined ?
-                    <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
-                        <Text style={{color: '#7D819F', textAlign: 'center'}}>Add to Library</Text>
-                    </TouchableOpacity> :
-                    <View style={styles.inLibRow}>
-                        <TouchableOpacity style={styles.removeButton} onPress={removeBook}>
-                            <Text style={styles.removeButtonText}>Remove from Library</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
-                            <FontAwesome5 name="edit" size={20} color="#7d819f"/>
-                        </TouchableOpacity>
-                    </View>}
-            </View>
+                <View style={{width: '100%'}}>
+                    {userBook === undefined ?
+                        <TouchableOpacity style={styles.addToLibrary} onPress={() => addBook()}>
+                            <Text style={{color: '#7D819F', textAlign: 'center'}}>Add to Library</Text>
+                        </TouchableOpacity> :
+                        <View style={styles.inLibRow}>
+                            <TouchableOpacity style={styles.removeButton} onPress={removeBook}>
+                                <Text style={styles.removeButtonText}>Remove from Library</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
+                                <FontAwesome5 name="edit" size={20} color="#7d819f"/>
+                            </TouchableOpacity>
+                        </View>}
+                </View>
 
-            <Modal transparent visible={modalVisible} animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTitle}>Edit Dates</Text>
+                <Modal transparent visible={modalVisible} animationType="slide">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalTitle}>Edit Dates</Text>
 
-                        <Pressable onPress={() => {
-                            setShowStartPicker(true);
-                            console.log("pressed")
-                        }} style={styles.dateField}>
-                            <Text style={styles.dateFieldText}>Start: {startDate.toLocaleDateString()}</Text>
-                        </Pressable>
-                        <DateTimePickerModal
-                            isVisible={showStartPicker}
-                            mode="date"
-                            onConfirm={date => {
-                                setStartDate(date);
-                                setShowStartPicker(false);
-                            }}
-                            onCancel={() => setShowStartPicker(false)}
-                            headerTextIOS="Select start date"
-                        />
-
-                        <Pressable onPress={() => setShowEndPicker(true)} style={styles.dateField}>
-                            <Text style={styles.dateFieldText}>Finish: {endDate.toLocaleDateString()}</Text>
-                        </Pressable>
-                        <DateTimePickerModal
-                            isVisible={showEndPicker}
-                            mode="date"
-                            onConfirm={date => {
-                                setEndDate(date);
-                                setShowEndPicker(false);
-                            }}
-                            onCancel={() => setShowEndPicker(false)}
-                            headerTextIOS="Select finish date"
-                        />
-
-
-                        <View style={styles.modalButtons}>
-                            <Pressable style={styles.button} onPress={() => {
-                                updateBook();
-                                setModalVisible(false);
-                            }}>
-                                <Text style={styles.buttonText}>Save</Text>
+                            <Pressable onPress={() => {
+                                setShowStartPicker(true);
+                                console.log("pressed")
+                            }} style={styles.dateField}>
+                                <Text style={styles.dateFieldText}>Start: {startDate.toLocaleDateString()}</Text>
                             </Pressable>
-                            <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
-                                <Text style={styles.buttonText}>Cancel</Text>
+                            <DateTimePickerModal
+                                isVisible={showStartPicker}
+                                mode="date"
+                                onConfirm={date => {
+                                    setStartDate(date);
+                                    setShowStartPicker(false);
+                                }}
+                                onCancel={() => setShowStartPicker(false)}
+                                headerTextIOS="Select start date"
+                            />
+
+                            <Pressable onPress={() => setShowEndPicker(true)} style={styles.dateField}>
+                                <Text style={styles.dateFieldText}>Finish: {endDate.toLocaleDateString()}</Text>
                             </Pressable>
+                            <DateTimePickerModal
+                                isVisible={showEndPicker}
+                                mode="date"
+                                onConfirm={date => {
+                                    setEndDate(date);
+                                    setShowEndPicker(false);
+                                }}
+                                onCancel={() => setShowEndPicker(false)}
+                                headerTextIOS="Select finish date"
+                            />
+
+
+                            <View style={styles.modalButtons}>
+                                <Pressable style={styles.button} onPress={() => {
+                                    updateBook();
+                                    setModalVisible(false);
+                                }}>
+                                    <Text style={styles.buttonText}>Save</Text>
+                                </Pressable>
+                                <Pressable style={[styles.button, styles.cancel]} onPress={() => setModalVisible(false)}>
+                                    <Text style={styles.buttonText}>Cancel</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
-
+                </Modal>
+            </ScrollView>
         </SafeAreaView>
     );
 }

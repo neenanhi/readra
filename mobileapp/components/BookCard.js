@@ -1,17 +1,20 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+// api/isbnDB.js
 import { getCoverUrl } from '../api/openLibrary';
 
+
 const BookCard = ({ book }) => {
+  // console.log(book)
   return (
     <View style={styles.card}>
       <Image
-        source={{ uri: getCoverUrl(book.cover_i) }}
+        source={{ uri: getCoverUrl(book) }}
         style={styles.image}
         resizeMode="cover"
       />
       <Text style={styles.title}>{book.title}</Text>
-      <Text style={styles.author}>by {book.author_name?.[0] || 'Unknown'}</Text>
+      <Text style={styles.author}>by {book.authors?.[0] || 'Unknown'}</Text>
       <Text style={styles.description}>
         {book.description ? book.description.slice(0, 100) + '...' : 'No description available.'}
       </Text>
