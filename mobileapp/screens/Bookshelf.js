@@ -188,7 +188,7 @@ export default function Bookshelf({navigation}) {
                 {/* Scanner overlay using Modal */}
                 {scanner && (
                 <Modal visible transparent animationType="slide">
-                    <View style={styles.cameraContainer}>
+                    <View style={BookshelfStyles.cameraContainer}>
                     <Camera
                         style={StyleSheet.absoluteFill}
                         device={device}
@@ -196,15 +196,15 @@ export default function Bookshelf({navigation}) {
                         codeScanner={codeScanner}
                     />
                     <TouchableOpacity
-                        style={styles.closeScanner}
+                        style={BookshelfStyles.closeScanner}
                         onPress={() => setScanner(false)}
                     >
-                        <Text style={styles.closeText}>Close Scanner</Text>
+                        <Text style={BookshelfStyles.closeText}>Close Scanner</Text>
                     </TouchableOpacity>
                     <MaterialCommunityIcons
                         name="line-scan"
                         size={144}
-                        style={styles.scannerHelper}
+                        style={BookshelfStyles.scannerHelper}
                         color="white"
                     />
                     </View>
@@ -223,7 +223,7 @@ export default function Bookshelf({navigation}) {
             {/* {console.log(searchResults)} */}
             {Array.isArray(searchResults) && searchResults.length > 0 && (
                 <View>
-                    <Text style={styles.heading}>Search Results</Text>
+                    <Text style={BookshelfStyles.heading}>Search Results</Text>
                     <View style={{ maxHeight: 200 }}>
                         <FlatList
                         data={searchResults}
