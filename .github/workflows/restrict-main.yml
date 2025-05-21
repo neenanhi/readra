@@ -20,17 +20,12 @@ jobs:
 
       - name: Use Node.js 16
         uses: actions/setup-node@v3
-        with:
-          node-version: 16
 
       - name: Install legacy Expo CLI v5
         run: npm install -g expo-cli@5
 
       - name: Install project dependencies
         run: npm install
-
-      - name: Fix Expo SDK dependency versions
-        run: npx expo-doctor --fix-dependencies --yes
 
       - name: Start Expo and verify Metro Bundler
         run: |
