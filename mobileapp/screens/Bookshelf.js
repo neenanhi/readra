@@ -91,7 +91,7 @@ export default function Bookshelf({navigation}) {
 					label: newTitle,
 					value: book.id
 				}]);
-				
+
 				setNewTitle("");
         setNewStatus("");
         setModalVisible(false);
@@ -104,7 +104,6 @@ export default function Bookshelf({navigation}) {
         setBooks(b.data);
         // Refresh library
         await getLibrary();
-    }
 
 
 		// Update book dropdown options
@@ -117,7 +116,7 @@ export default function Bookshelf({navigation}) {
 
 	const [scanner, setScanner] = useState(false);
     const device = useCameraDevice("back");
-    
+
     const codeScanner = useCodeScanner({
         codeTypes: ["ean-13"],
         onCodeScanned: (codes) => {
@@ -280,7 +279,7 @@ export default function Bookshelf({navigation}) {
 		    			onChangeText={(text) => {
                             // Remove non-numeric characters and convert to number
                             const numericValue = text.replace(/[^0-9]/g, '');
-                            // Sets pages read to 
+                            // Sets pages read to
                             setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
 					    }}
 						style={BookshelfStyles.input}
