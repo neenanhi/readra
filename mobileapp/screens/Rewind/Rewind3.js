@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Animated } from "react-native";
 import { useEffect, useState, useRef } from "react";
-import { getRewind3Data } from "../api/rewindData";
+import { getRewind3Data } from "../../api/rewindData";
 
 const Rewind3 = () => {
   const [topAuthors, setTopAuthors] = useState([]);
