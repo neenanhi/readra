@@ -33,37 +33,35 @@ export default function Bookshelf({navigation}) {
         if (!searchQuery) return;
 
         try {
-            let data;
+            let books = [];
 
-            if (isISBN(searchQuery)) {
-            const response = await fetch(`https://api2.isbndb.com/book/${encodeURIComponent(searchQuery)}`, {
-                headers: isbndbGetHeaders
-            });
-
-            if (!response.ok) {
-                const err = await response.json();
-                console.error("ISBN Search error:", err.message);
-                return;
-            }
-
-            data = await response.json();
-            } else {
-                const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
-                    headers: isbndbGetHeaders
+            if(isISBN(searchQuery)){
+                const response = await fetch(`https://api2.isbndb.com/book/${encodeURIComponent(searchQuery)}`, {
+                    headers: isbndbGetHeaders,
                 });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    console.error("Text Search error:", err.message);
+                if (response.ok) {
+                    const data = await response.json();
+                    books = [data.book]; // normalize to array
+                } else {
+                    console.error("ISBN Search error:", await response.text());
                     return;
                 }
-
-                data = await response.json();
+            }
+            else{
+                const response = await fetch(`https://api2.isbndb.com/books/${encodeURIComponent(searchQuery)}`, {
+                    headers: isbndbGetHeaders,
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    books = data.books;
+                } else {
+                    console.error("Text Search error:", await response.text());
+                    return;
+                }
             }
 
-            const books = data.books || [];
-            // console.log(books)
             setSearchResults(books);
+
         } catch (err) {
             console.error("Fetch error:", err);
         }
@@ -113,26 +111,6 @@ export default function Bookshelf({navigation}) {
     }, [navigation, scanner]);
 
     // --- Scanner view replaces everything when active ---
-    if (scanner) {
-        return (
-            <View style={styles.cameraContainer}>
-                <Camera
-                    style={StyleSheet.absoluteFill}
-                    device={device}
-                    isActive={true}
-                    codeScanner={codeScanner}
-                />
-                <TouchableOpacity style={styles.closeScanner} onPress={() => setScanner(false)}>
-                    <Text style={styles.closeText}>Close Scanner</Text>
-                </TouchableOpacity>
-                <MaterialCommunityIcons
-                    name="line-scan"
-                    size={144}
-                    style={styles.scannerHelper}
-                    color="white"/>
-            </View>
-        );
-    }
 
     // load data from user's library
     useEffect(() => {
@@ -177,6 +155,32 @@ export default function Bookshelf({navigation}) {
                     size={24}
                     color="black"
                     onPress={() => setScanner(true)}/>
+                {/* Scanner overlay using Modal */}
+                {scanner && (
+                <Modal visible transparent animationType="slide">
+                    <View style={styles.cameraContainer}>
+                    <Camera
+                        style={StyleSheet.absoluteFill}
+                        device={device}
+                        isActive={true}
+                        codeScanner={codeScanner}
+                    />
+                    <TouchableOpacity
+                        style={styles.closeScanner}
+                        onPress={() => setScanner(false)}
+                    >
+                        <Text style={styles.closeText}>Close Scanner</Text>
+                    </TouchableOpacity>
+                    <MaterialCommunityIcons
+                        name="line-scan"
+                        size={144}
+                        style={styles.scannerHelper}
+                        color="white"
+                    />
+                    </View>
+                </Modal>
+                )}
+
 
                 <TouchableOpacity
                     style={styles.profileButton}
