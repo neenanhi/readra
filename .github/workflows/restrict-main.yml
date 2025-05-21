@@ -1,7 +1,7 @@
 name: Verify Expo Starts
 
 on:
-  push:        # every push, all branches
+  push:        # runs on every push
   pull_request:
 
 jobs:
@@ -10,9 +10,9 @@ jobs:
     env:
       CI: true
 
-    # default run directory is the Expo project
     defaults:
       run:
+        # make sure all run steps happen inside your Expo project
         working-directory: mobileapp
 
     steps:
@@ -28,15 +28,14 @@ jobs:
         run: npm install -g expo-cli
 
       - name: Install project dependencies
-        run: npm ci
+        run: npm install
 
-      # if your package.json really doesn’t list "expo" in deps, this ensures it’s there
       - name: Ensure expo SDK is installed
         run: npm install expo@latest --save
 
       - name: Start Expo and verify Metro Bundler
         run: |
-          # start Expo in background, log everything
+          # launch Expo in background, capture logs
           expo start --tunnel &> expo.log &
           PID=$!
 
