@@ -153,11 +153,11 @@ export default function Bookshelf({navigation}) {
         >
             <ImageBackground
             source={{ uri: item.cover_image || item.image || 'https://via.placeholder.com/100x150?text=No+Cover' }}
-            style={styles.cover}
-            imageStyle={styles.coverImage}
+            style={BookshelfStyles.cover}
+            imageStyle={BookshelfStyles.coverImage}
             />
-            <View style={styles.cardContent}>
-            <Text style={styles.bookTitle} numberOfLines={2}>
+            <View style={BookshelfStyles.cardContent}>
+            <Text style={BookshelfStyles.bookTitle} numberOfLines={2}>
                 {item.title}
             </Text>
 
