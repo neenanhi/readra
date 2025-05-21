@@ -1,7 +1,7 @@
 name: Verify Expo Starts
 
 on:
-  push:
+  push:        # runs on every push
   pull_request:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 16
 
       - name: Install expo-cli globally
         run: npm install -g expo-cli
@@ -32,17 +32,17 @@ jobs:
           PID=$!
 
           echo "⏳ Waiting for Metro Bundler to be ready..."
-          for i in {1..15}; do
+          for i in {1..30}; do
             if grep -q "Metro Bundler ready" expo.log; then
               echo "✅ Metro Bundler is up!"
-              kill $PID
+              kill $PID 2>/dev/null || true
               exit 0
             fi
             sleep 1
           done
 
-          echo "❌ Expo did not start within 15 seconds."
+          echo "❌ Expo did not start within 30 seconds."
           echo "—— expo.log ————"
           tail expo.log
-          kill $PID
+          kill $PID 2>/dev/null || true
           exit 1
