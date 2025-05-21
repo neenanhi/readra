@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Animated } from "react-native";
 import { useEffect, useState, useRef } from "react";
 import { GLView } from "expo-gl";
-import { getRewind3Data } from "../api/rewindData";
+import { getRewind3Data } from "../../api/rewindData";
 
 // GLSL Shaders (same as rewind1.js)
 const VSHADER_SOURCE = `
