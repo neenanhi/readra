@@ -14,19 +14,14 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install expo-cli globally
-        run: npm install -g expo-cli
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd mobileapp/
+          npm install
 
       - name: Start Expo and verify it boots
         run: |
-          cd mobileapp/
-          
           # Start Expo in the background, capturing all output
           npx expo start --non-interactive --max-workers 1 &> expo.log &
           PID=$!

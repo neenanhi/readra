@@ -148,7 +148,7 @@ export default function Bookshelf({navigation}) {
 
     const renderBookCard = ({ item }) => (
         <TouchableOpacity
-            style={styles.card}
+            style={BookshelfStyles.card}
             onPress={() => navigation.navigate('BookDetail', { isbn: item.isbn })}
         >
             <ImageBackground
