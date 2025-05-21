@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-native-dotenv": "^3.4.11",
+    "stream-http": "^3.2.0"
+  }
+}
