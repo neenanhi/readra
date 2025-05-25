@@ -42,4 +42,11 @@ const Home = ({navigation}) => {
           result = await supabase
             .from('quotes')
             .update({
-             
+              text: quoteInput,
+              author: quoteAuthor,
+            })
+            .eq('quote_id', existingQuoteId)
+            .select('quote_id, text, author')
+            .single();
+        } else {
+          
