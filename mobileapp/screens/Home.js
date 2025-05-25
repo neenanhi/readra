@@ -49,4 +49,10 @@ const Home = ({navigation}) => {
             .select('quote_id, text, author')
             .single();
         } else {
-          
+          // Insert a new row 
+          result = await supabase
+            .from('quotes')
+            .insert(payload)
+            .select('quote_id, text, author')
+            .single();
+        }
