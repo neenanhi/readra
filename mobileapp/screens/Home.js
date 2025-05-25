@@ -36,3 +36,10 @@ const Home = ({navigation}) => {
           author: quoteAuthor,
           source: 'Manual',
         };
+
+        let result;
+        if (existingQuoteId) {
+          result = await supabase
+            .from('quotes')
+            .update({
+             
