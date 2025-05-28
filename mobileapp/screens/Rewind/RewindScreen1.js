@@ -155,8 +155,6 @@ Respond with only the index of the most relevant reading personality.`;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Your Reading Rewind</Text>
-
       {/* Show loading indicator if either subjects are fetching or personality is generating */}
       {(isFetchingSubjects || isLoadingPersonality) && (
         <View style={styles.loadingContainer}>
@@ -168,9 +166,13 @@ Respond with only the index of the most relevant reading personality.`;
           </Text>
         </View>
       )}
-
       {/* Display error messages */}
       {error && <Text style={styles.errorText}>{error}</Text>}
+
+      {/* Only show title when not loading and no error */}
+      {!isFetchingSubjects && !isLoadingPersonality && !error && (
+        <Text style={styles.title}>Your Reading Rewind</Text>
+      )}
 
       {/* Display personality and description only when available and no errors */}
       {personality &&
@@ -178,14 +180,12 @@ Respond with only the index of the most relevant reading personality.`;
       !error &&
       !(isFetchingSubjects || isLoadingPersonality) ? (
         <View style={styles.responseContainer}>
-          <Text style={styles.sectionTitle}>Reading Personality:</Text>
+          {/* <Text style={styles.sectionTitle}>Reading Personality:</Text> */}
           <Text style={styles.personalityText}>{personality}</Text>
           <Text style={styles.descriptionText}>{description}</Text>
 
           {/* display fetched subjects (for debugging) */}
-          <Text style={styles.debugTitle}>
-            Fetched Subjects (for debugging):
-          </Text>
+          <Text style={styles.debugTitle}>Fetched Subjects:</Text>
           <Text style={styles.debugText}>{subjectTags}</Text>
         </View>
       ) : null}
@@ -214,7 +214,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 30,
     color: "#333",
     textAlign: "center",
   },
@@ -247,13 +246,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#444",
-    textAlign: "center",
-  },
+  // sectionTitle: {
+  //   fontSize: 20,
+  //   fontWeight: "bold",
+  //   marginBottom: 10,
+  //   color: "#444",
+  //   textAlign: "center",
+  // },
   personalityText: {
     fontSize: 22,
     fontWeight: "bold",

@@ -47,16 +47,13 @@ const RewindPagesRead = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Your Reading Rewind</Text>
-      <Text style={styles.subtitle}>
-        A look back at your literary adventures!
-      </Text>
+      <Text style={styles.subtitle}>A look back at your reading journey!</Text>
       <View style={styles.statsCard}>
         <Text style={styles.statLabel}>Total Books Read:</Text>
         <Text style={styles.statValue}>{stats.totalBooks}</Text>
         <Text style={styles.statLabel}>Total Pages Read:</Text>
         <Text style={styles.statValue}>{stats.totalPages}</Text>
       </View>
-      <Text style={styles.closingText}>Keep turning those pages!</Text>
     </View>
   );
 };
@@ -116,12 +113,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#007bff",
     marginBottom: 15,
-  },
-  closingText: {
-    fontSize: 16,
-    color: "#777",
-    fontStyle: "italic",
-    marginTop: 20,
   },
 });
 
