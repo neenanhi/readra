@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import { getLogData } from "../../api/logData";
 import Rewind3 from "./Rewind3";
+import RewindScreen2 from "./RewindScreen2";
 
 const Rewind2 = () => {
   const [logData, setLogData] = useState({
@@ -20,40 +21,34 @@ const Rewind2 = () => {
 
   /** Displays a user's individual logs */
   const displayLogs = () => {
-    if (!(logData.logs)) {
-      return <Text>No logs found</Text>
+    if (!logData.logs) {
+      return <Text>No logs found</Text>;
     }
 
-    return (
-      logData.logs.map((log, index) => (
-        <Text key={index}>
-          Log #{index + 1}: {log.pages} pages
-        </Text>
-      ))
-    );
-  }
+    return logData.logs.map((log, index) => (
+      <Text key={index}>
+        Log #{index + 1}: {log.pages} pages
+      </Text>
+    ));
+  };
 
   /** Format date */
   const mostPagesLogDate = () => {
     if (!logData.mostPagesLog?.created_at) return "No date available";
-    
-    const date = new Date(logData.mostPagesLog.created_at);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
 
+    const date = new Date(logData.mostPagesLog.created_at);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // second rewind screen
   return (
     <View style={styles.container}>
-      <Text style={styles.profileText}>Rewind</Text>
-      <Text>You have read a total of { logData.totalPagesRead } across all books</Text>
-      <Text>Your most active day was { mostPagesLogDate() }, where you read { logData?.mostPagesLog?.pages || 'unknown'} pages</Text>
-      {/* Function below displays all user log information */}
-      {/* { displayLogs() } */}
-      <Rewind3/>
+      <RewindScreen2 />
     </View>
   );
 };
