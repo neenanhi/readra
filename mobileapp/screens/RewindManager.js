@@ -3,15 +3,71 @@ import { View, StyleSheet, Pressable, Animated } from "react-native";
 import Rewind1 from "./Rewind/Rewind1";
 import Rewind2 from "./Rewind/Rewind";
 import Rewind3 from "./Rewind/Rewind3";
-
+import axios from "axios";
+import { supabase, isbndbGetHeaders } from "../Supabase";
 const stories = [Rewind1, Rewind2, Rewind3];
 const AUTO_ADVANCE_MS = 5000;
+
+/**
+ * I totally stole this from my hw from another class LOL
+ * Fetches and counts subjects from books read by a specific user.
+ * @param {string} userId - UUID of the user.
+ * @returns {Promise<Object>} A dictionary of subjects and their counts.
+ */
+export async function getUserSubject(userId) {
+    // Pulling data from supabase
+    const { data, error } = await supabase
+        .from("book")
+        .select("genre, isbn")
+        .eq("user", userId);
+
+    if (error) {
+        console.error("Error fetching user books:", error);
+        return {};
+    }
+
+    const subjectCountsSB = {};
+    const subjectCountsISBN = {}
+
+    for (const book of data) {
+        // normalize all names to lowercase so no duplicate entries
+        const genre = book.genre?.toLowerCase().trim();
+        // simple genre count for supabase entries
+        if (genre) {
+            subjectCountsSB[genre] = (subjectCountsSB[genre] || 0) + 1;
+        }
+
+        // Count subjects from ISBNdb
+        const isbn = book.isbn?.trim();
+        if (isbn) {
+            try {
+                const response = await axios.get(`https://api2.isbndb.com/book/${isbn}`, {
+                    headers: isbndbGetHeaders,
+                });
+
+                const subjects = response.data.book?.subjects;
+                if (Array.isArray(subjects)) {
+                    for (const subject of subjects) {
+                        const normalized = subject.toLowerCase().trim();
+                        subjectCountsISBN[normalized] = (subjectCountsISBN[normalized] || 0) + 1;
+                    }
+                }
+            } catch (err) {
+                console.warn(`ISBNdb lookup failed for ISBN ${isbn}:`, err.response?.data || err.message);
+            }
+        }
+    }
+
+    return { subjectCountsSB, subjectCountsISBN };
+}
+
+
 
 export function Rewind() {
     const [current, setCurrent] = useState(0);
     const progressAnims = useRef(stories.map(() => new Animated.Value(0))).current;
     const timeoutRef = useRef(null);
-
+    // console.log()
     const animateCurrent = (index) => {
         progressAnims[index].setValue(0);
         Animated.timing(progressAnims[index], {
