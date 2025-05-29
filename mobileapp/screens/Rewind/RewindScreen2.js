@@ -46,13 +46,12 @@ const RewindPagesRead = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Reading Rewind</Text>
-      <Text style={styles.subtitle}>A look back at your reading journey!</Text>
       <View style={styles.statsCard}>
-        <Text style={styles.statLabel}>Total Books Read:</Text>
-        <Text style={styles.statValue}>{stats.totalBooks}</Text>
-        <Text style={styles.statLabel}>Total Pages Read:</Text>
-        <Text style={styles.statValue}>{stats.totalPages}</Text>
+        <Text style={styles.statLabel}>
+          You read a total of{" "}
+          <Text style={styles.statValue}>{stats.totalPages}</Text> pages across{" "}
+          <Text style={styles.statValue}>{stats.totalBooks}</Text> books!
+        </Text>
       </View>
     </View>
   );
@@ -63,31 +62,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
   errorText: {
     fontSize: 18,
     color: "red",
     textAlign: "center",
-    padding: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333", // Darker text for good contrast
-    marginBottom: 10,
-    textShadowColor: "rgba(0, 0, 0, 0.1)", // Subtle shadow
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: "#666",
-    marginBottom: 30,
-    fontStyle: "italic",
   },
   statsCard: {
-    backgroundColor: "#ffffff", // White card background
+    backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 32,
     alignItems: "center",
@@ -99,18 +81,18 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
   },
+
   statLabel: {
-    fontSize: 18,
-    color: "#555",
-    marginTop: 15,
-    marginBottom: 5,
-    fontWeight: "600",
+    fontSize: 20,
+    color: "#888",
+    textAlign: "center",
+    fontWeight: "500",
+    fontStyle: "italic",
   },
   statValue: {
-    fontSize: 38,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#007bff",
-    marginBottom: 15,
   },
 });
 
