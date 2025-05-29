@@ -1,162 +1,122 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet } from "react-native";
 import { GLView } from "expo-gl";
 import RewindScreen1 from "./RewindScreen1";
 
-var VSHADER_SOURCE = `
-  attribute vec4 a_Position;
-  void main() {
-    gl_Position = a_Position;
-  }`;
-
-// Fragment shader program
-var FSHADER_SOURCE = `
-// FSHADER_SOURCE
+const vertexShaderSrc = `
 precision mediump float;
+attribute vec2 a_Position;
+void main() {
+  gl_Position = vec4(a_Position, 0.0, 1.0);
+}`;
 
-uniform vec2  u_Resolution;  // in pixels
-uniform float u_Time;        // seconds since start
+const fragmentShaderSrc = `
+precision mediump float;
+uniform vec2 u_Resolution;
+uniform float u_Time;
 
-// cheap 2D hash
-float hash(vec2 p) {
-  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+// simple moving circles
+float circle(vec2 uv, vec2 center, float radius) {
+  return smoothstep(radius, radius - 0.02, length(uv - center));
 }
 
 void main() {
-  // normalize to [0,1]
-  vec2 st = gl_FragCoord.xy / u_Resolution;
+  vec2 uv = gl_FragCoord.xy / u_Resolution;
+  uv = uv * 2.0 - 1.0;
+  uv.x *= u_Resolution.x / u_Resolution.y;
 
-  // rotate coords for more motion
-  float ang = u_Time * 0.2;
-  mat2 rot = mat2(
-    cos(ang), -sin(ang),
-    sin(ang),  cos(ang)
-  );
-  st = rot * (st - 0.5) + 0.5;
+  // animate a few circles
+  float t = u_Time * 0.5;
+  float c1 = circle(uv, vec2(sin(t), cos(t)) * 0.5, 0.3);
+  float c2 = circle(uv, vec2(cos(t * 1.3), sin(t * 1.7)) * 0.6, 0.25);
+  float c3 = circle(uv, vec2(sin(t * 1.9), sin(t * 1.2)) * 0.4, 0.2);
 
-  // build three differently scaled “noise” layers
-  float r = hash(st * 8.0 + u_Time * 0.3);
-  float g = hash(st * 16.0 - u_Time * 0.5 + 1.0);
-  float b = hash(st * 32.0 + u_Time * 0.8 + 2.0);
+  vec3 col = vec3(0.0);
+  col += mix(vec3(1.0, 0.3, 0.6), vec3(0.2, 0.8, 1.0), c1);
+  col += mix(vec3(0.1, 1.0, 0.4), vec3(1.0, 0.8, 0.2), c2) * 0.8;
+  col += mix(vec3(0.8, 0.4, 1.0), vec3(0.3, 1.0, 0.9), c3) * 0.6;
 
-  // smooth out the result
-  r = smoothstep(0.2, 0.8, r);
-  g = smoothstep(0.2, 0.8, g);
-  b = smoothstep(0.2, 0.8, b);
-
-  gl_FragColor = vec4(r, g, b, 1.0);
-}
-`;
-
-let vertexBuffer, a_Position, u_Resolution, u_Time, gl;
+  gl_FragColor = vec4(col, 1.0);
+}`;
 
 export default function Rewind1() {
-  const rafId = useRef();
-  const startTime = useRef(performance.now());
-
-  useEffect(() => {
-    return () => {
-      if (rafId.current) cancelAnimationFrame(rafId.current);
-    };
-  }, []);
+  const raf = useRef();
+  const start = useRef();
 
   function onContextCreate(gl) {
-    const { drawingBufferWidth: w, drawingBufferHeight: h } = gl;
-    gl.viewport(0, 0, w, h);
+    const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
+    gl.viewport(0, 0, width, height);
+    gl.clearColor(0, 0, 0, 1);
 
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    // compile shaders
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, vertexShaderSrc);
+    gl.compileShader(vs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, fragmentShaderSrc);
+    gl.compileShader(fs);
 
-    var vertexShader = loadShader(gl, gl.VERTEX_SHADER, VSHADER_SOURCE);
-    var fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, FSHADER_SOURCE);
-    if (!vertexShader || !fragmentShader) return;
-
-    var program = gl.createProgram();
-    if (!program) return;
-
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
     gl.linkProgram(program);
     gl.useProgram(program);
-    gl.program = program;
 
-    var linked = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (!linked) {
-      var error = gl.getProgramInfoLog(program);
-      console.log("Failed to link program: " + error);
-      gl.deleteProgram(program);
-      gl.deleteShader(fragmentShader);
-      gl.deleteShader(vertexShader);
-      return;
-    }
+    // set up buffer
+    const quad = new Float32Array([1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, 1]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+    const posLoc = gl.getAttribLocation(program, "a_Position");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-    var vertexBuffer = gl.createBuffer();
-    if (!vertexBuffer) {
-      console.log("Failed to create the buffer object");
-      return;
-    }
+    // uniforms
+    const uRes = gl.getUniformLocation(program, "u_Resolution");
+    const uTime = gl.getUniformLocation(program, "u_Time");
+    gl.uniform2f(uRes, width, height);
 
-    var a_Position = gl.getAttribLocation(gl.program, "a_Position");
-    if (a_Position < 0) {
-      console.log("Failed to get the storage location of a_Position");
-      return;
-    }
-
-    var u_Time = gl.getUniformLocation(program, "u_Time");
-    var u_Resolution = gl.getUniformLocation(program, "u_Resolution");
-    gl.uniform2f(u_Resolution, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    gl.clearColor(0, 0, 0, 1.0);
-
-    const quadVerts = new Float32Array([
-      1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, 1,
-    ]);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, quadVerts, gl.STATIC_DRAW);
-
-    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(a_Position);
-
-    function tick() {
-      const seconds = (performance.now() - startTime.current) * 0.001;
-      gl.uniform1f(u_Time, seconds);
-
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    start.current = performance.now();
+    function render() {
+      const now = performance.now();
+      gl.uniform1f(uTime, (now - start.current) * 0.001);
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-      gl.flush();
       gl.endFrameEXP();
-
-      rafId.current = requestAnimationFrame(tick);
+      raf.current = requestAnimationFrame(render);
     }
-    tick();
+    render();
   }
 
-  function loadShader(gl, type, source) {
-    var shader = gl.createShader(type);
-    if (shader == null) {
-      console.log("unable to create shader");
-      return null;
-    }
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (!compiled) {
-      var error = gl.getShaderInfoLog(shader);
-      console.log("Failed to compile shader: " + error);
-      gl.deleteShader(shader);
-      return null;
-    }
-    return shader;
-  }
+  useEffect(() => {
+    return () => raf.current && cancelAnimationFrame(raf.current);
+  }, []);
 
   return (
-    <View style={{ flex: 1, position: "relative" }}>
-      {/* <GLView
-        key={FSHADER_SOURCE} // rerenders if shader source changes
-        style={{ flex: 1 }}
-        onContextCreate={onContextCreate}
-      /> */}
-      <RewindScreen1 />
+    <View style={styles.container}>
+      <GLView style={styles.background} onContextCreate={onContextCreate} />
+      <View style={styles.content} pointerEvents="box-none">
+        <RewindScreen1 />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "black", // only here
+  },
+  background: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "black", // fallback if GLView fails
+  },
+  content: {
+    flex: 1,
+    backgroundColor: "transparent", // let shader show through
+  },
+});

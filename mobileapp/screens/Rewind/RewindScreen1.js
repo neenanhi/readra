@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "transparent", // allow GLView behind to show through
   },
   title: {
     fontSize: 26,
@@ -246,13 +246,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  // sectionTitle: {
-  //   fontSize: 20,
-  //   fontWeight: "bold",
-  //   marginBottom: 10,
-  //   color: "#444",
-  //   textAlign: "center",
-  // },
   personalityText: {
     fontSize: 22,
     fontWeight: "bold",

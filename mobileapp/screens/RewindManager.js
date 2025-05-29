@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable, Animated } from "react-native";
 import Rewind1 from "./Rewind/Rewind1";
-import Rewind2 from "./Rewind/Rewind";
+import Rewind2 from "./Rewind/Rewind2";
 import Rewind3 from "./Rewind/Rewind3";
 import axios from "axios";
 import { supabase, isbndbGetHeaders } from "../Supabase";
