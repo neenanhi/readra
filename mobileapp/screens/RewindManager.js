@@ -6,7 +6,7 @@ import Rewind3 from "./Rewind/Rewind3";
 import axios from "axios";
 import { supabase, isbndbGetHeaders } from "../Supabase";
 const stories = [Rewind1, Rewind2, Rewind3];
-const AUTO_ADVANCE_MS = 10000;
+const AUTO_ADVANCE_MS = 15000;
 
 /**
  * I totally stole this from my hw from another class LOL

@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import OpenAI from "openai";
 
 let OPENAI_API_KEY =
@@ -154,25 +148,18 @@ Respond with only the index of the most relevant reading personality.`;
   }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View contentContainerStyle={styles.container}>
       {/* Show loading indicator if either subjects are fetching or personality is generating */}
       {(isFetchingSubjects || isLoadingPersonality) && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#4169E1" />
           <Text style={styles.loadingText}>
-            {isFetchingSubjects
-              ? "Loading your reading subjects..."
-              : "Generating your personality..."}
+            Loading your reading personality...
           </Text>
         </View>
       )}
       {/* Display error messages */}
       {error && <Text style={styles.errorText}>{error}</Text>}
-
-      {/* Only show title when not loading and no error */}
-      {!isFetchingSubjects && !isLoadingPersonality && !error && (
-        <Text style={styles.title}>Your Reading Rewind</Text>
-      )}
 
       {/* Display personality and description only when available and no errors */}
       {personality &&
@@ -199,34 +186,26 @@ Respond with only the index of the most relevant reading personality.`;
             found or an issue occurred.
           </Text>
         )}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
-    backgroundColor: "transparent", // allow GLView behind to show through
+    backgroundColor: "transparent",
   },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
+
   loadingContainer: {
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: 50,
   },
   loadingText: {
-    marginTop: 10,
     fontSize: 16,
     color: "#555",
   },
+
   errorText: {
     color: "red",
     marginTop: 20,
@@ -235,19 +214,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   responseContainer: {
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 32, // Increase for more padding, decrease for less
+    alignItems: "center",
+    width: "90%",
+
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 10,
+    elevation: 8,
   },
   personalityText: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: "bold",
     color: "#007bff",
     marginBottom: 10,

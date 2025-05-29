@@ -30,7 +30,7 @@ const RewindPagesRead = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007bff" />
+        <ActivityIndicator size="large" color="#4169E1" />
         <Text style={styles.loadingText}>Loading your reading journey...</Text>
       </View>
     );
@@ -88,18 +88,16 @@ const styles = StyleSheet.create({
   },
   statsCard: {
     backgroundColor: "#ffffff", // White card background
-    borderRadius: 15,
-    padding: 25,
-    marginHorizontal: 15,
+    borderRadius: 16,
+    padding: 32,
+    alignItems: "center",
+    width: "90%",
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 8,
-    alignItems: "center",
-    marginBottom: 30,
-    width: "85%",
-    maxWidth: 400,
   },
   statLabel: {
     fontSize: 18,
