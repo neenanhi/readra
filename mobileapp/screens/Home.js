@@ -52,44 +52,28 @@ const Home = ({navigation}) => {
     }, []);
 
     return (
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
             <Text style={styles.sectionTitle}> Hi {session?.user?.email}</Text>
             {/* Quote of the Day */}
             <View style={styles.quoteBox}>
                 <Text style={styles.quoteText}>
-                    “Anything worth having <Text style={styles.quoteEmphasis}>takes time</Text>.”
+                    “For those who <Text style={styles.quoteEmphasis}>come after</Text>.”
                 </Text>
-                <Text style={styles.quoteAuthor}>— Someone Notable</Text>
+                <Text style={styles.quoteAuthor}>— Gustave</Text>
             </View>
 
             {/* Find your next read section header */}
             <View style={styles.headerRow}>
-                <Text style={styles.sectionTitle}>Find your next read:</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Bookshelf')}>
-                    <Text style={styles.arrow}>›</Text>
-                </TouchableOpacity>
+                <Text style={styles.sectionTitle}>Trending now:</Text>
             </View>
 
             {/* Horizontal Scroll of Book Cards */}
             {loading ? (
-                <ActivityIndicator size="large" color="#999" style={{marginVertical: 20}}/>
+                <ActivityIndicator size="large" color="#999" style={{marginVertical: 0}}/>
             ) : (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollRow}>
                     {books.map((book, index) => (
-                        <BookCard key={index} book={book}/>
-                        // <View key={index} style={styles.bookCard}>
-                        //   <Image
-                        //     source={{ uri: getCoverUrl(book.cover_i) }}
-                        //     style={styles.bookCover}
-                        //     resizeMode="cover"
-                        //   />
-                        //   <Text style={styles.bookTitle}>{book.title}</Text>
-                        //   <Text style={styles.bookAuthor}>by {book.author_name?.[0] || 'Unknown'}</Text>
-                        //   <Text style={styles.bookDescription}>
-                        //     {book.description ? book.description.slice(0, 100) + '...' : 'No description available.'}
-                        //   </Text>
-                        //   <Text style={styles.rating}>★★★★★</Text>
-                        // </View>
+                        <BookCard key={index} book={book} navigation={navigation}/>
                     ))}
                 </ScrollView>
             )}
@@ -120,7 +104,7 @@ const Home = ({navigation}) => {
                 </TouchableOpacity>
             )}
 
-        </ScrollView>
+        </View>
     );
 };
 
@@ -164,6 +148,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 18,
+        marginBottom: 8,
         color: '#2e2e42',
         fontFamily: 'serif',
     },
@@ -172,7 +157,7 @@ const styles = StyleSheet.create({
         color: '#2e2e42',
     },
     scrollRow: {
-        marginBottom: 32,
+        marginBottom: 16,
     },
     bookCard: {
         width: 160,
@@ -234,7 +219,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         padding: 16,
         borderRadius: 16,
-        marginBottom: 32,
+        marginBottom: 64,
         // shadow for iOS
         shadowColor: '#000',
         shadowOpacity: 0.1,

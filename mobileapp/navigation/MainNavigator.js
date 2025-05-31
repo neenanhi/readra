@@ -11,7 +11,9 @@ import Home from "../screens/Home";
 import BookDetail from "../screens/BookDetail";
 import PromptScreen from "../screens/PromptScreen";
 import Rewind1 from "../screens/Rewind/Rewind1";
-import { Rewind } from "../screens/RewindManager";
+import {Rewind} from "../screens/RewindManager";
+import HomeStack from "./HomeStack";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -61,23 +63,23 @@ export default function MainNavigator() {
         }}
       >
         {/* Login Screen */}
-        <Tab.Screen
-          name="Home"
-          component={Home}
-          options={{
-            tabBarIcon: () => (
-              <Image
-                source={require("../assets/library_icon.png")}
-                style={{
-                  width: 50,
-                  height: 50,
-                  marginTop: 20,
-                  marginLeft: 30,
-                }}
-              />
-            ),
-          }}
-        />
+          <Tab.Screen
+              name="Home"
+              component={HomeStack}
+              options={{
+                  tabBarIcon: () => (
+                      <Image
+                          source={require("../assets/library_icon.png")}
+                          style={{
+                              width: 50,
+                              height: 50,
+                              marginTop: 20,
+                              marginLeft: 30,
+                          }}
+                      />
+                  ),
+              }}
+          />
         {/* Add a book Screen */}
         <Tab.Screen
           name="Add a Book"
