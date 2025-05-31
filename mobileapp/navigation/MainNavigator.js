@@ -14,6 +14,7 @@ import Rewind1 from "../screens/Rewind/Rewind1";
 import {Rewind} from "../screens/RewindManager";
 import HomeStack from "./HomeStack";
 
+
 const Tab = createBottomTabNavigator();
 
 function Placeholder({ label }) {
@@ -51,9 +52,9 @@ export default function MainNavigator() {
             display: "flex",
             justifyContent: "center",
             backgroundColor: "#2e3a59",
-            borderColor: '#2e3a59',
-            borderWidth: 1,
-            position: 'absolute',
+            // borderColor: '#2e3a59',
+            // borderWidth: 1,
+            // position: 'absolute',
           },
           tabBarItemStyle: {
             margin: "auto",

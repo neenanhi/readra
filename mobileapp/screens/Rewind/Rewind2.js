@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
+import { useEffect, useRef } from "react";
 import { GLView } from "expo-gl";
-import RewindScreen1 from "./RewindScreen1";
+import RewindScreen2 from "./RewindScreen2"; // Assuming this component exists
 
 const vertexShaderSrc = `
 precision mediump float;
@@ -15,61 +15,92 @@ precision mediump float;
 uniform vec2 u_Resolution;
 uniform float u_Time;
 
-// Circle function
-float circle(vec2 uv, vec2 center, float radius) {
-  // Using a slightly larger feathering for a softer edge, which might help the "darker blue" illusion
-  return smoothstep(radius, radius - 0.025, length(uv - center));
+// --- Shape and Utility Functions (for Triangles) ---
+
+// 2D rotation matrix
+mat2 rotate(float angle) {
+    float s = sin(angle);
+    float c = cos(angle);
+    return mat2(c, -s, s, c);
+}
+
+// Signed Distance Function for an equilateral triangle centered at origin
+float sdfEquilateralTriangle(vec2 p, float r) {
+    const float k = sqrt(3.0); 
+    p.x = abs(p.x) - r;
+    p.y = p.y + r / k; 
+    if (p.x + k * p.y > 0.0) { 
+        p = vec2(p.x - k * p.y, -k * p.x - p.y) / 2.0; 
+    }
+    p.x -= clamp(p.x, -2.0 * r, 0.0); 
+    return -length(p) * sign(p.y); 
+}
+
+// Triangle shape function using SDF
+float triangle(vec2 uv, vec2 center, float size, float angle, float feather) {
+    vec2 p = rotate(-angle) * (uv - center); 
+    float d = sdfEquilateralTriangle(p, size); 
+    return smoothstep(feather, -feather, d); 
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_Resolution;
-  uv = uv * 2.0 - 1.0;
-  uv.x *= u_Resolution.x / u_Resolution.y;
+  vec2 uv = gl_FragCoord.xy / u_Resolution; 
+  uv = uv * 2.0 - 1.0; 
+  uv.x *= u_Resolution.x / u_Resolution.y; 
 
   // Define colors
   vec3 backgroundColor = vec3(240.0/255.0, 240.0/255.0, 240.0/255.0); // #f0f0f0
-  vec3 primaryCircleColor = vec3(125.0/255.0, 129.0/255.0, 159.0/255.0); // #7d819f
+  vec3 primaryShapeColor = vec3(125.0/255.0, 129.0/255.0, 159.0/255.0); // #7d819f
 
   // Start with the background color
   vec3 col = backgroundColor;
 
-  // Animate a few circles
-  float t = u_Time * 0.4; // Adjusted time for potentially different feel
+  float t = u_Time * 0.4; 
+  float triangleFeather = 0.02; 
 
-  // Primary Color Circles
-  float c1_shape = circle(uv, vec2(sin(t * 1.1), cos(t * 0.9)) * 0.55, 0.28);
-  float c2_shape = circle(uv, vec2(cos(t * 1.4 + 1.0), sin(t * 1.2 - 0.5)) * 0.6, 0.22);
-  float c3_shape = circle(uv, vec2(sin(t * 0.8 - 0.8), cos(t * 1.5 + 0.2)) * 0.5, 0.18);
+  // --- Primary Color Triangles ---
+  // Triangle 1 - Adjusted phase for different starting position
+  vec2 center1 = vec2(sin(t * 1.1 + 0.8), cos(t * 0.9 + 2.1)) * 0.55;  float size1 = 0.28; 
+  float angle1 = t * 0.5; 
+  float tri1_shape = triangle(uv, center1, size1, angle1, triangleFeather);
 
-  // Mix primary circle colors
-  // The order of mixing matters for layering.
-  // If c1 is drawn, then c2, c2 will appear on top of c1 where they overlap.
-  col = mix(col, primaryCircleColor, c1_shape);
-  col = mix(col, primaryCircleColor, c2_shape * 0.95); // Slight transparency for depth
-  col = mix(col, primaryCircleColor, c3_shape * 0.9);  // More transparency
+  // Triangle 2 - Kept original phase, different from others
+  vec2 center2 = vec2(cos(t * 1.4 - 0.5), sin(t * 1.2 + 1.2)) * 0.6;
+  float size2 = 0.22; 
+  float angle2 = -t * 0.6; 
+  float tri2_shape = triangle(uv, center2, size2, angle2, triangleFeather);
 
-  // Occluding Circle (Background Color)
-  // This circle will "erase" parts of other circles or make them appear darker/transparent
-  float oc1_radius = 0.25 + 0.03 * sin(u_Time * 0.7 + 2.0); // Pulsating
-  vec2 oc1_pos = vec2(cos(t * 1.0 + 3.0) * 0.45, sin(t * -0.8 - 1.5)) * 0.6;
-  float oc1_shape = circle(uv, oc1_pos, oc1_radius);
-  
-  // When this mixes, if 'col' was primaryColor, it will blend it towards backgroundColor.
-  // The alpha (oc1_shape) determines how much it erases.
-  // A higher alpha for oc1_shape means stronger erasure.
-  col = mix(col, backgroundColor, oc1_shape * 0.85); // 0.85 alpha for the occluding effect
+  // Triangle 3 - Adjusted phase for different starting position
+  vec2 center3 = vec2(sin(t * 0.8 - 1.5), cos(t * 1.5 + 1.0)) * 0.5; // Adjusted phase offsets
+  float size3 = 0.18; 
+  float angle3 = t * 0.7 + 1.0; 
+  float tri3_shape = triangle(uv, center3, size3, angle3, triangleFeather);
+
+  // Mix primary triangle colors
+  col = mix(col, primaryShapeColor, tri1_shape);
+  col = mix(col, primaryShapeColor, tri2_shape * 0.95); 
+  col = mix(col, primaryShapeColor, tri3_shape * 0.9);  
+
+  // --- Occluding Shapes ---
+  // Occluding Triangle
+  float oc_size = 0.25 + 0.03 * sin(u_Time * 0.7 + 2.0); 
+  vec2 oc_center = vec2(cos(t * 1.0 + 3.0) * 0.45, sin(t * -0.8 - 1.5)) * 0.6; 
+  float oc_angle = t * 0.4; 
+  float oc_tri_shape = triangle(uv, oc_center, oc_size, oc_angle, triangleFeather * 1.1); 
+  col = mix(col, backgroundColor, oc_tri_shape * 0.85); 
 
   gl_FragColor = vec4(col, 1.0);
 }`;
 
-export default function Rewind1() {
+const Rewind2 = () => {
+  // second rewind screen
   const raf = useRef(null);
   const start = useRef(0);
 
   function onContextCreate(gl) {
     const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
     gl.viewport(0, 0, width, height);
-    gl.clearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 1.0);
+    gl.clearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 1.0); // #f0f0f0
 
     const vs = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vs, vertexShaderSrc);
@@ -125,7 +156,12 @@ export default function Rewind1() {
     const uTimeLocation = gl.getUniformLocation(program, "u_Time");
 
     if (uResolutionLocation === null || uTimeLocation === null) {
-      console.error("Failed to get uniform locations.");
+      console.error(
+        "Failed to get uniform locations. u_Resolution:",
+        uResolutionLocation,
+        "u_Time:",
+        uTimeLocation
+      );
       gl.deleteProgram(program);
       return;
     }
@@ -136,8 +172,10 @@ export default function Rewind1() {
     function render() {
       const now = performance.now();
       gl.uniform1f(uTimeLocation, (now - start.current) * 0.001);
+
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+
       gl.endFrameEXP();
       raf.current = requestAnimationFrame(render);
     }
@@ -157,11 +195,11 @@ export default function Rewind1() {
     <View style={styles.container}>
       <GLView style={styles.background} onContextCreate={onContextCreate} />
       <View style={styles.content} pointerEvents="box-none">
-        <RewindScreen1 />
+        <RewindScreen2 />
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -174,7 +212,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#f0f0f0",
   },
   content: {
     flex: 1,
@@ -183,3 +220,5 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 });
+
+export default Rewind2;
