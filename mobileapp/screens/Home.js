@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     },
 
     quoteBox: {
-        marginBottom: 32,
+        marginBottom: 20,
         padding: 24,
         borderRadius: 24,
         backgroundColor: '#e9e6f0',
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         color: '#2e2e42',
         textAlign: 'center',
-        frontFamily: 'serif',
+        frontFamily: 'avenir',
     },
     quoteEmphasis: {
         fontWeight: 'bold',
@@ -176,9 +176,9 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 18,
-        marginBottom: 8,
         color: '#2e2e42',
-        fontFamily: 'serif',
+        fontFamily: 'avenir',
+        fontWeight: '600',
     },
     arrow: {
         fontSize: 20,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     bookTitle: {
         fontSize: 14,
         fontWeight: 'bold',
-        fontFamily: 'serif',
+        fontFamily: 'avenir',
         color: '#2e2e42',
     },
     bookAuthor: {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     },
     analysisText: {
         fontSize: 18,
-        fontFamily: 'serif',
+        fontFamily: 'avenir',
         color: '#2e2e42',
     },
     recentCard: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         padding: 16,
         borderRadius: 16,
-        marginBottom: 64,
+        // marginBottom: 64,
         // shadow for iOS
         shadowColor: '#000',
         shadowOpacity: 0.1,
