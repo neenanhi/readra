@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 // api/isbnDB.js
 import { getCoverUrl } from '../api/openLibrary';
 
 
-const BookCard = ({ book }) => {
+const BookCard = ({ book, navigation }) => {
   // console.log(book)
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('BookDetail', { isbn: book.isbn })}>
       <Image
         source={{ uri: getCoverUrl(book) }}
         style={styles.image}
@@ -19,7 +19,7 @@ const BookCard = ({ book }) => {
         {book.description ? book.description.slice(0, 100) + '...' : 'No description available.'}
       </Text>
       <Text style={styles.rating}>★★★★★</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 
