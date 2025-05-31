@@ -30,5 +30,9 @@
   {
     "personality": "The Social Observer",
     "description": "Interested in stories that reflect current societal issues, explore diverse perspectives, and prompt critical thinking about the world around them."
+  },
+  {
+    "personality": "The Freak",
+    "description": "You are in tune with your true self."
   }
 ]
