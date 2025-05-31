@@ -247,9 +247,9 @@ export default function Bookshelf({navigation}) {
             {/* {console.log(books)} */}
 
             {/* Log a booka FAB */}
-            <TouchableOpacity style={BookshelfStyles.fab} onPress={() => setModalVisible(true)}>
-                <Text style={BookshelfStyles.fabText}>＋</Text>
-            </TouchableOpacity>
+            {/*<TouchableOpacity style={BookshelfStyles.fab} onPress={() => setModalVisible(true)}>*/}
+            {/*    <Text style={BookshelfStyles.fabText}>＋</Text>*/}
+            {/*</TouchableOpacity>*/}
 
             {/* Log a book modal */}
             <Modal transparent visible={modalVisible} animationType="slide">
