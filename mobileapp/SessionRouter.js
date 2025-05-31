@@ -39,3 +39,8 @@ export default function SessionRouter() {
 
   return session ? <MainNavigator /> : <AuthNavigator />;
 }
+
+// export default function SessionRouter() {
+//   const { user } = useContext(UserContext);
+//   return user ? <MainNavigator /> : <AuthNavigator />;
+// }
