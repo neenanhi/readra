@@ -13,6 +13,7 @@ import PromptScreen from "../screens/PromptScreen";
 import Rewind1 from "../screens/Rewind/Rewind1";
 import {Rewind} from "../screens/RewindManager";
 import HomeStack from "./HomeStack";
+import Profile from "../screens/Profile";
 
 
 const Tab = createBottomTabNavigator();
@@ -35,6 +36,11 @@ function BookshelfStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="BookDetail" component={BookDetail} />
+      <Stack.Screen
+        name="Profile"
+        component={Profile}
+        options={{ title: "Profile"}}
+      />
     </Stack.Navigator>
   );
 }

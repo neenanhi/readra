@@ -4,6 +4,7 @@ import {getCoverUrl, fetchBooks} from '../api/openLibrary';
 import BookCard from '../components/BookCard';
 import {UserContext} from '../context/UserContext';
 import {supabase} from "../Supabase";
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const Home = ({navigation}) => {
     // function setBooks changes value of books
@@ -13,7 +14,32 @@ const Home = ({navigation}) => {
     const [recent, setRecent] = useState(null);
     const [loading, setLoading] = useState(true);
     const {session} = useContext(UserContext); // get session from UserContext
+    const getDisplayName = () => {
+        // Access whatever metadata you stored in Supabase (e.g. full_name or username)
+        const user = session.user;
+        const metadata = session.user.user_metadata || {};
 
+        // 1) If the user has explicitly set a `full_name`, use that
+        if (metadata.full_name) {
+        return metadata.full_name;
+        }
+
+        // 2) Otherwise, if they have a `username`, use that
+        if (metadata.username) {
+        return metadata.username;
+        }
+
+        // 3) Fallback: parse email to get the first part (before "@"), then split on "." if present
+        //    For "neena.anime@gmail.com", rawEmail.split("@")[0] => "neena.anime"
+        //    Then split on ".", take [0] => "neena"
+        const email = session.user.email || '';
+        const atSignIndex = email.indexOf('@');
+        if (atSignIndex > 0) {
+            return email.slice(0, atSignIndex);
+        }
+        // fallback if email is not available
+        return 'Reader';
+    };
 
     // =====================
     // Book Fetching
@@ -51,9 +77,11 @@ const Home = ({navigation}) => {
         getRecent();
     }, []);
 
+    const displayName = getDisplayName();
+
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}> Hi {session?.user?.email}</Text>
+            <Text style={styles.greetingText}> Hi, {displayName}</Text>
             {/* Quote of the Day */}
             <View style={styles.quoteBox}>
                 <Text style={styles.quoteText}>
