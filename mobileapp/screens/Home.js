@@ -54,7 +54,11 @@ const Home = ({navigation}) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.greetingText}> Hi, {displayName}</Text>
+            {/* Greeting */}
+            <View style={styles.greetingContainer}>
+                <Text style={styles.greetingText}> Hello, {displayName}!</Text>
+            </View>
+            
             {/* Quote of the Day */}
             <View style={styles.quoteBox}>
                 <Text style={styles.quoteText}>
@@ -116,6 +120,27 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 24,
     },
+
+    greetingContainer: {
+        marginBottom: 24,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+
+    greetingText: {
+        fontSize: 24,
+        fontWeight: '600',
+        color: '#2B2F3A',
+        fontFamily: 'georgia',
+    },
+
     quoteBox: {
         marginBottom: 32,
         padding: 24,
@@ -126,11 +151,13 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
     },
+
     quoteText: {
         fontSize: 18,
         fontStyle: 'italic',
         color: '#2e2e42',
         textAlign: 'center',
+        frontFamily: 'serif',
     },
     quoteEmphasis: {
         fontWeight: 'bold',
