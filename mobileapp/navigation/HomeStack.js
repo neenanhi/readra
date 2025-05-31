@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Home from '../screens/Home';
 import BookDetail from '../screens/BookDetail';
+import ProfileScreen from '../screens/Profile'; 
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +27,11 @@ export default function HomeStack() {
                     headerShown: true,            // or false, depending on your design
                     title: 'Book Details',
                 }}
+            />
+
+            <Stack.Screen
+                name="Profile"
+                component={ProfileScreen}
             />
         </Stack.Navigator>
     );
