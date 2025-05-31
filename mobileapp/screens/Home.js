@@ -1,5 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
-import {View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable} from 'react-native';
 import {getCoverUrl, fetchBooks} from '../api/openLibrary';
 import BookCard from '../components/BookCard';
 import {UserContext} from '../context/UserContext';
@@ -13,7 +13,14 @@ const Home = ({navigation}) => {
     const [books, setBooks] = useState([]);
     const [recent, setRecent] = useState(null);
     const [loading, setLoading] = useState(true);
-    const {displayName} = useContext(UserContext); // get session from UserContext
+    const {displayName} = useContext(UserContext);
+    const [isEditingQuote, setIsEditingQuote] = useState(false);
+    const [quoteInput, setQuoteInput] = useState("");
+    const [quoteAuthor, setQuoteAuthor] = useState("");
+
+    const saveQuote = () => {
+        setIsEditingQuote(false);
+    };
 
     // =====================
     // Book Fetching
@@ -53,19 +60,91 @@ const Home = ({navigation}) => {
 
 
     return (
-        <View style={styles.container}>
+        <Pressable 
+            style={styles.container}
+            onPress={() => {
+                if (isEditingQuote) {saveQuote();}
+            }}
+        >
             {/* Greeting */}
             <View style={styles.greetingContainer}>
                 <Text style={styles.greetingText}> Hello, {displayName}!</Text>
             </View>
             
-            {/* Quote of the Day */}
+            {/* Iconic Quotes (press to edit) */}
+            {isEditingQuote ? (
             <View style={styles.quoteBox}>
-                <Text style={styles.quoteText}>
-                    “For those who <Text style={styles.quoteEmphasis}>come after</Text>.”
-                </Text>
-                <Text style={styles.quoteAuthor}>— Gustave</Text>
+                <TextInput
+                    style={{
+                        fontSize: 18,
+                        fontStyle: 'italic',
+                        color: '#2e2e42',
+                        textAlign: 'center',
+                        fontFamily: 'avenir',
+                        // marginBottom: 12,
+                        // minHeight: 60,
+                    }}
+                    multiline
+                    placeholder="Type your favorite quote..."
+                    value={quoteInput}
+                    onChangeText={setQuoteInput}
+                />
+
+                {/* Author Input */}
+                <TextInput
+                style={{
+                    fontSize: 14,
+                    color: '#7a7a90',
+                    textAlign: 'center',
+                    fontFamily: 'avenir',
+                    paddingVertical: 6,
+                }}
+                placeholder="— Author (e.g You)"
+                value={quoteAuthor}
+                onChangeText={setQuoteAuthor}
+                />
+
+                {/* Save Button */}
+                <TouchableOpacity
+                    style={{
+                        marginTop: 6,
+                        alignSelf: 'center',
+                        backgroundColor: '#2e3a59',
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                        borderRadius: 8,
+                    }}
+                    onPress={saveQuote}
+                >
+                    <Text style={{ 
+                        color: '#fff', 
+                        fontWeight: '600',
+                        fontFamily: 'avenir',
+                        fontSize: 14, 
+                    }}>Save</Text>
+                </TouchableOpacity>
             </View>
+            ) : (
+            <TouchableOpacity onPress={() => setIsEditingQuote(true)}>
+                <View style={styles.quoteBox}>
+                    {quoteInput ? (
+                        <>
+                            <Text style={styles.quoteText}>
+                                “{quoteInput}”
+                            </Text>
+                            <Text style={styles.quoteAuthor}>— {quoteAuthor || 'You'}</Text>
+                        </>
+                    ) : (
+                        <>
+                            <Text style={styles.quoteText}>
+                                “For those who <Text style={styles.quoteEmphasis}>come after</Text>.”
+                            </Text>
+                            <Text style={styles.quoteAuthor}>— Gustave</Text>
+                        </>
+                    )}
+                </View>
+            </TouchableOpacity>
+            )}
 
             {/* Find your next read section header */}
             <View style={styles.headerRow}>
@@ -109,7 +188,7 @@ const Home = ({navigation}) => {
                 </TouchableOpacity>
             )}
 
-        </View>
+        </Pressable>
     );
 };
 
@@ -150,6 +229,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
+        fontFamily: 'avenir',
     },
 
     quoteText: {
