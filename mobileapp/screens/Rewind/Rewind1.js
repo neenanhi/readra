@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import { GLView } from "expo-gl";
 import RewindScreen1 from "./RewindScreen1";
-import { AlignCenter } from "lucide-react-native";
 
 const vertexShaderSrc = `
 precision mediump float;
@@ -70,7 +69,7 @@ export default function Rewind1() {
   function onContextCreate(gl) {
     const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
     gl.viewport(0, 0, width, height);
-    gl.clearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 1.0); // #f0f0f0
+    gl.clearColor(240.0 / 255.0, 240.0 / 255.0, 240.0 / 255.0, 1.0);
 
     const vs = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vs, vertexShaderSrc);

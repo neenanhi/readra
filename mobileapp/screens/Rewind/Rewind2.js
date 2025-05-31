@@ -1,6 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useEffect, useRef } from "react";
-// import { getLogData } from "../../api/logData"; // Kept as per original snippet
 import { GLView } from "expo-gl";
 import RewindScreen2 from "./RewindScreen2"; // Assuming this component exists
 
@@ -61,13 +60,12 @@ void main() {
 
   // --- Primary Color Triangles ---
   // Triangle 1 - Adjusted phase for different starting position
-  vec2 center1 = vec2(sin(t * 1.1 + 0.0), cos(t * 0.9 + 0.5)) * 0.55; // Added phase offset to cos
-  float size1 = 0.28; 
+  vec2 center1 = vec2(sin(t * 1.1 + 0.8), cos(t * 0.9 + 2.1)) * 0.55;  float size1 = 0.28; 
   float angle1 = t * 0.5; 
   float tri1_shape = triangle(uv, center1, size1, angle1, triangleFeather);
 
   // Triangle 2 - Kept original phase, different from others
-  vec2 center2 = vec2(cos(t * 1.4 + 1.0), sin(t * 1.2 - 0.5)) * 0.6;
+  vec2 center2 = vec2(cos(t * 1.4 - 0.5), sin(t * 1.2 + 1.2)) * 0.6;
   float size2 = 0.22; 
   float angle2 = -t * 0.6; 
   float tri2_shape = triangle(uv, center2, size2, angle2, triangleFeather);

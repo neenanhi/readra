@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator, // Import ActivityIndicator for loading
+  ActivityIndicator,
 } from "react-native";
 import { getBooksAndPages } from "../../api/booksAndPages";
 
 const RewindPagesRead = () => {
   const [stats, setStats] = useState({ totalBooks: 0, totalPages: 0 });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // Add error state
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
