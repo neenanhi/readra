@@ -21,7 +21,7 @@ import { Dropdown } from "react-native-element-dropdown";
 // Importing shared style tokens
 import { COLORS } from "../styles/colors";
 import { SPACING } from "../styles/spacing";
-import { TEXT, FONT_FAMILY } from "../styles/typography";
+import { TEXT } from "../styles/typography";
 
 export default function Bookshelf({ navigation }) {
   const [books, setBooks] = useState([]);
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,   // ~8px
     fontSize: 16,
     color: COLORS.textDark,          // "#2e2e42"
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 
   iconButton: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   profileButtonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 
   // ── Headings 
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     color: COLORS.primaryText,       // "#2B2F3A"
     marginVertical: SPACING.sm,      // ~8px
     paddingHorizontal: SPACING.sm,   // ~8px
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 
   // ── Book Card Styles 
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     color: COLORS.textDark,          // "#2e2e42"
     textAlign: "center",
     lineHeight: 18,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 
   // ── FAB (Log a book)—commented out ────────────────────────────────────────
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
 //     color: COLORS.white,
 //     fontSize: 30,
 //     marginTop: -6,
-//     fontFamily: FONT_FAMILY.sansSerif,
+//     fontFamily: 'serif',
 //   },
 
   // ── Modal (Log a book) ─────────────────────────────────────────────────────
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: SPACING.sm,        // ~8px
     color: COLORS.primaryText,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
   modalButtons: {
     flexDirection: "row",
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: COLORS.white,
     fontSize: 16,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 
   // ── Camera Overlay (Scanner) ──────────────────────────────────────────────
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   closeText: {
     color: COLORS.white,
     fontSize: 16,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
   scannerHelper: {
     transform: [
@@ -511,16 +511,16 @@ const styles = StyleSheet.create({
   placeholderStyle: {
     fontSize: 16,
     color: COLORS.textLight,           // "#7a7a90"
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
   selectedTextStyle: {
     fontSize: 16,
     color: COLORS.textDark,            // "#2e2e42"
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 });

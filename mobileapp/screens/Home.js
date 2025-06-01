@@ -8,7 +8,7 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 import { COLORS } from '../styles/colors';
 import { SPACING } from '../styles/spacing';
-import { TEXT, FONT_FAMILY } from '../styles/typography';
+import { TEXT } from '../styles/typography';
 
 const Home = ({navigation}) => {
     // function setBooks changes value of books
@@ -83,6 +83,7 @@ const Home = ({navigation}) => {
                     multiline
                     placeholder="Type your favorite quote..."
                     placeholderTextColor={COLORS.textLight}
+                    font
                     value={quoteInput}
                     onChangeText={setQuoteInput}
                 />
@@ -208,10 +209,11 @@ const styles = StyleSheet.create({
     ...TEXT.bodyLarge, // fontSize:18, fontStyle:'italic', color:COLORS.textDark, fontFamily:'avenir'
     textAlign: 'center',
     marginBottom: SPACING.xs,   // small gap below quote text
+    fontStyle: 'italic',
   },
 
   authorInput: {
-    ...TEXT.bodySmall, // fontSize:14, color:COLORS.textLight, fontFamily:'avenir'
+    ...TEXT.bodySmall, // fontSize:14, color:COLORS.textLight
     textAlign: 'center',
     paddingVertical: SPACING.xs,
   },
@@ -226,15 +228,20 @@ const styles = StyleSheet.create({
   },
 
   saveButtonLabel: {
-    ...TEXT.buttonLabel, // fontSize:14, fontWeight:'600', color:COLORS.white, fontFamily:'avenir'
+    ...TEXT.buttonLabel, // fontSize:14, fontWeight:'600', color:COLORS.white
   },
 
   quoteText: {
-    ...TEXT.bodyLarge,
+    fontSize: 18,
+    fontStyle: 'italic',
+    color: COLORS.textDark,
     textAlign: 'center',
   },
   quoteEmphasis: {
+    fontSize: 18,       // ensure the nested text is the same size
+    fontStyle: 'italic',
     fontWeight: 'bold',
+    color: COLORS.textDark,
   },
   quoteAuthor: {
     marginTop: SPACING.xs,
@@ -249,7 +256,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   sectionTitle: {
-    ...TEXT.sectionTitle, // fontSize:18, fontWeight:'600', color:COLORS.textDark, fontFamily:'avenir'
+    ...TEXT.sectionTitle, // fontSize:18, fontWeight:'600', color:COLORS.textDark, 
   },
 
   scrollRow: {
@@ -292,7 +299,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.accent,
-    fontFamily: FONT_FAMILY.sansSerif,
+    fontFamily: 'serif',
   },
 });
 
