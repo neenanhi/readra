@@ -1,10 +1,14 @@
 import React, {useEffect, useContext, useState} from 'react';
-import {View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable} from 'react-native';
 import {getCoverUrl, fetchBooks} from '../api/openLibrary';
 import BookCard from '../components/BookCard';
 import {UserContext} from '../context/UserContext';
 import {supabase} from "../Supabase";
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+
+import { COLORS } from '../styles/colors';
+import { SPACING } from '../styles/spacing';
+import { TEXT } from '../styles/typography';
 
 const Home = ({navigation}) => {
     // function setBooks changes value of books
@@ -13,7 +17,14 @@ const Home = ({navigation}) => {
     const [books, setBooks] = useState([]);
     const [recent, setRecent] = useState(null);
     const [loading, setLoading] = useState(true);
-    const {displayName} = useContext(UserContext); // get session from UserContext
+    const {displayName} = useContext(UserContext);
+    const [isEditingQuote, setIsEditingQuote] = useState(false);
+    const [quoteInput, setQuoteInput] = useState("");
+    const [quoteAuthor, setQuoteAuthor] = useState("");
+
+    const saveQuote = () => {
+        setIsEditingQuote(false);
+    };
 
     // =====================
     // Book Fetching
@@ -53,19 +64,66 @@ const Home = ({navigation}) => {
 
 
     return (
-        <View style={styles.container}>
+        <Pressable 
+            style={styles.container}
+            onPress={() => {
+                if (isEditingQuote) {saveQuote();}
+            }}
+        >
             {/* Greeting */}
             <View style={styles.greetingContainer}>
                 <Text style={styles.greetingText}> Hello, {displayName}!</Text>
             </View>
             
-            {/* Quote of the Day */}
-            <View style={styles.quoteBox}>
-                <Text style={styles.quoteText}>
-                    “For those who <Text style={styles.quoteEmphasis}>come after</Text>.”
-                </Text>
-                <Text style={styles.quoteAuthor}>— Gustave</Text>
+            {/* Quote (press to edit) */}
+            {isEditingQuote ? (
+                <View style={styles.quoteBox}>
+                <TextInput
+                    style={styles.quoteInput}
+                    multiline
+                    placeholder="Type your favorite quote..."
+                    placeholderTextColor={COLORS.textLight}
+                    font
+                    value={quoteInput}
+                    onChangeText={setQuoteInput}
+                />
+
+                {/* Author Input */}
+                <TextInput
+                    style={styles.authorInput}
+                    placeholder="— Author (e.g You)"
+                    placeholderTextColor={COLORS.textLight}
+                    value={quoteAuthor}
+                    onChangeText={setQuoteAuthor}
+                />
+
+                {/* Save Button */}
+                <TouchableOpacity style={styles.saveButton} onPress={saveQuote}>
+                    <Text style={styles.saveButtonLabel}>Save</Text>
+                </TouchableOpacity>
+
             </View>
+            ) : (
+            <TouchableOpacity onPress={() => setIsEditingQuote(true)}>
+                <View style={styles.quoteBox}>
+                    {quoteInput ? (
+                        <>
+                            <Text style={styles.quoteText}>
+                                “{quoteInput}”
+                            </Text>
+                            <Text style={styles.quoteAuthor}>— {quoteAuthor || 'You'}</Text>
+                        </>
+                    ) : (
+                        <>
+                            <Text style={styles.quoteText}>
+                                “For those who <Text style={styles.quoteEmphasis}>come after</Text>.”
+                            </Text>
+                            <Text style={styles.quoteAuthor}>— Gustave</Text>
+                        </>
+                    )}
+                </View>
+            </TouchableOpacity>
+            )}
 
             {/* Find your next read section header */}
             <View style={styles.headerRow}>
@@ -74,214 +132,175 @@ const Home = ({navigation}) => {
 
             {/* Horizontal Scroll of Book Cards */}
             {loading ? (
-                <ActivityIndicator size="large" color="#999" style={{marginVertical: 0}}/>
+                <ActivityIndicator size="large" color={COLORS.textLight} />
             ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollRow}>
-                    {books.map((book, index) => (
-                        <BookCard key={index} book={book} navigation={navigation}/>
-                    ))}
+                <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.scrollRow}
+                >
+                {books.map((book, index) => (
+                    <BookCard key={index} book={book} navigation={navigation} />
+                ))}
                 </ScrollView>
             )}
 
             {/* Reading Analysis Card */}
-
             {recent && recent.length > 0 && (
-                <TouchableOpacity
-                    style={styles.recentCard}
-                    onPress={() => navigation.navigate('Rewind')}
+            <TouchableOpacity
+                style={styles.recentCard}
+                onPress={() => navigation.navigate('Rewind')}
                 >
-                    <Image
-                        source={{uri: recent[0].cover_image}}
-                        style={styles.recentCover}
-                        resizeMode="cover"
-                    />
-                    <View style={styles.recentInfo}>
-                        <Text style={styles.recentTitle}>
-                            {recent[0].title || 'Untitled'}
-                        </Text>
-                        <Text style={styles.recentAuthor}>
-                            by {recent[0].author_name?.[0] || 'Unknown'}
-                        </Text>
-                        <Text style={styles.recentAction}>
-                            Analyze your reading →
-                        </Text>
-                    </View>
-                </TouchableOpacity>
+                <Image
+                    source={{ uri: recent[0].cover_image }}
+                    style={styles.recentCover}
+                    resizeMode="cover"
+                />
+                <View style={styles.recentInfo}>
+                    <Text style={styles.recentTitle}>
+                    {recent[0].title || 'Untitled'}
+                    </Text>
+                    <Text style={styles.recentAuthor}>
+                    by {recent[0].author_name?.[0] || 'Unknown'}
+                    </Text>
+                    <Text style={styles.recentAction}>Analyze your reading →</Text>
+                </View>
+            </TouchableOpacity>
             )}
 
-        </View>
+        </Pressable>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fdfaf6',
-        paddingHorizontal: 16,
-        paddingVertical: 24,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.lg,
+  },
 
-    greetingContainer: {
-        marginBottom: 24,
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    },
+  greetingContainer: {
+    marginBottom: SPACING.lg,
+    borderRadius: 12,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 
-    greetingText: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#2B2F3A',
-        fontFamily: 'georgia',
-    },
+  greetingText: {
+    ...TEXT.h1, // fontSize:24, fontWeight:'600', color:COLORS.primaryText, fontFamily:'georgia'
+  },
 
-    quoteBox: {
-        marginBottom: 20,
-        padding: 24,
-        borderRadius: 24,
-        backgroundColor: '#e9e6f0',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    },
+  quoteBox: {
+    marginBottom: SPACING.md + 4, // ~20px
+    padding: SPACING.lg,         // 24px
+    borderRadius: 24,
+    backgroundColor: COLORS.quoteBg,
+    shadowColor: COLORS.shadow,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 
-    quoteText: {
-        fontSize: 18,
-        fontStyle: 'italic',
-        color: '#2e2e42',
-        textAlign: 'center',
-        frontFamily: 'avenir',
-    },
-    quoteEmphasis: {
-        fontWeight: 'bold',
-    },
-    quoteAuthor: {
-        marginTop: 8,
-        fontSize: 14,
-        color: '#7a7a90',
-        textAlign: 'center',
-    },
-    headerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        color: '#2e2e42',
-        fontFamily: 'avenir',
-        fontWeight: '600',
-    },
-    arrow: {
-        fontSize: 20,
-        color: '#2e2e42',
-    },
-    scrollRow: {
-        marginBottom: 16,
-    },
-    bookCard: {
-        width: 160,
-        marginRight: 16,
-    },
-    bookCover: {
-        height: 192,
-        width: '100%',
-        borderRadius: 12,
-        marginBottom: 8,
-        backgroundColor: '#d2d3e0',
-    },
-    bookTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        fontFamily: 'avenir',
-        color: '#2e2e42',
-    },
-    bookAuthor: {
-        fontStyle: 'italic',
-        fontSize: 12,
-        color: '#55556d',
-        marginBottom: 4,
-    },
-    bookDescription: {
-        fontSize: 12,
-        color: '#6e6e84',
-    },
-    rating: {
-        marginTop: 4,
-        fontSize: 14,
-    },
-    analysisCard: {
-        padding: 24,
-        borderRadius: 24,
-        backgroundColor: '#e6e9f2',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    analysisCover: {
-        height: 80,
-        width: 56,
-        backgroundColor: '#a5a7c7',
-        borderRadius: 8,
-        marginRight: 16,
-    },
-    analysisText: {
-        fontSize: 18,
-        fontFamily: 'avenir',
-        color: '#2e2e42',
-    },
-    recentCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: 16,
-        borderRadius: 16,
-        // marginBottom: 64,
-        // shadow for iOS
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        // elevation for Android
-        elevation: 2,
-    },
-    recentCover: {
-        width: 80,
-        height: 120,
-        borderRadius: 8,
-        backgroundColor: '#d2d3e0',
-        marginRight: 16,
-    },
-    recentInfo: {
-        flex: 1,
-    },
-    recentTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#2e2e42',
-        marginBottom: 4,
-    },
-    recentAuthor: {
-        fontSize: 14,
-        fontStyle: 'italic',
-        color: '#55556d',
-        marginBottom: 8,
-    },
-    recentAction: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#3b82f6',  // a nice accent color
-    },
+  quoteInput: {
+    ...TEXT.bodyLarge, // fontSize:18, fontStyle:'italic', color:COLORS.textDark, fontFamily:'avenir'
+    textAlign: 'center',
+    marginBottom: SPACING.xs,   // small gap below quote text
+    fontStyle: 'italic',
+  },
+
+  authorInput: {
+    ...TEXT.bodySmall, // fontSize:14, color:COLORS.textLight
+    textAlign: 'center',
+    paddingVertical: SPACING.xs,
+  },
+
+  saveButton: {
+    marginTop: SPACING.xs,
+    alignSelf: 'center',
+    backgroundColor: COLORS.buttonBg,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: 8,
+  },
+
+  saveButtonLabel: {
+    ...TEXT.buttonLabel, // fontSize:14, fontWeight:'600', color:COLORS.white
+  },
+
+  quoteText: {
+    fontSize: 18,
+    fontStyle: 'italic',
+    color: COLORS.textDark,
+    textAlign: 'center',
+  },
+  quoteEmphasis: {
+    fontSize: 18,       // ensure the nested text is the same size
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    color: COLORS.textDark,
+  },
+  quoteAuthor: {
+    marginTop: SPACING.xs,
+    ...TEXT.bodySmall,
+    textAlign: 'center',
+  },
+
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  sectionTitle: {
+    ...TEXT.sectionTitle, // fontSize:18, fontWeight:'600', color:COLORS.textDark, 
+  },
+
+  scrollRow: {
+    marginBottom: SPACING.md,
+  },
+
+  // (These bookCard/bookCover/... styles are actually defined inside your
+  // <BookCard> component, so you can remove them from Home if they’re not used here.)
+
+  recentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.quoteBg,
+    padding: SPACING.md,
+    borderRadius: 16,
+    shadowColor: COLORS.shadow,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  recentCover: {
+    width: 80,
+    height: 120,
+    borderRadius: 8,
+    backgroundColor: COLORS.placeholderBg,
+    marginRight: SPACING.md,
+  },
+  recentInfo: {
+    flex: 1,
+  },
+  recentTitle: {
+    ...TEXT.cardTitle, // fontSize:16, fontWeight:'bold', color:COLORS.textDark, fontFamily:'avenir'
+    marginBottom: SPACING.xs,
+  },
+  recentAuthor: {
+    ...TEXT.cardSubtitle, // fontSize:14, fontStyle:'italic', color:COLORS.mutedText
+    marginBottom: SPACING.sm,
+  },
+  recentAction: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.accent,
+    fontFamily: 'serif',
+  },
 });
 
 export default Home;
