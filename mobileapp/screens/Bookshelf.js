@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: COLORS.white, // "#f0f0f0"
     marginBottom: SPACING.mid,       // ~15px
   },
 
