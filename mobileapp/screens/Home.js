@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.quoteBg,
-    padding: SPACING.md,
+    padding: 12,
     borderRadius: 16,
     shadowColor: COLORS.shadow,
     shadowOpacity: 0.1,
