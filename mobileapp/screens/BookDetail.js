@@ -95,6 +95,8 @@ export default function BookDetail({route}) {
                 if (data) {
                     data.isbn = isbn;
                     data.cover_image = data.cover_image || data.image || data.image_original || null;
+                    data.description = data.synopsis
+                    console.log(data)
                     // console.log(data.cover_image)
                     setBook(data);
                 } else {
@@ -187,7 +189,7 @@ export default function BookDetail({route}) {
 
                     <Text style={[TEXT.body, styles.description]}>
                     {book.description
-                        ? book.description.slice(0, 150) + "…"
+                        ? book.description.slice(0, 250) + "…"
                         : "No description available."}
                     </Text>
 
