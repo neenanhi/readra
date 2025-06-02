@@ -1,4 +1,5 @@
-import React, { useEffect, useLayoutEffect, useState, } from "react";
+import React, { useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -52,6 +53,11 @@ export default function Bookshelf({ navigation }) {
       searchBooks();
     },
   });
+  useFocusEffect(
+    useCallback(() => {
+      getLibrary(); // this refreshes when user returns to this screen
+    }, [])
+  );
 
   // Adjust tab bar style when scanner is active
   useLayoutEffect(() => {
@@ -134,21 +140,6 @@ export default function Bookshelf({ navigation }) {
     }
   };
 
-  const addBook = async () => {
-    const book = { id: Date.now().toString(), title: newTitle, status: newStatus };
-    setBooks((prev) => [...prev, book]);
-    await PutBook(book);
-
-    // Update dropdown options
-    setBookOptions((prev) => [
-      ...prev,
-      { label: newTitle, value: book.id },
-    ]);
-
-    setNewTitle("");
-    setNewStatus("");
-    setModalVisible(false);
-  };
 
   const getLibrary = async () => {
     try {
@@ -181,7 +172,7 @@ export default function Bookshelf({ navigation }) {
   const renderBookCard = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("Add a Book", {screen: "BookshelfDetail", params: { isbn: item.isbn },})
+      onPress={() => navigation.navigate("Add a Book", {screen: "BookshelfDetail", params: { isbn: item.isbn}})
     }
     >
       <ImageBackground
@@ -206,7 +197,7 @@ export default function Bookshelf({ navigation }) {
     <SafeAreaView style={styles.safe}>
     <View style={styles.container}>
       {/* Search + Profile */}
-      <View style={styles.searchBarContainer}>
+      <View style={[styles.searchBarContainer, {backgroundColor: COLORS.background}]}>
         <TextInput
           placeholder="Search for books..."
           placeholderTextColor={COLORS.textLight}
@@ -374,6 +365,8 @@ const styles = StyleSheet.create({
   },
 
   input: {
+    // Note to Neena: Edit this to change the text input color
+    backgroundColor: "#e0f7fa",
     flex: 1,
     height: 40,
     borderWidth: 1,

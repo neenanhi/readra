@@ -53,6 +53,7 @@ const Home = ({navigation}) => {
                     .order('created_at', {ascending: false})
                     .limit(1)
                 if (error) throw error
+                // console.log(data)
                 setRecent(data)
             } catch (err) {
                 console.error('Error fetching recent books:', err)
@@ -160,9 +161,10 @@ const Home = ({navigation}) => {
                 <View style={styles.recentInfo}>
                     <Text style={styles.recentTitle}>
                     {recent[0].title || 'Untitled'}
+                    {/* {console.log(recent)} */}
                     </Text>
                     <Text style={styles.recentAuthor}>
-                    by {recent[0].author_name?.[0] || 'Unknown'}
+                    by {recent[0].author || 'Unknown'}
                     </Text>
                     <Text style={styles.recentAction}>Analyze your reading →</Text>
                 </View>
