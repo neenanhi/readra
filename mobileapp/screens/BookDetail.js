@@ -301,7 +301,7 @@ export default function BookDetail({route}) {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: "#fdfaf6",
+        backgroundColor: "#2e3a59",
     },
     card: {
         flex: 1,
@@ -309,6 +309,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         margin: 24,
         borderRadius: 25,
+        // borderWidth: StyleSheet.hairlineWidth,
         overflow: 'scroll',
     },
     topRow: {
@@ -327,7 +328,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     title: {
-        fontSize: 30,
+        fontSize: 25,
         fontWeight: "bold",
         color: "#7d819f",
         marginBottom: 12,

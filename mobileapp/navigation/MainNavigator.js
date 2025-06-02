@@ -33,13 +33,20 @@ function BookshelfStack() {
       <Stack.Screen
         name="BookshelfMain"
         component={Bookshelf}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, title: ' ', }}
       />
-      <Stack.Screen name="BookDetail" component={BookDetail} />
+      <Stack.Screen
+        name="BookshelfDetail"
+        component={BookDetail} 
+        options={{
+          headerShown: false,
+          headerTitle: ' ',
+        }}
+      />
       <Stack.Screen
         name="Profile"
         component={Profile}
-        options={{ title: "Profile"}}
+        options={{ title: ' '}}
       />
     </Stack.Navigator>
   );
@@ -51,13 +58,16 @@ export default function MainNavigator() {
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={{
-          tabBarStyle: {
+            headerShown: false,
+            tabBarStyle: {
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
             height: 80,
             display: "flex",
             justifyContent: "center",
             backgroundColor: "#2e3a59",
+            borderTopWidth: 1,      // usually 1px or less
+            borderTopColor: "rgba(255, 255, 255, 0.3)",
             // borderColor: '#2e3a59',
             // borderWidth: 1,
             // position: 'absolute',
@@ -87,6 +97,7 @@ export default function MainNavigator() {
               }}
           />
         {/* Add a book Screen */}
+
         <Tab.Screen
           name="Add a Book"
           component={BookshelfStack}
@@ -94,19 +105,47 @@ export default function MainNavigator() {
             tabBarIcon: () => (
               <View
                 style={{
-                  padding: 32,
-                  marginTop: -10,
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  borderRadius: 30,
-                  backgroundColor: "#2e3a59",
-                  alignItems: "center",
-                  justifyContent: "center",
                   width: 60,
                   height: 60,
+                  marginTop: -10,            // float it up over the tab bar
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
+                {/* ─── TOP HALF: has the thin border ─── */}
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    width: 60,
+                    height: 200,
+                    backgroundColor: "#2e3a59",
+                    borderTopLeftRadius: 30,
+                    borderTopRightRadius: 30,
+                    borderWidth: 1,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    display: "flex",
+                    justifyContent: "center",
+                    backgroundColor: "#2e3a59",
+                    borderTopWidth: 1,      // usually 1px or less
+                    borderTopColor: "rgba(255, 255, 255, 0.3)",
+                  }}
+                />
+
+                {/* ─── BOTTOM HALF: no border, just solid color ─── */}
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    width: 100,
+                    height: 200,
+                    backgroundColor: "#2e3a59",
+                    // borderBottomLeftRadius: 30,
+                    // borderBottomRightRadius: 30,
+                  }}
+                />
+
+                {/* ─── THE ICON sits on top of both halves ─── */}
                 <Image
                   source={require("../assets/add_book.png")}
                   style={{
@@ -145,5 +184,6 @@ export default function MainNavigator() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#2e3a59",
   },
 });

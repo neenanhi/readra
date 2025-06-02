@@ -1,14 +1,15 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState, } from "react";
 import {
-    View,
-    Text,
-    FlatList,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    Modal,
-    Pressable,
-    ImageBackground, Image, Alert,
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  ImageBackground,Image, Alert,
+  SafeAreaView, Platform, StatusBar,
 } from "react-native";
 
 import { getCoverUrl, PutBook } from "../api/openLibrary";
@@ -180,7 +181,8 @@ export default function Bookshelf({ navigation }) {
   const renderBookCard = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("BookDetail", { isbn: item.isbn })}
+      onPress={() => navigation.navigate("Add a Book", {screen: "BookshelfDetail", params: { isbn: item.isbn },})
+    }
     >
       <ImageBackground
         source={{
@@ -201,6 +203,7 @@ export default function Bookshelf({ navigation }) {
   );
 
   return (
+    <SafeAreaView style={styles.safe}>
     <View style={styles.container}>
       {/* Search + Profile */}
       <View style={styles.searchBarContainer}>
@@ -344,11 +347,17 @@ export default function Bookshelf({ navigation }) {
         </Modal>
       )}
     </View>
+    </SafeAreaView>
   );
 }
 
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
   container: {
     flex: 1,
     paddingTop: SPACING.xl,         // ~32px

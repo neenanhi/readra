@@ -1,5 +1,5 @@
 import React, {useEffect, useContext, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, Platform, StatusBar} from 'react-native';
 import {getCoverUrl, fetchBooks} from '../api/openLibrary';
 import BookCard from '../components/BookCard';
 import {UserContext} from '../context/UserContext';
@@ -64,6 +64,7 @@ const Home = ({navigation}) => {
 
 
     return (
+        <SafeAreaView style={styles.safe}>
         <Pressable 
             style={styles.container}
             onPress={() => {
@@ -140,7 +141,7 @@ const Home = ({navigation}) => {
                 style={styles.scrollRow}
                 >
                 {books.map((book, index) => (
-                    <BookCard key={index} book={book} navigation={navigation} />
+                    <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
                 ))}
                 </ScrollView>
             )}
@@ -169,15 +170,21 @@ const Home = ({navigation}) => {
             )}
 
         </Pressable>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: COLORS.background, 
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.lg,
+    paddingVertical: SPACING.xl,
   },
 
   greetingContainer: {

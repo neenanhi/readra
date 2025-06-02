@@ -16,16 +16,16 @@ export default function HomeStack() {
             <Stack.Screen
                 name="HomeMain"
                 component={Home}
-                options={{ headerShown: false }}
+                options={{ headerShown: false, title: ' ' }}
             />
 
             {/* BookDetail is now registered here */}
             <Stack.Screen
-                name="BookDetail"
+                name="HomeDetail"
                 component={BookDetail}
                 options={{
-                    headerShown: true,            // or false, depending on your design
-                    title: 'Book Details',
+                    headerShown: false,            // or false, depending on your design
+                    title: ' ',
                 }}
             />
 

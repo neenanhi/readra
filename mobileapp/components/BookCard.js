@@ -4,10 +4,10 @@ import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import { getCoverUrl } from '../api/openLibrary';
 
 
-const BookCard = ({ book, navigation }) => {
+const BookCard = ({ book, navigation, detailScreenName }) => {
   // console.log(book)
   return (
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('BookDetail', { isbn: book.isbn })}>
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(detailScreenName, { isbn: book.isbn })}>
       <Image
         source={{ uri: getCoverUrl(book) }}
         style={styles.image}
