@@ -1,5 +1,6 @@
 // TODO: Replace hardcoded "fantasy" with selected genre
 import {isbndbGetHeaders, supabase} from '../Supabase';
+import {getPages} from "../screens/BookDetail";
 
 
 // Fetch top books for a fixed genre (e.g., fantasy)
@@ -79,6 +80,7 @@ export async function PutBook(book) {
       description: book.description || book.synopsis || null,
       genre: book.genre || book.subjects || null,
       isbn: book.isbn || null,
+      pages: await getPages(book.isbn),
       // user.id will allow them to edit only tableentries matching their id
       user: user.id
     }]);

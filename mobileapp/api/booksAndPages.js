@@ -1,25 +1,32 @@
-import { supabase } from "../Supabase";
+import {supabase} from "../Supabase";
 
 export async function getBooksAndPages() {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    const {
+        data: {user},
+        error: userError,
+    } = await supabase.auth.getUser();
 
-  if (userError || !user) {
-    console.error("No logged-in user.");
-    return { totalBooks: 0, totalPages: 0 };
-  }
+    if (userError || !user) {
+        console.error("No logged-in user.");
+        return {totalBooks: 0, totalPages: 0};
+    }
 
-  // Query the rewind table for this user's stats
-  const { data, error } = await supabase
-    .from("rewind")
-    .select("total_books_read, total_pages_read")
-    .eq("user", user.id)
-    .maybeSingle();
+    // Query the rewind table for this user's stats
+    let {data, error} = await supabase
+        .from("book")
+        .select("pages")
+        .eq("user", user.id)
 
-  return {
-    totalBooks: data?.total_books_read || 0,
-    totalPages: data?.total_pages_read || 0,
-  };
+    // data = JSON.parse(data);
+
+    let total_pages = 0;
+
+    for (let i = 0; i < data.length; i++) {
+      total_pages += data[i]["pages"]
+    }
+
+    return {
+        totalBooks: data?.length || 0,
+        totalPages: total_pages,
+    };
 }
