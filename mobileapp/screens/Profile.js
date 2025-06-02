@@ -1,101 +1,265 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import { supabase } from '../Supabase';
 import { UserContext } from '../context/UserContext';
+import { launchImageLibrary } from 'react-native-image-picker';
+
+function getFileExtension(uriString, mimeType, originalFileName) {
+  if (originalFileName) {
+    const nameParts = originalFileName.split('.');
+    if (nameParts.length > 1) {
+      const ext = nameParts.pop().toLowerCase();
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+        return ext;
+      }
+    }
+  }
+
+  if (mimeType) {
+    switch (mimeType.toLowerCase()) {
+      case 'image/jpeg': return 'jpg';
+      case 'image/png': return 'png';
+      case 'image/gif': return 'gif';
+      case 'image/webp': return 'webp';
+    }
+  }
+
+  if (uriString) {
+    const uriParts = uriString.split('.');
+    if (uriParts.length > 1) {
+      const extFromUri = uriParts.pop().toLowerCase().split('?')[0];
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extFromUri)) {
+        return extFromUri;
+      }
+    }
+  }
+  return 'jpg';
+}
+
 
 export default function ProfileScreen({ navigation }) {
-  // Store the current user ID and username
   const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState('');
+
+  const [imagePreviewUri, setImagePreviewUri] = useState(null);
+  const [selectedLocalAsset, setSelectedLocalAsset] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const { refreshDisplayName } = useContext(UserContext);
 
-  // loading=true only while we fetch the existing username once
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    // Immediately-invoked async function to:
-    // 1) get the current user (if any),  
-    // 2) fetch their username from profiles (if user exists).
-    (async () => {
+    const fetchProfile = async () => {
       try {
-        // v2: getUser() returns { data: { user }, error }
-        const {
-          data: { user },
-          error: getUserError,
-        } = await supabase.auth.getUser();
+        setLoading(true);
+        const { data: { user }, error: getUserError } = await supabase.auth.getUser();
 
         if (getUserError || !user) {
-          // No user signed in or error—just skip fetching
+          console.warn('User not found or error fetching user:', getUserError?.message);
           return;
         }
-
         setUserId(user.id);
 
-        // Fetch existing username from profiles
-        const { data, error: fetchError } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', user.id)
-          .single();
+        const { data: profileData, error: fetchError } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('id', user.id)
+            .single();
 
-        // If row exists, set it; if no row (PGRST116), ignore.
-        if (!fetchError && data?.username) {
-          setUsername(data.username);
+        if (fetchError) {
+          console.log('Fetch profile info warning (profile might not exist yet):', fetchError.message);
+        } else if (profileData) {
+          if (profileData.username) setUsername(profileData.username);
+          if (profileData.avatar_url) setImagePreviewUri(profileData.avatar_url);
         }
       } catch (err) {
-        console.log('Fetch username error:', err.message);
+        console.error('Fetch profile error:', err.message);
+        Alert.alert('Error', 'Could not load your profile.');
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    fetchProfile();
   }, []);
 
-  // Called when “Save” is tapped
+  const pickImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+    });
+
+    if (result.didCancel) {
+      console.log('User cancelled image picker');
+      return;
+    }
+    if (result.errorCode) {
+      Alert.alert('Image Picker Error', result.errorMessage || 'Unknown error');
+      return;
+    }
+
+    const asset = result.assets && result.assets[0];
+    if (asset && asset.uri) {
+      setImagePreviewUri(asset.uri);
+      setSelectedLocalAsset({
+        uri: asset.uri,
+        type: asset.type,
+        fileName: asset.fileName
+      });
+    } else {
+      Alert.alert('Error', 'Could not select image. Please try again.');
+    }
+  };
+
+  const uploadProfilePhoto = async (asset, currentUserId) => {
+    if (!asset || !asset.uri || !currentUserId) {
+      throw new Error("Asset or user ID missing for upload.");
+    }
+
+    setUploading(true);
+    try {
+      const localUri = asset.uri;
+      const assetType = asset.type;
+
+      const fileExt = getFileExtension(localUri, assetType, asset.fileName);
+      const uploadPath = `${currentUserId}.${fileExt}`;
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: localUri,
+        name: uploadPath,
+        type: assetType,
+      });
+
+      const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(uploadPath, formData, {
+            upsert: true,
+          });
+
+      if (uploadError) {
+        console.error('Supabase upload error details:', uploadError);
+        throw uploadError;
+      }
+
+      const { data: { publicUrl }, error: urlError } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(uploadPath);
+
+      if (urlError) {
+        console.error('Error getting public URL:', urlError);
+        throw urlError;
+      }
+      return publicUrl;
+
+    } catch (err) {
+      console.error('Upload profile photo error:', err.message, err);
+      throw err;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!userId) {
       Alert.alert('Not signed in', 'Please sign in first.');
       return;
     }
 
+    setUploading(true);
+    let finalAvatarUrl = imagePreviewUri;
+
     try {
-      // Build the upsert payload
+      if (selectedLocalAsset && selectedLocalAsset.uri) {
+        finalAvatarUrl = await uploadProfilePhoto(selectedLocalAsset, userId);
+      }
+
       const updates = {
         id: userId,
         username: username.trim() === '' ? null : username.trim(),
+        avatar_url: finalAvatarUrl,
       };
 
-      const { error } = await supabase
-        .from('profiles')
-        .upsert(updates, { returning: 'minimal' });
+      const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert(updates, { returning: 'minimal' });
 
-      if (error) throw error;
-      await refreshDisplayName(); // Update UserContext displayName
-      Alert.alert('Saved!', 'Your username has been updated.');
-      navigation.navigate('Home');
+      if (upsertError) {
+        console.error('Profile upsert error:', upsertError);
+        throw upsertError;
+      }
+
+      await refreshDisplayName();
+
+      if (selectedLocalAsset && finalAvatarUrl) {
+        setImagePreviewUri(finalAvatarUrl);
+      }
+      setSelectedLocalAsset(null);
+
+      Alert.alert('Saved!', 'Your profile has been updated.');
+
     } catch (err) {
-      console.log('Upsert error:', err.message);
-      Alert.alert('Error', 'Could not save your username.');
+      console.error('Save profile error:', err.message);
+      Alert.alert('Error', `Could not save your profile: ${err.message}`);
+    } finally {
+      setUploading(false);
     }
   };
 
+  if (loading) {
+    return (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#007aff" />
+          <Text style={styles.hint}>Loading profile...</Text>
+        </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Set Your Username</Text>
+      <View style={styles.container}>
+        <Text style={styles.heading}>Your Profile</Text>
 
-      {/* TextInput remains editable even while loading. */}
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. booklover123"
-        value={username}
-        autoCapitalize="none"
-        onChangeText={setUsername}
-      />
+        <TouchableOpacity onPress={pickImage} disabled={uploading} style={styles.avatarContainer}>
+          {imagePreviewUri ? (
+              <Image source={{ uri: imagePreviewUri }} style={styles.avatar} />
+          ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarPlaceholderText}>Choose Photo</Text>
+              </View>
+          )}
+        </TouchableOpacity>
 
-      <Button title="Save" onPress={handleSave} disabled={loading} />
+        <TouchableOpacity style={[styles.button, styles.photoButton]} onPress={pickImage} disabled={uploading}>
+          <Text style={styles.buttonText}>{selectedLocalAsset ? 'Change Photo' : 'Choose Photo'}</Text>
+        </TouchableOpacity>
 
-      {/* Show a tiny hint if we’re still fetching the existing username */}
-      {loading && <Text style={styles.hint}>Loading...</Text>}
-    </View>
+        <TextInput
+            style={styles.input}
+            placeholder="Username (e.g. booklover123)"
+            value={username}
+            autoCapitalize="none"
+            onChangeText={setUsername}
+            editable={!uploading}
+        />
+
+        <Button
+            title={uploading ? 'Saving…' : 'Save Profile'}
+            onPress={handleSave}
+            disabled={uploading || loading}
+            color="#007aff"
+        />
+
+        {uploading && <ActivityIndicator style={{ marginTop: 20 }} size="small" color="#007aff"/>}
+      </View>
   );
 }
 
@@ -103,24 +267,78 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: '#f7f7f7',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
   },
   heading: {
-    fontSize: 20,
-    marginBottom: 12,
-    fontWeight: '500',
+    fontSize: 24,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 24,
+    color: '#333',
   },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    padding: 10,
+  avatarContainer: {
+    alignSelf: 'center',
     marginBottom: 16,
-    borderRadius: 4,
+    borderRadius: 75,
+    borderWidth: 3,
+    borderColor: '#007aff',
+    padding: 3,
+  },
+  avatar: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+  },
+  avatarPlaceholder: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#e1e1e1',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarPlaceholderText: {
+    color: '#555',
     fontSize: 16,
   },
+  input: {
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    borderRadius: 8,
+    fontSize: 16,
+    color: '#333',
+  },
   hint: {
-    marginTop: 8,
+    marginTop: 12,
     color: '#555',
-    fontStyle: 'italic',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  button: {
+    backgroundColor: '#007aff',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  photoButton: {
+    alignSelf: 'center',
+    marginBottom: 24,
   },
 });
