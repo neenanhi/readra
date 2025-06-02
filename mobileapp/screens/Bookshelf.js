@@ -191,7 +191,8 @@ export default function Bookshelf({ navigation }) {
 
         {/* Scan button */}
         <MaterialCommunityIcons
-          style={styles.iconButton}
+          //Note to neens: change contents of background color to change button color
+          style={[styles.iconButton, {backgroundColor: '#7d819f', borderRadius: 8}]}
           name="barcode-scan"
           size={24}
           color={COLORS.textDark}

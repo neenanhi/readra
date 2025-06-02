@@ -95,8 +95,8 @@ export default function BookDetail({route}) {
                 if (data) {
                     data.isbn = isbn;
                     data.cover_image = data.cover_image || data.image || data.image_original || null;
-                    data.description = data.synopsis
-                    console.log(data)
+                    data.description = data.description || data.synopsis || null;
+                    // console.log(data)
                     // console.log(data.cover_image)
                     setBook(data);
                 } else {
@@ -174,7 +174,7 @@ export default function BookDetail({route}) {
                 <View style={styles.card}>
                     <View style={styles.topRow}>
                         <View style={styles.infoColumn}>
-                            <Text style={[TEXT.heading, styles.title]}>{book.title}{pages ? ` (${pages} pages)` : ""}
+                            <Text style={[TEXT.heading, styles.title]}>{book.title}
                             </Text>
                             <Text style={[TEXT.subheading, styles.author]}>
                             by {book.authors?.[0] || "Unknown"}
@@ -186,6 +186,10 @@ export default function BookDetail({route}) {
                             resizeMode="cover"
                         />
                     </View>
+
+                    <Text style={[TEXT.subheading, styles.author]}>
+                            Pages: {pages || "Unknown"}
+                            </Text>
 
                     <Text style={[TEXT.body, styles.description]}>
                     {book.description
