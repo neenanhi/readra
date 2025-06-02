@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
 
   input: {
     // Note to Neena: Edit this to change the text input color
-    backgroundColor: "#e0f7fa",
+    backgroundColor: COLORS.white,
     flex: 1,
     height: 40,
     borderWidth: 1,
