@@ -65,7 +65,7 @@ export async function PutBook(book) {
     console.error('No logged-in user.');
     return;
   }
-
+  // console.log(book)
   const { data, error } = await supabase
     // table name
     .from('book')
@@ -74,10 +74,10 @@ export async function PutBook(book) {
     .upsert([{
       title: book.title,
       // Insert provided information or provide null if not given
-      author: book.author || null,
+      author: book.author || book.authors || null,
       cover_image: book.cover_image || null,
-      description: book.description || null,
-      genre: book.genre || null,
+      description: book.description || book.synopsis || null,
+      genre: book.genre || book.subjects || null,
       isbn: book.isbn || null,
       // user.id will allow them to edit only tableentries matching their id
       user: user.id
