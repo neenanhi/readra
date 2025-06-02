@@ -46,7 +46,7 @@ function BookshelfStack() {
       <Stack.Screen
         name="Profile"
         component={Profile}
-        options={{ title: ' '}}
+        options={{ headerShown: false, title: ' '}}
       />
     </Stack.Navigator>
   );

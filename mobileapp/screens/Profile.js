@@ -9,10 +9,15 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
+  SafeAreaView, Platform, StatusBar,
 } from 'react-native';
 import { supabase } from '../Supabase';
 import { UserContext } from '../context/UserContext';
 import { launchImageLibrary } from 'react-native-image-picker';
+
+import { COLORS } from '../styles/colors';
+import { SPACING } from '../styles/spacing';
+import { TEXT } from '../styles/typography';
 
 function getFileExtension(uriString, mimeType, originalFileName) {
   if (originalFileName) {
@@ -225,6 +230,7 @@ export default function ProfileScreen({ navigation }) {
   }
 
   return (
+    <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         <Text style={styles.heading}>Your Profile</Text>
 
@@ -260,14 +266,21 @@ export default function ProfileScreen({ navigation }) {
 
         {uploading && <ActivityIndicator style={{ marginTop: 20 }} size="small" color="#007aff"/>}
       </View>
+      </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: COLORS.background, 
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    },
   container: {
     flex: 1,
-    padding: 24,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xl,
   },
   centered: {
     flex: 1,
