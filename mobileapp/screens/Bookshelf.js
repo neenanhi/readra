@@ -209,11 +209,10 @@ export default function Bookshelf({ navigation }) {
 
         {/* Scan button */}
         <MaterialCommunityIcons
-          //Note to neens: change contents of background color to change button color
           style={[styles.iconButton, {backgroundColor: '#7d819f', borderRadius: 8}]}
           name="barcode-scan"
           size={24}
-          color={COLORS.textDark}
+          color={COLORS.background}
           onPress={() => setScanner(true)}
         />
 
@@ -227,8 +226,18 @@ export default function Bookshelf({ navigation }) {
                 isActive={true}
                 codeScanner={codeScanner}
               />
+              {/* Close button */}
               <TouchableOpacity
-                style={styles.closeScanner}
+                style={[
+                  styles.closeScanner,
+                  {
+                  top: (Platform.OS === "android"
+                    ? (StatusBar.currentHeight || 0)
+                    : 0) + 80,
+                  left: SPACING.lg // ~24px
+                  },
+                ]}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10}} // easier to tap
                 onPress={() => setScanner(false)}
               >
                 <Text style={styles.closeText}>Close Scanner</Text>
@@ -365,7 +374,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    // Note to Neena: Edit this to change the text input color
     backgroundColor: COLORS.white,
     flex: 1,
     height: 40,
@@ -512,14 +520,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    backgroundColor: "rgba(0,0,0,0.8)",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
   },
   closeScanner: {
     position: "absolute",
-    top: SPACING.lg,                 // ~24px
-    left: SPACING.sm,                // ~8px
-    backgroundColor: "rgba(0,0,0,0.6)",
-    padding: SPACING.sm,             // ~8px
+    backgroundColor: "transparent",
+    borderColor: COLORS.white,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,  // a little wider
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: COLORS.white,             // ~8px
     borderRadius: 6,
   },
   closeText: {
