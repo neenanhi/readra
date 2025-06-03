@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: "#444",
     marginHorizontal: 2,
+    marginTop: "30%",
     overflow: "hidden",
   },
   progressDotActive: {
