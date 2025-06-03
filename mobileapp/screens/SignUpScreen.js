@@ -43,6 +43,7 @@ export default function SignUpScreen({ navigation }) {
       <TextInput
         style={AuthScreenStyles.input}
         placeholder="Email"
+        placeholderTextColor="#000"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -50,6 +51,7 @@ export default function SignUpScreen({ navigation }) {
       <TextInput
         style={AuthScreenStyles.input}
         placeholder="Password"
+        placeholderTextColor="#000"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -57,6 +59,7 @@ export default function SignUpScreen({ navigation }) {
       <TextInput
         style={AuthScreenStyles.input}
         placeholder="Confirm Password"
+        placeholderTextColor="#000"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry

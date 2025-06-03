@@ -39,12 +39,13 @@ export default function SignInScreen({ navigation }) {
       <Text style={AuthScreenStyles.title}>READRA</Text>
 
       {/* header for login screen */}
-      {/* <Text style={AuthScreenStyles.header}>Login to your account</Text> */}
+      {/* <Text style={AuthScreenStyles.header}>Login to your account</Text>*/}
 
       {/* email & password */}
       <TextInput
         style={AuthScreenStyles.input}
         placeholder="Email"
+        placeholderTextColor="#000"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -52,6 +53,7 @@ export default function SignInScreen({ navigation }) {
       <TextInput
         style={AuthScreenStyles.input}
         placeholder="Password"
+        placeholderTextColor="#000"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
