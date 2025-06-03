@@ -4,14 +4,9 @@
     "slug": "reading-wrapped-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./resources/logo_v1.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -33,6 +28,18 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#232323",
+          "image": "./resources/logo_v1.png",
+          "dark": {
+            "image": "./resources/logo_v1.png",
+            "backgroundColor": "#808080"
+          },
+          "imageWidth": 200
+        }
+      ],
       [
         "react-native-vision-camera",
         {
