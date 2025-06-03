@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "reading-wrapped-mobile",
-    "slug": "reading-wrapped-mobile",
+    "name": "Readra",
+    "slug": "Readra",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./resources/logo_v1.png",
