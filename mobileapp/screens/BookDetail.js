@@ -1,4 +1,5 @@
 import BookCard from "../components/BookCard";
+import RateBook from "../components/RateBook";
 import axios from "axios";
 import {
     ActivityIndicator,
@@ -16,6 +17,7 @@ import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {supabase, isbndbGetHeaders} from "../Supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import Slider from '@react-native-community/slider';
 
 import { COLORS } from '../styles/colors';
 import { SPACING } from '../styles/spacing';
@@ -58,13 +60,41 @@ export default function BookDetail({route}) {
     const [error, setError] = useState(null);
     const [pages, setPages] = useState(null);
     const [userBook, setUserBook] = useState(null);
+    const [rating, setRating] = useState(userBook?.rating ?? 5);
     const [modalVisible, setModalVisible] = useState(false);
+    const [scrollEnabled, setScrollEnabled] = useState(true);
 
     // Date pickers state
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
+
+    async function handleSaveRating() {
+        try {
+            // Show any loading indicator you already have, if desired:
+            setLoading(true);
+
+            // Update the 'rating' column for this ISBN
+            await supabase
+            .from("book")
+            .update({ rating })
+            .eq("isbn", isbn);
+
+            // Fetch the fresh row so that userBook gets the updated data
+            const { data, error: fetchError } = await supabase
+                .from("book")
+                .select("*")
+                .eq("isbn", isbn)
+                .single();
+            if (fetchError) throw fetchError;
+            setUserBook(data);
+        } catch (err) {
+            console.log("Error saving rating:", err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     function cleanDescription(raw) {
         if (!raw) return "No description available.";
@@ -186,7 +216,11 @@ export default function BookDetail({route}) {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView 
+            contentContainerStyle={styles.scrollContent} 
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={scrollEnabled}
+            >
                 <View style={styles.card}>
                     <View style={styles.topRow}>
                         <View style={styles.infoColumn}>
@@ -224,6 +258,7 @@ export default function BookDetail({route}) {
                         </Text>
                         </TouchableOpacity>
                     ) : (
+                        <>
                         <View style={styles.inLibRow}>
                         <TouchableOpacity
                             style={styles.removeButton}
@@ -244,6 +279,16 @@ export default function BookDetail({route}) {
                             />
                         </TouchableOpacity>
                         </View>
+
+                        {/* ── Rating slider goes here ── */}
+                        <RateBook
+                            rating={rating}
+                            onChange={setRating}
+                            onSave={handleSaveRating}
+                            onSlidingStart={() => setScrollEnabled(false)}
+                            onSlidingComplete={() => setScrollEnabled(true)}
+                        />
+                    </>
                     )}
                     </View>
 
@@ -331,7 +376,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         margin: 24,
         borderRadius: 25,
-        // borderWidth: StyleSheet.hairlineWidth,
         overflow: 'scroll',
     },
     topRow: {
