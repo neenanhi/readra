@@ -27,45 +27,64 @@ export async function getRewind3Data() {
     return;
   }
 
-  // Process top authors
-  const authorCounts = {};
-  for (const row of data) {
-    let authors = row.author;
+    // Process top authors based on average rating
+    const authorRatings = {}; // { "Author Name": { total: x, count: y } }
 
-    // If the author is a stringified array, parse it
-    if (typeof authors === "string" && authors.startsWith("[")) {
-      try {
-        //Thanks for the idea adeel!!!!
-        authors = JSON.parse(authors);
-      } catch {
+    for (const row of data) {
+      let authors = row.author;
+      let rating = parseFloat(row.user_rating);
+      if(isNaN(rating)){
+        rating = 0
+      }
+
+      if (typeof authors === "string" && authors.startsWith("[")) {
+        try {
+          authors = JSON.parse(authors);
+        } catch {
+          authors = [authors];
+        }
+      }
+
+      if (!Array.isArray(authors)) {
         authors = [authors];
       }
-    }
 
-    // Normalize: always treat as array
-    if (!Array.isArray(authors)) {
-      authors = [authors];
-    }
+      for (const author of authors) {
+        const cleanAuthor = author.trim();
+        if (!cleanAuthor) continue;
+        if (!authorRatings[cleanAuthor]) {
+          authorRatings[cleanAuthor] = { total: 0, count: 0 };
+        }
 
-    // Count each author
-    for (const author of authors) {
-      if (author) {
-        authorCounts[author] = (authorCounts[author] || 0) + 1;
+        authorRatings[cleanAuthor].total += rating;
+        authorRatings[cleanAuthor].count += 1;
+        // console.log(authorRatings)
       }
     }
-  }
-  const topAuthors = Object.entries(authorCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([author]) => author); // <-- now clean strings
+    
+    const topAuthors = Object.entries(authorRatings)
+      .map(([author, stats]) => ({
+        author,
+        avgRating: stats.total / stats.count,
+      }))
+      .sort((a, b) => b.avgRating - a.avgRating)
+      .slice(0, 3)
+      .map(a => a.author);
+    // console.log(topAuthors)
+
 
 
   // Process top books
   const ratedBooks = data
-    .filter(book => book.user_rating !== null)
+    .map(book => {
+      const rating = parseFloat(book.user_rating);
+      return {
+        title: book.title,
+        user_rating: isNaN(rating) || rating === 0 ? "Unrated" : rating,
+      };
+    })
     .sort((a, b) => b.user_rating - a.user_rating)
     .slice(0, 3)
-    .map(book => ({ title: book.title, user_rating: book.user_rating }));
   
   return {
     topAuthors: topAuthors,
