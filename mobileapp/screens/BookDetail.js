@@ -1,3 +1,4 @@
+//BookDetail.js
 import BookCard from "../components/BookCard";
 import RateBook from "../components/RateBook";
 import axios from "axios";
@@ -10,7 +11,7 @@ import {
     SafeAreaView,
     StyleSheet,
     Text,
-    View, TextInput, Pressable, Modal
+    View, TextInput, Pressable, Modal,
 } from "react-native";
 import React, {useEffect, useState} from "react";
 import {getCoverUrl, PutBook} from "../api/openLibrary";
@@ -50,53 +51,7 @@ export async function getPages(isbn) {
     }
 }
 
-
-// export default function BookDetail({isbn}) {
-export default function BookDetail({route}) {
-    const {isbn} = route.params;
-
-    const [book, setBook] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [pages, setPages] = useState(null);
-    const [userBook, setUserBook] = useState(null);
-    const [rating, setRating] = useState(userBook?.rating ?? 5);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [scrollEnabled, setScrollEnabled] = useState(true);
-
-    // Date pickers state
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
-    const [showStartPicker, setShowStartPicker] = useState(false);
-    const [showEndPicker, setShowEndPicker] = useState(false);
-
-    async function handleSaveRating() {
-        try {
-            // Show any loading indicator you already have, if desired:
-            setLoading(true);
-
-            // Update the 'rating' column for this ISBN
-            await supabase
-            .from("book")
-            .update({ rating })
-            .eq("isbn", isbn);
-
-            // Fetch the fresh row so that userBook gets the updated data
-            const { data, error: fetchError } = await supabase
-                .from("book")
-                .select("*")
-                .eq("isbn", isbn)
-                .single();
-            if (fetchError) throw fetchError;
-            setUserBook(data);
-        } catch (err) {
-            console.log("Error saving rating:", err.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    function cleanDescription(raw) {
+function cleanDescription(raw) {
         if (!raw) return "No description available.";
 
         // Remove HTML tags
@@ -111,21 +66,52 @@ export default function BookDetail({route}) {
         return cleaned.trim();
     }
 
+
+// export default function BookDetail({isbn}) {
+export default function BookDetail({route}) {
+    const {isbn} = route.params;
+
+    const [book, setBook] = useState(null);
+    const [pages, setPages] = useState(null);
+    const [userBook, setUserBook] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [rating, setRating] = useState(0);
+    const [modalVisible, setModalVisible] = useState(false);
+     // Date pickers state
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [showStartPicker, setShowStartPicker] = useState(false);
+    const [showEndPicker, setShowEndPicker] = useState(false);
+    const [scrollEnabled, setScrollEnabled] = useState(true);
+
+    // const initialRating = userBook?.user_rating != null
+    // ? Math.round(userBook.user_rating * 2)  // convert e.g. 3.5 → 7
+    // : 0;
+    // const [rating, setRating] = useState(initialRating); // rating ∈ [0..10]
+
     useEffect(() => {
         let mounted = true;
         setLoading(true);
 
         // Fetch user-specific book record from Supabase
         supabase
-            .from('book')
-            .select('*')
-            .eq('isbn', isbn)
-            .then(d => {
-                setUserBook(d.data[0]);
+            .from("book")
+            .select("*")
+            .eq("isbn", isbn)
+            .single()
+            .then(({ data, error }) => {
+            if (error) {
+                console.log("Supabase fetch error:", error.message);
+            } else if (mounted) {
+                setUserBook(data);
+            }
             })
-            .then(() => {
-                setEndDate(new Date(userBook?.date_finished));
-                setStartDate(new Date(userBook?.date_started));
+            .catch((err) => {
+            console.log("Supabase fetch error (catch):", err.message);
+            })
+            .finally(() => {
+            if (mounted) setLoading(false);
             });
 
         // Fetch page count from ISBNdb
@@ -135,7 +121,7 @@ export default function BookDetail({route}) {
 
         // Fetch book metadata from ISBNdb
         getBookData(isbn)
-            .then(data => {
+            .then((data) => {
                 if (!mounted) return;
                 if (data) {
                     data.isbn = isbn;
@@ -160,6 +146,38 @@ export default function BookDetail({route}) {
             mounted = false;
         };
     }, [isbn]);
+
+    useEffect(() => {
+        if (userBook && userBook.user_rating != null) {
+        // Convert e.g. 3.5 → 7
+        const halfStar = Math.round(userBook.user_rating * 2);
+        setRating(halfStar);
+        }
+    }, [userBook]);
+
+    async function handleSaveRating() {
+        try {
+            // Show any loading indicator you already have, if desired:
+            setLoading(true);
+
+            const floatRating = rating / 2;
+
+            const { error: updateError } = await supabase
+                .from("book")
+                .update({ user_rating: floatRating })
+                .eq("isbn", isbn);
+            if (updateError) throw updateError;
+
+            setUserBook(prev => ({
+                ...prev,
+                user_rating: floatRating,
+            }));
+        } catch (err) {
+            console.log("Error saving rating:", err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     function addBook() {
         setLoading(true);
@@ -205,13 +223,14 @@ export default function BookDetail({route}) {
 
     // console.log(userBook, startDate, endDate);
 
-    if (loading) {
-        return (
-            <ActivityIndicator/>
-        );
+    if (loading || !book) {
+        return <ActivityIndicator style={{ marginTop: 24 }} />;
     }
+
     if (error) {
-        return <Text>Error loading book: {error.message}</Text>;
+        return (
+            <Text style={{ color: "red", padding: 16 }}>Error: {error.message}</Text>
+        );
     }
 
     return (
@@ -248,12 +267,12 @@ export default function BookDetail({route}) {
                     </Text>
 
                     <View style={styles.actionContainer}>
-                    {userBook === undefined ? (
+                    {!userBook ? (
                         <TouchableOpacity
                         style={styles.addToLibrary}
-                        onPress={() => addBook()}
+                        onPress={addBook}
                         >
-                        <Text style={[TEXT.button, styles.addToLibraryText]}>
+                        <Text style={styles.addToLibraryText}>
                             Add to Library
                         </Text>
                         </TouchableOpacity>
@@ -279,14 +298,11 @@ export default function BookDetail({route}) {
                             />
                         </TouchableOpacity>
                         </View>
-
-                        {/* ── Rating slider goes here ── */}
+                        {/* ── Rating Feature ── */}
                         <RateBook
                             rating={rating}
                             onChange={setRating}
                             onSave={handleSaveRating}
-                            onSlidingStart={() => setScrollEnabled(false)}
-                            onSlidingComplete={() => setScrollEnabled(true)}
                         />
                     </>
                     )}
@@ -370,6 +386,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#2e3a59",
     },
+    scrollContent: {
+        paddingBottom: 80,
+    },
     card: {
         flex: 1,
         alignItems: 'center',
@@ -377,6 +396,7 @@ const styles = StyleSheet.create({
         margin: 24,
         borderRadius: 25,
         overflow: 'scroll',
+        padding: 24,
     },
     topRow: {
         marginBottom: 24,
@@ -434,6 +454,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 'auto',
         marginBottom: 20,
     },
+    addToLibraryText: {     
+        color: '#black',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
     inLibRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -465,6 +491,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    actionContainer: {
+        width: "100%",
+        alignItems: "stretch",
     },
 
     modalOverlay: {

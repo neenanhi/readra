@@ -1,60 +1,70 @@
-import React from "react";
-import { View, Pressable, StyleSheet } from "react-native";
-import Slider from "@react-native-community/slider";
+// components/RateBook.js
+
+import React, { useState } from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { COLORS } from "../styles/colors";
 
-export default function RateBook({
-  // Convert 1–10 slider value to 0–5 star value
-  rating,
-  onChange,
-  onSave,
-  onSlidingStart,
-  onSlidingComplete,
-}) {
-  const stars = rating / 2; // e.g. 7 ➜ 3.5 stars
+export default function RateBook({ rating, onChange, onSave }) {
+  // `rating` is 1..10 (half stars). e.g. 7 => 3.5 stars
+
+  // Measure the width of the star container exactly once:
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // Full stars vs. half star
+  const fullStars = Math.floor(rating / 2);
+  const hasHalfStar = rating % 2 === 1;
+
+  const renderStars = () => {
+    return [1, 2, 3, 4, 5].map((i) => {
+      if (i <= fullStars) {
+        return <FontAwesome key={i} name="star" size={32} color="#FFD700" />;
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        return (
+          <FontAwesome
+            key={i}
+            name="star-half-full"
+            size={32}
+            color="#FFD700"
+          />
+        );
+      } else {
+        return <FontAwesome key={i} name="star-o" size={32} color="#FFD700" />;
+      }
+    });
+  };
+
+  // Converts (x / containerWidth) into a 1..10 rating
+  const handlePress = (e) => {
+    const x = e.nativeEvent.locationX;
+    if (containerWidth <= 0) return;
+    const frac = Math.max(0, Math.min(1, x / containerWidth));
+    const newRating = Math.ceil(frac * 10);
+    onChange(newRating);
+  };
 
   return (
     <View style={styles.container}>
-      {/* ⭐ Star Row */}
-      <View style={styles.starRow}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <FontAwesome
-            key={i}
-            name={
-              stars >= i
-                ? "star"
-                : stars >= i - 0.5
-                ? "star-half-full"
-                : "star-o"
-            }
-            size={26}
-            color="#FFD700"
-          />
-        ))}
-      </View>
+      {/* The Pressable now captures both taps and drags */}
+      <Pressable
+        style={styles.starContainer}
+        onLayout={(e) => {
+          const w = e.nativeEvent.layout.width;
+          console.log("RateBook container width:", w);
+          setContainerWidth(w);
+        }}
+        onPress={handlePress}
+        onResponderMove={(e) => handlePress(e)} // drag‐to‐rate
+        // onStartShouldSetResponder={() => true}
+        // onMoveShouldSetResponder={() => true}
+        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}  // bigger hit zone
+      >
+        <View style={styles.starRow}>{renderStars()}</View>
+      </Pressable>
 
-      {/* ▲ Slider + Save Button Container */}
-      <View style={styles.sliderWrapper}>
-        <Slider
-          style={{ width: "100%", height: 40 }}
-          minimumValue={1}
-          maximumValue={10}
-          step={1}
-          value={rating}
-          onValueChange={onChange}
-          onSlidingStart={onSlidingStart}
-          onSlidingComplete={onSlidingComplete}
-          minimumTrackTintColor={COLORS.background} // filled‐in color
-          maximumTrackTintColor={COLORS.buttonBg} // unfilled color
-          thumbTintColor={COLORS.white}            // thumb color
-        />
-
-        {/* Save / Confirm Button */}
-        <Pressable style={styles.saveBtn} onPress={onSave}>
-          <FontAwesome name="check" size={18} color="#fff" />
-        </Pressable>
-      </View>
+      <Pressable style={styles.saveBtn} onPress={onSave}>
+        <Text style={styles.saveText}>✔</Text>
+      </Pressable>
     </View>
   );
 }
@@ -62,26 +72,27 @@ export default function RateBook({
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
-    alignItems: "center",
-    width: "90%",
+    width: "90%",     // 90% of parent width
+    // no alignItems here (so child can fill)
+  },
+  starContainer: {
+    width: "100%", 
   },
   starRow: {
     flexDirection: "row",
-    marginBottom: 12,
-  },
-  sliderWrapper: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "red",   // ← debug border; remove or set to "transparent" when done
-    zIndex: 10,
-    position: "relative", // needed so zIndex takes effect on iOS/Android
-    paddingVertical: 8,   // extra touch area above/below the thumb
+    justifyContent: "space-between",  // spread 5 icons across full width
   },
   saveBtn: {
-    marginTop: 10,
-    backgroundColor: "#7d819f",
-    padding: 10,
+    marginTop: 12,
+    backgroundColor: COLORS.primary || "#7d819f",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 8,
     alignSelf: "center",
+  },
+  saveText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "600",
   },
 });
