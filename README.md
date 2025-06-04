@@ -28,6 +28,6 @@ An AI model analyzes your bookshelf to match you with a curated reading personal
 - 🚀 GitHub Actions – CI/CD automation
 
 ## Run Locally
-1. Clone repository `git clone `
+1. Clone repository `git clone https://github.com/neenanhi/readra.git`
 2. npm install
 3. Follow the [expo docs](https://docs.expo.dev/build/setup/) in order to build the application on your IOS/Android device 
