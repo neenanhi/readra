@@ -1,3 +1,4 @@
+// UserContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import { supabase } from '../Supabase'; 
 

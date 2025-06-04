@@ -1,3 +1,4 @@
+// Home.js
 import React, {useEffect, useContext, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, Platform, StatusBar} from 'react-native';
 import {getCoverUrl, fetchBooks} from '../api/openLibrary';
@@ -17,13 +18,54 @@ const Home = ({navigation}) => {
     const [books, setBooks] = useState([]);
     const [recent, setRecent] = useState(null);
     const [loading, setLoading] = useState(true);
-    const {displayName} = useContext(UserContext);
     const [isEditingQuote, setIsEditingQuote] = useState(false);
     const [quoteInput, setQuoteInput] = useState("");
     const [quoteAuthor, setQuoteAuthor] = useState("");
 
-    const saveQuote = () => {
+    const [existingQuoteId, setExistingQuoteId] = useState(null);
+    const { session, displayName } = useContext(UserContext);
+
+    const saveQuote = async () => {
+      try {
+        if (!session || !session.user) return;
+        const userId = session.user.id;
+        const payload = {
+          user_id: userId,
+          book_id: null,
+          text: quoteInput,
+          author: quoteAuthor,
+          source: 'Manual',
+        };
+
+        let result;
+        if (existingQuoteId) {
+          result = await supabase
+            .from('quotes')
+            .update({
+              text: quoteInput,
+              author: quoteAuthor,
+            })
+            .eq('quote_id', existingQuoteId)
+            .select('quote_id, text, author')
+            .single();
+        } else {
+          // Insert a new row 
+          result = await supabase
+            .from('quotes')
+            .insert(payload)
+            .select('quote_id, text, author')
+            .single();
+        }
+
+        if (result.error) throw result.error;
+        if (!existingQuoteId && result.data?.quote_id) {
+          setExistingQuoteId(result.data.quote_id);
+        }
+
         setIsEditingQuote(false);
+      } catch (err) {
+        console.error('Error saving quote:', err);
+      }
     };
 
     // =====================
@@ -69,10 +111,48 @@ const Home = ({navigation}) => {
             } catch (err) {
                 console.error('Error fetching recent books:', err)
             }
-        }
+        };
+        // fetch the user's saved manual quote for the home screen
+        const getSavedQuote = async () => {
+          try {
+            // a) if there's no logged‐in session, do nothing
+            if (!session || !session.user) return;
+
+            const userId = session.user.id;
+
+            // b) query quotes table for a manual quote with no book_id
+            const { data: existing, error: quoteError } = await supabase
+              .from('quotes')
+              .select('quote_id, text, author')
+              .eq('user_id', userId)
+              .eq('source', 'Manual')
+              .is('book_id', null)
+              .single();
+
+            if (quoteError) {
+              // if it's simply "no rows", supabase returns 406 (PGRST116) 
+              // we only log unexpected errors
+              if (quoteError.code !== 'PGRST116') {
+                console.error('Error fetching saved quote:', quoteError);
+              }
+              return;
+            }
+
+            if (existing) {
+              // populate state with the saved values
+              setQuoteInput(existing.text);
+              setQuoteAuthor(existing.author || '');
+              setExistingQuoteId(existing.quote_id);
+            }
+          } catch (err) {
+            console.error('Error in getSavedQuote:', err);
+          }
+        };
+
         getBooks();
         getRecent();
-    }, []);
+        getSavedQuote();
+      }, [session]);
 
 
     return (
@@ -284,9 +364,6 @@ const styles = StyleSheet.create({
   scrollRow: {
     marginBottom: SPACING.md,
   },
-
-  // (These bookCard/bookCover/... styles are actually defined inside your
-  // <BookCard> component, so you can remove them from Home if they’re not used here.)
 
   recentCard: {
     flexDirection: 'row',
