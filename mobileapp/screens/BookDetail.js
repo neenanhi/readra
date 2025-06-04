@@ -1,3 +1,4 @@
+//BookDetail.js
 import BookCard from "../components/BookCard";
 import RateBook from "../components/RateBook";
 import axios from "axios";
@@ -483,6 +484,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    actionContainer: {
+        width: "100%",
+        alignItems: "stretch",
     },
 
     modalOverlay: {
