@@ -17,6 +17,7 @@ import {getCoverUrl, PutBook} from "../api/openLibrary";
 import {supabase, isbndbGetHeaders} from "../Supabase";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import Slider from '@react-native-community/slider';
 
 import { COLORS } from '../styles/colors';
 import { SPACING } from '../styles/spacing';
@@ -61,6 +62,7 @@ export default function BookDetail({route}) {
     const [userBook, setUserBook] = useState(null);
     const [rating, setRating] = useState(userBook?.rating ?? 5);
     const [modalVisible, setModalVisible] = useState(false);
+    const [scrollEnabled, setScrollEnabled] = useState(true);
 
     // Date pickers state
     const [startDate, setStartDate] = useState(new Date());
@@ -81,16 +83,14 @@ export default function BookDetail({route}) {
 
             // Fetch the fresh row so that userBook gets the updated data
             const { data, error: fetchError } = await supabase
-            .from("book")
-            .select("*")
-            .eq("isbn", isbn)
-            .single();
-
+                .from("book")
+                .select("*")
+                .eq("isbn", isbn)
+                .single();
             if (fetchError) throw fetchError;
             setUserBook(data);
         } catch (err) {
             console.log("Error saving rating:", err.message);
-            // Optionally set some error state here
         } finally {
             setLoading(false);
         }
@@ -216,7 +216,11 @@ export default function BookDetail({route}) {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView 
+            contentContainerStyle={styles.scrollContent} 
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={scrollEnabled}
+            >
                 <View style={styles.card}>
                     <View style={styles.topRow}>
                         <View style={styles.infoColumn}>
@@ -278,9 +282,11 @@ export default function BookDetail({route}) {
 
                         {/* ── Rating slider goes here ── */}
                         <RateBook
-                        rating={rating}
-                        onChange={setRating}
-                        onSave={handleSaveRating}
+                            rating={rating}
+                            onChange={setRating}
+                            onSave={handleSaveRating}
+                            onSlidingStart={() => setScrollEnabled(false)}
+                            onSlidingComplete={() => setScrollEnabled(true)}
                         />
                     </>
                     )}
@@ -370,7 +376,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         margin: 24,
         borderRadius: 25,
-        // borderWidth: StyleSheet.hairlineWidth,
         overflow: 'scroll',
     },
     topRow: {
