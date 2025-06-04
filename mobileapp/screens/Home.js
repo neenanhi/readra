@@ -133,19 +133,21 @@ const Home = ({navigation}) => {
             </View>
 
             {/* Horizontal Scroll of Book Cards */}
-            {loading ? (
-                <ActivityIndicator size="large" color={COLORS.textLight} />
-            ) : (
-                <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.scrollRow}
-                >
-                {books.map((book, index) => (
-                    <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
-                ))}
-                </ScrollView>
-            )}
+            <ScrollView>
+                {loading ? (
+                    <ActivityIndicator size="large" color={COLORS.textLight} />
+                ) : (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.scrollRow}
+                    >
+                        {books.map((book, index) => (
+                            <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
+                        ))}
+                    </ScrollView>
+                )}
+            </ScrollView>
 
             {/* Reading Analysis Card */}
             {recent && recent.length > 0 && (
