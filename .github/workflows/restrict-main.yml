@@ -1,8 +1,12 @@
 name: Verify Expo Starts
 
 on:
-  push:        # every push, all branches
+  push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   expo-start:
