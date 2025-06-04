@@ -66,6 +66,21 @@ export default function BookDetail({route}) {
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
 
+    function cleanDescription(raw) {
+        if (!raw) return "No description available.";
+
+        // Remove HTML tags
+        let cleaned = raw.replace(/<[^>]*>/g, "");
+
+        // Remove URLs
+        cleaned = cleaned.replace(/https?:\/\/\S+/g, "");
+
+        // Remove markdown-style links [text](url)
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+
+        return cleaned.trim();
+    }
+
     useEffect(() => {
         let mounted = true;
         setLoading(true);
@@ -95,9 +110,10 @@ export default function BookDetail({route}) {
                 if (data) {
                     data.isbn = isbn;
                     data.cover_image = data.cover_image || data.image || data.image_original || null;
-                    data.description = data.description || data.synopsis || null;
+                    data.description = data.synopsis || data.description|| null;
                     // console.log(data)
                     // console.log(data.cover_image)
+                    data.description = cleanDescription(data.description);
                     setBook(data);
                 } else {
                     setError(new Error("No book found"));
@@ -193,7 +209,7 @@ export default function BookDetail({route}) {
 
                     <Text style={[TEXT.body, styles.description]}>
                     {book.description
-                        ? book.description.slice(0, 250) + "…"
+                        ? book.description
                         : "No description available."}
                     </Text>
 

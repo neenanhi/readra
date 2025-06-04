@@ -53,7 +53,7 @@ const Home = ({navigation}) => {
                     .order('created_at', {ascending: false})
                     .limit(1)
                 if (error) throw error
-                // console.log(data)
+                console.log(data)
                 setRecent(data)
             } catch (err) {
                 console.error('Error fetching recent books:', err)
