@@ -30,17 +30,35 @@ export async function getRewind3Data() {
   // Process top authors
   const authorCounts = {};
   for (const row of data) {
-    const author = row.author;
-    if (authorCounts.hasOwnProperty(author)) {
-      authorCounts[author] += 1;
-    } else if (author) {
-      authorCounts[author] = 1;
+    let authors = row.author;
+
+    // If the author is a stringified array, parse it
+    if (typeof authors === "string" && authors.startsWith("[")) {
+      try {
+        //Thanks for the idea adeel!!!!
+        authors = JSON.parse(authors);
+      } catch {
+        authors = [authors];
+      }
+    }
+
+    // Normalize: always treat as array
+    if (!Array.isArray(authors)) {
+      authors = [authors];
+    }
+
+    // Count each author
+    for (const author of authors) {
+      if (author) {
+        authorCounts[author] = (authorCounts[author] || 0) + 1;
+      }
     }
   }
   const topAuthors = Object.entries(authorCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([author]) => author);
+    .map(([author]) => author); // <-- now clean strings
+
 
   // Process top books
   const ratedBooks = data

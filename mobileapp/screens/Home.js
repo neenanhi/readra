@@ -53,8 +53,19 @@ const Home = ({navigation}) => {
                     .order('created_at', {ascending: false})
                     .limit(1)
                 if (error) throw error
-                console.log(data)
-                setRecent(data)
+                // console.log(data)
+                // need to edit as a json instead of list
+                setRecent(
+                    data.map(book => ({
+                      ...book,
+                      author: Array.isArray(book.author)
+                        ? book.author.join(", ")
+                        : typeof book.author === "string" && book.author.startsWith("[")
+                        ? JSON.parse(book.author).join(", ")
+                        : book.author,
+                    }))
+                  );
+
             } catch (err) {
                 console.error('Error fetching recent books:', err)
             }
