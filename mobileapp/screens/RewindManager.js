@@ -141,7 +141,20 @@ export function Rewind() {
       </View>
 
       <View style={styles.storyContainer}>
-        <StoryComponent />
+        {stories.map((StoryComponent, idx) => (
+            <View
+                key={idx}
+                style={[
+                  styles.storyContainer,
+                  {
+                    opacity: idx === current ? 1 : 0,
+                    pointerEvents: idx === current ? "auto" : "none",
+                  },
+                ]}
+            >
+              <StoryComponent />
+            </View>
+        ))}
       </View>
 
       <Pressable style={styles.leftZone} onPress={prevStory} />
