@@ -298,7 +298,7 @@ const RewindWithDataScreen = () => {
             <Text style={styles.text}>
               {topAuthors.length === 0
                 ? "Loading top authors..."
-                : topAuthors.join("\n")}
+                : topAuthors.join(", ")}
             </Text>
           </Animated.View>
         </View>

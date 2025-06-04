@@ -54,7 +54,18 @@ const Home = ({navigation}) => {
                     .limit(1)
                 if (error) throw error
                 // console.log(data)
-                setRecent(data)
+                // need to edit as a json instead of list
+                setRecent(
+                    data.map(book => ({
+                      ...book,
+                      author: Array.isArray(book.author)
+                        ? book.author.join(", ")
+                        : typeof book.author === "string" && book.author.startsWith("[")
+                        ? JSON.parse(book.author).join(", ")
+                        : book.author,
+                    }))
+                  );
+
             } catch (err) {
                 console.error('Error fetching recent books:', err)
             }
@@ -133,19 +144,21 @@ const Home = ({navigation}) => {
             </View>
 
             {/* Horizontal Scroll of Book Cards */}
-            {loading ? (
-                <ActivityIndicator size="large" color={COLORS.textLight} />
-            ) : (
-                <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.scrollRow}
-                >
-                {books.map((book, index) => (
-                    <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
-                ))}
-                </ScrollView>
-            )}
+            <ScrollView>
+                {loading ? (
+                    <ActivityIndicator size="large" color={COLORS.textLight} />
+                ) : (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.scrollRow}
+                    >
+                        {books.map((book, index) => (
+                            <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
+                        ))}
+                    </ScrollView>
+                )}
+            </ScrollView>
 
             {/* Reading Analysis Card */}
             {recent && recent.length > 0 && (

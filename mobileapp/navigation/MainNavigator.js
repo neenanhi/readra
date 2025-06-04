@@ -14,6 +14,7 @@ import Rewind1 from "../screens/Rewind/Rewind1";
 import {Rewind} from "../screens/RewindManager";
 import HomeStack from "./HomeStack";
 import Profile from "../screens/Profile";
+import TestSliderScreen from "../screens/TestSliderScreen";
 
 
 const Tab = createBottomTabNavigator();
@@ -97,6 +98,11 @@ export default function MainNavigator() {
               }}
           />
         {/* Add a book Screen */}
+
+        <Tab.Screen
+          name="Test Slider"
+          component={TestSliderScreen}
+        ></Tab.Screen>
 
         <Tab.Screen
           name="Add a Book"
