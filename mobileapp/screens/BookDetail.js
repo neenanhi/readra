@@ -162,14 +162,16 @@ export default function BookDetail({route}) {
 
             const floatRating = rating / 2;
 
-            const { data, error: updateError } = await supabase
+            const { error: updateError } = await supabase
                 .from("book")
                 .update({ user_rating: floatRating })
-                .eq("isbn", isbn)
-                .single();
-
+                .eq("isbn", isbn);
             if (updateError) throw updateError;
-            setUserBook(data);
+
+            setUserBook(prev => ({
+                ...prev,
+                user_rating: floatRating,
+            }));
         } catch (err) {
             console.log("Error saving rating:", err.message);
         } finally {
@@ -265,12 +267,12 @@ export default function BookDetail({route}) {
                     </Text>
 
                     <View style={styles.actionContainer}>
-                    {userBook === undefined ? (
+                    {!userBook ? (
                         <TouchableOpacity
                         style={styles.addToLibrary}
-                        onPress={() => addBook()}
+                        onPress={addBook}
                         >
-                        <Text style={[TEXT.button, styles.addToLibraryText]}>
+                        <Text style={styles.addToLibraryText}>
                             Add to Library
                         </Text>
                         </TouchableOpacity>
@@ -296,8 +298,7 @@ export default function BookDetail({route}) {
                             />
                         </TouchableOpacity>
                         </View>
-
-                        {/* ── Rating slider goes here ── */}
+                        {/* ── Rating Feature ── */}
                         <RateBook
                             rating={rating}
                             onChange={setRating}
@@ -452,6 +453,12 @@ const styles = StyleSheet.create({
         width: '80%',
         marginHorizontal: 'auto',
         marginBottom: 20,
+    },
+    addToLibraryText: {     
+        color: '#black',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
     },
     inLibRow: {
         flexDirection: 'row',

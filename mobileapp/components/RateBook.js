@@ -55,8 +55,8 @@ export default function RateBook({ rating, onChange, onSave }) {
         }}
         onPress={handlePress}
         onResponderMove={(e) => handlePress(e)} // drag‐to‐rate
-        onStartShouldSetResponder={() => true}
-        onMoveShouldSetResponder={() => true}
+        // onStartShouldSetResponder={() => true}
+        // onMoveShouldSetResponder={() => true}
         hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}  // bigger hit zone
       >
         <View style={styles.starRow}>{renderStars()}</View>
