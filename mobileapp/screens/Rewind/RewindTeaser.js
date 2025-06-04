@@ -50,7 +50,7 @@ export default function RewindTeaser({ onFinish }) {
   function onContextCreate(gl) {
     console.log("🔥 onContextCreate has been called!");
 
-    gl.clearColor(0.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.1, 0.2, 0.4, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.flush();
     gl.endFrameEXP();
@@ -89,10 +89,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(246, 234, 153, 0.22)", // subtle cream tint
+    backgroundColor: "rgba(246, 234, 153, 0.15)", // subtle cream tint
 },
   titleText: {
-    fontSize: 28,
+    fontSize: 60,
     fontWeight: "700",
     color: "#fff",
     textAlign: "center",
