@@ -83,7 +83,11 @@ export async function getRewind3Data() {
         user_rating: isNaN(rating) || rating === 0 ? "Unrated" : rating,
       };
     })
-    .sort((a, b) => b.user_rating - a.user_rating)
+    .sort((a, b) => {
+      const ratingA = typeof a.user_rating === "number" ? a.user_rating : -1;
+      const ratingB = typeof b.user_rating === "number" ? b.user_rating : -1;
+      return ratingB - ratingA;
+    })
     .slice(0, 3)
   
   return {
