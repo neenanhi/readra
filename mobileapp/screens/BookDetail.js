@@ -1,4 +1,5 @@
 import BookCard from "../components/BookCard";
+import RateBook from "../components/RateBook";
 import axios from "axios";
 import {
     ActivityIndicator,
@@ -58,6 +59,7 @@ export default function BookDetail({route}) {
     const [error, setError] = useState(null);
     const [pages, setPages] = useState(null);
     const [userBook, setUserBook] = useState(null);
+    const [rating, setRating] = useState(userBook?.rating ?? 5);
     const [modalVisible, setModalVisible] = useState(false);
 
     // Date pickers state
@@ -65,6 +67,49 @@ export default function BookDetail({route}) {
     const [endDate, setEndDate] = useState(new Date());
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
+
+    async function handleSaveRating() {
+        try {
+            // Show any loading indicator you already have, if desired:
+            setLoading(true);
+
+            // Update the 'rating' column for this ISBN
+            await supabase
+            .from("book")
+            .update({ rating })
+            .eq("isbn", isbn);
+
+            // Fetch the fresh row so that userBook gets the updated data
+            const { data, error: fetchError } = await supabase
+            .from("book")
+            .select("*")
+            .eq("isbn", isbn)
+            .single();
+
+            if (fetchError) throw fetchError;
+            setUserBook(data);
+        } catch (err) {
+            console.log("Error saving rating:", err.message);
+            // Optionally set some error state here
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function cleanDescription(raw) {
+        if (!raw) return "No description available.";
+
+        // Remove HTML tags
+        let cleaned = raw.replace(/<[^>]*>/g, "");
+
+        // Remove URLs
+        cleaned = cleaned.replace(/https?:\/\/\S+/g, "");
+
+        // Remove markdown-style links [text](url)
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+
+        return cleaned.trim();
+    }
 
     useEffect(() => {
         let mounted = true;
@@ -95,9 +140,10 @@ export default function BookDetail({route}) {
                 if (data) {
                     data.isbn = isbn;
                     data.cover_image = data.cover_image || data.image || data.image_original || null;
-                    data.description = data.description || data.synopsis || null;
+                    data.description = data.synopsis || data.description|| null;
                     // console.log(data)
                     // console.log(data.cover_image)
+                    data.description = cleanDescription(data.description);
                     setBook(data);
                 } else {
                     setError(new Error("No book found"));
@@ -193,7 +239,7 @@ export default function BookDetail({route}) {
 
                     <Text style={[TEXT.body, styles.description]}>
                     {book.description
-                        ? book.description.slice(0, 250) + "…"
+                        ? book.description
                         : "No description available."}
                     </Text>
 
@@ -208,6 +254,7 @@ export default function BookDetail({route}) {
                         </Text>
                         </TouchableOpacity>
                     ) : (
+                        <>
                         <View style={styles.inLibRow}>
                         <TouchableOpacity
                             style={styles.removeButton}
@@ -228,6 +275,14 @@ export default function BookDetail({route}) {
                             />
                         </TouchableOpacity>
                         </View>
+
+                        {/* ── Rating slider goes here ── */}
+                        <RateBook
+                        rating={rating}
+                        onChange={setRating}
+                        onSave={handleSaveRating}
+                        />
+                    </>
                     )}
                     </View>
 
