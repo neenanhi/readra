@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import OpenAI from "openai";
-
-let OPENAI_API_KEY =
-  "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"; // This key is publicly visible, consider security
+let OPENAI_API_KEY = "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";
 
 import readingPersonalityData from "../../data/readingPersonality.json";
 import { supabase } from "../../Supabase";

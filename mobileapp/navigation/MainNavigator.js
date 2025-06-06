@@ -118,7 +118,6 @@ export default function MainNavigator() {
                     top: 0,
                     width: 60,
                     height: 200,
-                    backgroundColor: "#2e3a59",
                     borderTopLeftRadius: 30,
                     borderTopRightRadius: 30,
                     borderWidth: 1,

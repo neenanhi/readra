@@ -220,6 +220,10 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
+  const logout = async () => {
+    await supabase.auth.signOut();
+  }
+
   if (loading) {
     return (
         <View style={styles.centered}>
@@ -261,6 +265,12 @@ export default function ProfileScreen({ navigation }) {
             title={uploading ? 'Saving…' : 'Save Profile'}
             onPress={handleSave}
             disabled={uploading || loading}
+            color="#007aff"
+        />
+
+        <Button
+            title="Logout"
+            onPress={logout}
             color="#007aff"
         />
 
