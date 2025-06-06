@@ -77,7 +77,7 @@ An AI model analyzes your bookshelf to match you with a curated “reading perso
 
 ---
 
-### Folder Structure (Quick Overview)
+### Folder Structure
 ```bash
 readra/
 ├─ mobileapp/             # React Native Expo project
