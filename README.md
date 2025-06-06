@@ -86,12 +86,13 @@ readra/
 │  ├─ App.js              # Entry point
 │  ├─ screens/            # All screen components
 │  ├─ components/         # Reusable UI components
+│  ├─ context/            # Context providers and consumers
 │  ├─ styles/             # Shared styling (colors, typography, spacing)
-│  ├─ Supabase/           # Supabase configuration & helpers
+│  ├─ supabase/           # Supabase configuration & helpers
 │  ├─ data/               # Static JSON, e.g. readingPersonalityData.json
 │  ├─ api/                # External API clients (OpenAI, ISBNdb, etc.)
+│  ├─ assets/             # Images, fonts, and other static assets
 │  ├─ .env.template       # Template for environment variables
-│  ├─ README.md           # This file
 │  └─ package.json        # Dependencies & scripts
 └─ README.md              # Root-level (this file)
 ```
