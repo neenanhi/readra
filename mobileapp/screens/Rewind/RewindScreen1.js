@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import OpenAI from "openai";
-import {OPENAI_API_KEY} from "@.env"; //rmbr to paste key in .env
-const client = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
+
+import {OPENAI_API_KEY} from "@env";
 
 import readingPersonalityData from "../../data/readingPersonality.json";
 import { supabase } from "../../Supabase";
