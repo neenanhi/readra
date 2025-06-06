@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-
-import {OPENAI_API_KEY} from "@env";
+import OpenAI from "openai";
+import { OPENAI_API_KEY } from "@.env";
 
 import readingPersonalityData from "../../data/readingPersonality.json";
 import { supabase } from "../../Supabase";
