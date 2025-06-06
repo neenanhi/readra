@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import OpenAI from "openai";
-
-let OPENAI_API_KEY =
-  "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"; // This key is publicly visible, consider security
+import {OPENAI_API_KEY} from "@.env"; //rmbr to paste key in .env
+const client = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 
 import readingPersonalityData from "../../data/readingPersonality.json";
 import { supabase } from "../../Supabase";
