@@ -1,8 +1,6 @@
 # Readra 📚
 
-A mobile app for personalized book tracking and reading insights.
-
----
+> A mobile app for personalized book tracking and reading insights.
 
 ## Features
 
@@ -80,6 +78,7 @@ An AI model analyzes your bookshelf to match you with a curated “reading perso
 ---
 
 ### Folder Structure (Quick Overview)
+```bash
 readra/
 ├─ mobileapp/             # React Native Expo project
 │  ├─ App.js              # Entry point
@@ -93,3 +92,4 @@ readra/
 │  ├─ README.md           # This file
 │  └─ package.json        # Dependencies & scripts
 └─ README.md              # Root-level (this file)
+```
