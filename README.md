@@ -1,6 +1,6 @@
 # Readra 📚
 
-> A mobile app for personalized book tracking and reading insights.
+### A mobile app for personalized book tracking and reading insights.
 
 ---
 
