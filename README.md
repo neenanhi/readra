@@ -2,11 +2,13 @@
 
 > A mobile app for personalized book tracking and reading insights.
 
-### Features
+---
+
+## Features
 
 #### 📚 Bookshelf
 - **Add & Remove**  
-  Quickly manage your personal library—add new titles or remove ones you’ve finished.
+  Quickly manage your personal library; add new titles or remove ones you’ve finished.
 - **Discover New Reads**  
   Browse from over 42 million unique books based on popularity, genres, and more.
 
