@@ -11,6 +11,12 @@ dist/
 # macOS
 .DS_Store
 
+# Ignore iOS build artifacts
+mobileapp/ios/
+mobileapp/tsconfig.json
+**/Pods/
+**/DerivedData/
+
 # Python
 __pycache__/
 *.py[cod]
