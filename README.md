@@ -2,15 +2,15 @@
 
 > A mobile app for personalized book tracking and reading insights.
 
-## Features
+### Features
 
-### 📚 Bookshelf
+#### 📚 Bookshelf
 - **Add & Remove**  
   Quickly manage your personal library—add new titles or remove ones you’ve finished.
 - **Discover New Reads**  
   Browse from over 42 million unique books based on popularity, genres, and more.
 
-### 📈 Rewind
+#### 📈 Rewind  
 Get a visual breakdown of your reading habits, including:
 - **Your Reading Personality**  
   AI‐driven insight into the kind of reader you are.
@@ -19,18 +19,18 @@ Get a visual breakdown of your reading habits, including:
 - **Total Pages Read**  
   Track your progress with a running page‐count.
 
-### 🤖 Reading Personality
+#### 🤖 Reading Personality
 An AI model analyzes your bookshelf to match you with a curated “reading personality” based on:
 - Your favorite genres  
 - Book themes and styles  
 - Reading frequency
 
-### ✨ Other Features:
+#### ✨ Other Features:
 - **Quote of the Day**  
   A daily inspirational or thought‐provoking quote to kick off your reading.
 - **Genre & Author‐Based Recommendations**  
   Personalized suggestions tailored to your tastes.
-
+  
 ---
 
 ### Tech Stack
