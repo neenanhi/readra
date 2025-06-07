@@ -3,5 +3,8 @@
     "expo-splash-screen": "^0.30.8",
     "react-native-dotenv": "^3.4.11",
     "stream-http": "^3.2.0"
+  },
+  "scripts": {
+    "postinstall": "cp .env.template .env"
   }
 }

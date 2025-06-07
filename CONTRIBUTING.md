@@ -1,4 +1,4 @@
-## Code Contribution Standards
+# Code Contribution Standards
 
 ### Branch naming conventions
 
