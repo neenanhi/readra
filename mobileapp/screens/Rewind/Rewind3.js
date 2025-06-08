@@ -1,11 +1,13 @@
 // File: Rewind3.js
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
+import { View, Text, StyleSheet, Animated, Dimensions } from "react-native";
 import LottieView from "lottie-react-native";
 import { getRewind3Data } from "../../api/rewindData";
 import { use } from "react";
 
 const AnimatedLottie = Animated.createAnimatedComponent(LottieView);
+const SCREEN_W = Dimensions.get("window").width;
+const SPOT_SIZE = SCREEN_W * 2.65; // 130% of screen width
 
 export default function RewindWithDataScreen({isActive}) {
   const [topAuthors, setTopAuthors] = useState([]);
@@ -56,18 +58,19 @@ export default function RewindWithDataScreen({isActive}) {
 
   return (
     <View style={styles.container}>
-      {/* key toggles so Lottie unmounts/remounts each focus */}
-      <AnimatedLottie
-        // key={String(isActive)}
-        // ref={lottieRef}
-        source={require("../../assets/animations/spotlight.json")}
-        // autoPlay={false}
-        // loop={false}
-        // speed={0.25}
-        progress={progress}
-        resizeMode="cover"
-        style={styles.background}
-      />
+        <AnimatedLottie
+          source={require("../../assets/animations/spotlight.json")}
+          progress={progress}
+          resizeMode="contain"
+          style={{
+            position: "absolute",
+            width: SPOT_SIZE,
+            height: SPOT_SIZE,
+            top: -SPOT_SIZE * 0.01, // Adjust to center vertically
+            left: -SPOT_SIZE * 0.2, // Adjust to center horizontally
+            zIndex: 0,
+          }}
+        />
 
       <Animated.View
         style={[
@@ -100,34 +103,42 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(123, 116, 73, 0.15)",
+    backgroundColor: "#2e3a59",
   },
+  // lottieWrapper: {
+  //   ...StyleSheet.absoluteFillObject,
+  //   paddingLeft: 45,      // ← bump this value to taste
+  //   overflow: "hidden",         // hide any overshoot
+  // },
   background: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     zIndex: 0,
   },
   statsCard: {
     alignSelf: "center",
     zIndex: 1,
-    width: "90%",
-    backgroundColor: "#fff",
+    // width: "90%",
+    // backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
+    padding: 50,
+    // alignItems: "center",
+    top: -20,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
+    shadowColor: "COLORS.buttonBg",
     elevation: 8,
   },
   sectionHeader: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#4169E1",
+    color: "#fff",
+    marginTop: 20,
     marginBottom: 12,
     textAlign: "center",
   },
   text: {
     fontSize: 16,
-    color: "#666",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 6,
   },
