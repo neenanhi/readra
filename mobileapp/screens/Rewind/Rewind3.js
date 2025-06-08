@@ -1,71 +1,70 @@
 // File: Rewind3.js
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, StyleSheet, Animated } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import { getRewind3Data } from "../../api/rewindData";
+import { use } from "react";
 
-export default function RewindWithDataScreen() {
+const AnimatedLottie = Animated.createAnimatedComponent(LottieView);
+
+export default function RewindWithDataScreen({isActive}) {
   const [topAuthors, setTopAuthors] = useState([]);
   const [topRatedBooks, setTopRatedBooks] = useState([]);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const progress = useRef(new Animated.Value(0)).current;
   const lottieRef = useRef(null);
-
-  const isFocused = useIsFocused();
 
   // 1️⃣ Fetch data once on mount
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await getRewind3Data();
+    getRewind3Data()
+      .then(data => {
         setTopAuthors(data.topAuthors || []);
         setTopRatedBooks(data.topBooks || []);
-      } catch (e) {
-        console.error("fetchData error:", e);
-      }
-    })();
+      })
+      .catch(e => console.error("fetchData error:", e));
   }, []);
 
-  // 2️⃣ On focus / blur, reset & play Lottie and animate card
   useEffect(() => {
-    if (isFocused) {
-      // reset animated values
-      fadeAnim.setValue(0);
-      slideAnim.setValue(50);
+    if (!isActive) return;
+    fadeAnim.setValue(0); // reset fade animation
+    slideAnim.setValue(50); // reset slide animation
 
-      // force-remount Lottie by changing its key
-      // then play it
-      lottieRef.current?.reset();
-      lottieRef.current?.play();
+    progress.setValue(0); // reset progress animation
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: false,
+    }).start();
+    // lottieRef.current?.reset();
+    // lottieRef.current?.play();
 
-      // slide + fade in
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [isFocused, fadeAnim, slideAnim]);
+        // slide + fade in
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isActive, fadeAnim, slideAnim, progress]);
 
   return (
     <View style={styles.container}>
       {/* key toggles so Lottie unmounts/remounts each focus */}
-      <LottieView
-        key={isFocused ? "in" : "out"}  
-        ref={lottieRef}
+      <AnimatedLottie
+        // key={String(isActive)}
+        // ref={lottieRef}
         source={require("../../assets/animations/spotlight.json")}
-        autoPlay={false}
-        loop={false}
-        speed={0.25}
+        // autoPlay={false}
+        // loop={false}
+        // speed={0.25}
+        progress={progress}
         resizeMode="cover"
         style={styles.background}
       />
