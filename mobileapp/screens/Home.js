@@ -1,7 +1,7 @@
 // Home.js
 import React, {useEffect, useContext, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, Pressable, SafeAreaView, Platform, StatusBar} from 'react-native';
-import {getCoverUrl, fetchBooks} from '../api/openLibrary';
+import {getCoverUrl, fetchBooks, fetchSimilar} from '../api/openLibrary';
 import BookCard from '../components/BookCard';
 import {UserContext} from '../context/UserContext';
 import {supabase} from "../Supabase";
@@ -17,6 +17,7 @@ const Home = ({navigation}) => {
     // useState rerenders the UI when books/loading value updates
     const [books, setBooks] = useState([]);
     const [recent, setRecent] = useState(null);
+    const [recentBook, setRecentBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isEditingQuote, setIsEditingQuote] = useState(false);
     const [quoteInput, setQuoteInput] = useState("");
@@ -78,7 +79,7 @@ const Home = ({navigation}) => {
         const getBooks = async () => {
             try {
                 const books = await fetchBooks();
-                // rerender Home with fetched books
+                console.log(books);
                 setBooks(books);
             } catch (err) {
                 console.error('Error fetching books:', err);
@@ -94,6 +95,7 @@ const Home = ({navigation}) => {
                     .select('*')
                     .order('created_at', {ascending: false})
                     .limit(1)
+                setRecentBook(data);
                 if (error) throw error
                 // console.log(data)
                 // need to edit as a json instead of list
@@ -149,8 +151,8 @@ const Home = ({navigation}) => {
           }
         };
 
-        getBooks();
         getRecent();
+        getBooks();
         getSavedQuote();
       }, [session]);
 
@@ -220,7 +222,7 @@ const Home = ({navigation}) => {
 
             {/* Find your next read section header */}
             <View style={styles.headerRow}>
-                <Text style={styles.sectionTitle}>Trending now:</Text>
+                <Text style={styles.sectionTitle}>NYT Bestsellers:</Text>
             </View>
 
             {/* Horizontal Scroll of Book Cards */}
@@ -234,7 +236,7 @@ const Home = ({navigation}) => {
                         style={styles.scrollRow}
                     >
                         {books.map((book, index) => (
-                            <BookCard key={index} book={book} navigation={navigation} detailScreenName="HomeDetail"/>
+                            <BookCard key={index} book={book.topBook} navigation={navigation} detailScreenName="HomeDetail"/>
                         ))}
                     </ScrollView>
                 )}
