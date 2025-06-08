@@ -1,12 +1,9 @@
 //File: Rewind2.js
 import { View, Text, StyleSheet, Animated, Dimensions } from "react-native";
 import { useState, useEffect, useRef } from "react";
-import { GLView } from "expo-gl";
 import LottieView from "lottie-react-native";
 
 import RewindScreen2 from "./RewindScreen2"; // Assuming this component exists
-import AnimatedShader from "../../components/AnimatedShader";
-import AnimatedCircle from "../../components/AnimatedCircle"; // Assuming this component exists
 
 const AnimatedLottie = Animated.createAnimatedComponent(LottieView);
 const SCREEN_W = Dimensions.get("window").width;
