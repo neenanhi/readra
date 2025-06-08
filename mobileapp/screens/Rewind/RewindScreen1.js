@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import OpenAI from "openai";
 import { OPENAI_API_KEY } from "@.env";
-
+import { COLORS } from "../../styles/colors"; 
 import readingPersonalityData from "../../data/readingPersonality.json";
 import { supabase } from "../../Supabase";
 import { getUserSubject } from "../RewindManager";
@@ -146,7 +146,7 @@ Respond with only the index of the most relevant reading personality.`;
   }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <View contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       {/* Show loading indicator if either subjects are fetching or personality is generating */}
       {(isFetchingSubjects || isLoadingPersonality) && (
         <View style={styles.loadingContainer}>
@@ -165,13 +165,13 @@ Respond with only the index of the most relevant reading personality.`;
       !error &&
       !(isFetchingSubjects || isLoadingPersonality) ? (
         <View style={styles.responseContainer}>
-          {/* <Text style={styles.sectionTitle}>Reading Personality:</Text> */}
-          <Text style={styles.personalityText}>{personality}</Text>
-          <Text style={styles.descriptionText}>{description}</Text>
+            {/* <Text style={styles.sectionTitle}>Reading Personality:</Text> */}
+            <Text style={styles.personalityText}>{personality}</Text>
+            <Text style={styles.descriptionText}>{description}</Text>
 
-          {/* display fetched subjects (for debugging) */}
-          <Text style={styles.debugTitle}>Fetched Subjects:</Text>
-          <Text style={styles.debugText}>{subjectTags}</Text>
+            {/* display fetched subjects (for debugging)
+            <Text style={styles.debugTitle}>Fetched Subjects:</Text>
+            <Text style={styles.debugText}>{subjectTags}</Text> */}
         </View>
       ) : null}
 
@@ -212,30 +212,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   responseContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 32, // Increase for more padding, decrease for less
-    alignItems: "center",
+    alignSelf: "center",
     width: "90%",
-
+    top: "1%",
+    zIndex: 10,
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   personalityText: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "#007bff",
-    marginBottom: 10,
-    textAlign: "center",
+    fontSize: 33,
+    fontWeight: "700",
+    color: "#fff",
+    textAlign: "right",
+    textShadowColor: "#2e3a59",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
+    marginBottom: 12,
+    fontFamily: "Georgia",
   },
   descriptionText: {
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 24,
-    color: "#666",
-    textAlign: "center",
+    color: "#fff",
+    // color: "#F0E6D2",
+    textAlign: "right",
+    // textShadowColor: "rgba(255, 255, 255, 0.6)",
+    textShadowColor: "#2e3a59",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   debugTitle: {
     fontSize: 14,
