@@ -1,14 +1,19 @@
+// screens/RewindManager.js
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable, Animated } from "react-native";
 import Rewind1 from "./Rewind/Rewind1";
 import Rewind2 from "./Rewind/Rewind2";
 import Rewind3 from "./Rewind/Rewind3";
+import Rewind4 from "./Rewind/Rewind4";
 import RewindTeaser from "./Rewind/RewindTeaser";
 import axios from "axios";
 import { supabase, isbndbGetHeaders } from "../Supabase";
 import { COLORS } from "../styles/colors";
-
-const stories = [Rewind1, Rewind2, Rewind3];
+console.log("Rewind1:", Rewind1);
+console.log("Rewind2:", Rewind2);
+console.log("Rewind3:", Rewind3);
+console.log("Rewind4:", Rewind4);
+const stories = [Rewind1, Rewind2, Rewind3, Rewind4];
 
 const AUTO_ADVANCE_MS = 15000;
 
@@ -73,6 +78,10 @@ export async function getUserSubject(userId) {
 }
 
 export function Rewind() {
+  console.log("At top of Rewind(): stories is", stories);
+  console.log("At top of Rewind(): stories.length is", stories ? stories.length : "(stories is undefined)");
+
+
   const [current, setCurrent] = useState(0);
   const progressAnims = useRef(
     stories.map(() => new Animated.Value(0))
@@ -175,7 +184,7 @@ export function Rewind() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "COLORS.background",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
