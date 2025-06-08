@@ -20,6 +20,9 @@ export const COLORS = {
   // pure white
   white: '#fff',
 
+  // vibrant purple lavender
+  vibrantLavender: '#A47BC0',
+
   // ── NEW for Bookshelf ───────────────────────────────────────────────────────
   borderGray: '#ccc',          // used for borders and dropdown borders
   backgroundGray: '#f0f0f0',   // for iconButton background
