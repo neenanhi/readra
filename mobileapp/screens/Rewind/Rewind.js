@@ -1,3 +1,5 @@
+// File: Rewind.js
+
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import { getLogData } from "../../api/logData";

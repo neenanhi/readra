@@ -50,6 +50,7 @@ export async function getRewind3Data() {
       }
 
       for (const author of authors) {
+        if (typeof author !== 'string') continue;
         const cleanAuthor = author.trim();
         if (!cleanAuthor) continue;
         if (!authorRatings[cleanAuthor]) {

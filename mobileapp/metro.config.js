@@ -2,12 +2,12 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path"); // Make sure 'path' is required
 
-const config = getDefaultConfig(__dirname);
-config.resolver.sourceExts.push("env");
+module.exports = (async () => {
+  // 1) Start from Expo’s default Metro config, based on your project root:
+  const config = await getDefaultConfig(__dirname);
+  config.resolver.sourceExts.push("env");
 
-config.resolver = {
-  ...config.resolver, // Preserve existing resolver settings
-  extraNodeModules: {
+config.resolver.extraNodeModules = {
     ...(config.resolver.extraNodeModules || {}), // Preserve existing extraNodeModules
     stream: require.resolve("stream-browserify"),
     events: require.resolve("events/"),
@@ -20,7 +20,17 @@ config.resolver = {
     zlib: require.resolve("browserify-zlib"),
     util: require.resolve("util/"),
     assert: require.resolve("assert/"), // <--- Add this line for 'assert'
-  },
+};
+const { assetExts, sourceExts } = config.resolver;
+
+config.transformer = {
+  ...config.transformer,
+  babelTransformerPath: require.resolve("react-native-svg-transformer"),
 };
 
-module.exports = config;
+config.resolver.assetExts = assetExts.filter((ext) => ext !== "svg");
+config.resolver.sourceExts = [...sourceExts, "svg"];
+
+return config;
+})();
+
