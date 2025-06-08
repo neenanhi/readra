@@ -1,74 +1,76 @@
 // File: Rewind3.js
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import { View, Text, StyleSheet, Animated, Dimensions } from "react-native";
 import LottieView from "lottie-react-native";
 import { getRewind3Data } from "../../api/rewindData";
+import { use } from "react";
 
-export default function RewindWithDataScreen() {
+const AnimatedLottie = Animated.createAnimatedComponent(LottieView);
+const SCREEN_W = Dimensions.get("window").width;
+const SPOT_SIZE = SCREEN_W * 2.65; // 130% of screen width
+
+export default function RewindWithDataScreen({isActive}) {
   const [topAuthors, setTopAuthors] = useState([]);
   const [topRatedBooks, setTopRatedBooks] = useState([]);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const progress = useRef(new Animated.Value(0)).current;
   const lottieRef = useRef(null);
-
-  const isFocused = useIsFocused();
 
   // 1️⃣ Fetch data once on mount
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await getRewind3Data();
+    getRewind3Data()
+      .then(data => {
         setTopAuthors(data.topAuthors || []);
         setTopRatedBooks(data.topBooks || []);
-      } catch (e) {
-        console.error("fetchData error:", e);
-      }
-    })();
+      })
+      .catch(e => console.error("fetchData error:", e));
   }, []);
 
-  // 2️⃣ On focus / blur, reset & play Lottie and animate card
   useEffect(() => {
-    if (isFocused) {
-      // reset animated values
-      fadeAnim.setValue(0);
-      slideAnim.setValue(50);
+    if (!isActive) return;
+    fadeAnim.setValue(0); // reset fade animation
+    slideAnim.setValue(50); // reset slide animation
 
-      // force-remount Lottie by changing its key
-      // then play it
-      lottieRef.current?.reset();
-      lottieRef.current?.play();
+    progress.setValue(0); // reset progress animation
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: false,
+    }).start();
+    // lottieRef.current?.reset();
+    // lottieRef.current?.play();
 
-      // slide + fade in
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [isFocused, fadeAnim, slideAnim]);
+        // slide + fade in
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 1200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isActive, fadeAnim, slideAnim, progress]);
 
   return (
     <View style={styles.container}>
-      {/* key toggles so Lottie unmounts/remounts each focus */}
-      <LottieView
-        key={isFocused ? "in" : "out"}  
-        ref={lottieRef}
-        source={require("../../assets/animations/spotlight.json")}
-        autoPlay={false}
-        loop={false}
-        speed={0.25}
-        resizeMode="cover"
-        style={styles.background}
-      />
+        <AnimatedLottie
+          source={require("../../assets/animations/spotlight.json")}
+          progress={progress}
+          resizeMode="contain"
+          style={{
+            position: "absolute",
+            width: SPOT_SIZE,
+            height: SPOT_SIZE,
+            top: -SPOT_SIZE * 0.01, // Adjust to center vertically
+            left: -SPOT_SIZE * 0.2, // Adjust to center horizontally
+            zIndex: 0,
+          }}
+        />
 
       <Animated.View
         style={[
@@ -101,34 +103,42 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(123, 116, 73, 0.15)",
+    backgroundColor: "#2e3a59",
   },
+  // lottieWrapper: {
+  //   ...StyleSheet.absoluteFillObject,
+  //   paddingLeft: 45,      // ← bump this value to taste
+  //   overflow: "hidden",         // hide any overshoot
+  // },
   background: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     zIndex: 0,
   },
   statsCard: {
     alignSelf: "center",
     zIndex: 1,
-    width: "90%",
-    backgroundColor: "#fff",
+    // width: "90%",
+    // backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
+    padding: 50,
+    // alignItems: "center",
+    top: -20,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
+    shadowColor: "COLORS.buttonBg",
     elevation: 8,
   },
   sectionHeader: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#4169E1",
+    color: "#fff",
+    marginTop: 20,
     marginBottom: 12,
     textAlign: "center",
   },
   text: {
     fontSize: 16,
-    color: "#666",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 6,
   },

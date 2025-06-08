@@ -158,7 +158,7 @@ export function Rewind() {
         </View>
 
         <View style={styles.storyContainer}>
-          {stories.map((StoryComponent, idx) => (
+          {stories.map((Story, idx) => (
               <View
                   key={idx}
                   style={[
@@ -169,7 +169,7 @@ export function Rewind() {
                     },
                   ]}
               >
-                <StoryComponent />
+                <Story isActive={idx === current} />
               </View>
           ))}
         </View>
