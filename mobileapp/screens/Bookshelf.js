@@ -525,13 +525,11 @@ const styles = StyleSheet.create({
   closeScanner: {
     position: "absolute",
     backgroundColor: "transparent",
-    borderColor: COLORS.white,
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,  // a little wider
     borderRadius: 8,
     borderWidth: 2,
     borderColor: COLORS.white,             // ~8px
-    borderRadius: 6,
   },
   closeText: {
     color: COLORS.white,
