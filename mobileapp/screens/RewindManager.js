@@ -13,7 +13,7 @@ console.log("Rewind1:", Rewind1);
 console.log("Rewind2:", Rewind2);
 console.log("Rewind3:", Rewind3);
 console.log("Rewind4:", Rewind4);
-const stories = [Rewind1, Rewind2, Rewind3, Rewind4];
+const stories = [Rewind1, Rewind2, Rewind3];
 
 const AUTO_ADVANCE_MS = 15000;
 

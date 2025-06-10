@@ -1,4 +1,3 @@
-import * as AuthSession from "expo-auth-session";
 import React, {useEffect, useState} from "react";
 import {
     View,
@@ -10,7 +9,6 @@ import {
 } from "react-native";
 import {supabase} from "../Supabase";
 import {AuthScreenStyles} from "../styles/AuthScreenStyles";
-import linking from "react-native-web/src/exports/Linking";
 
 
 export default function SignInScreen({navigation}) {
@@ -30,26 +28,6 @@ export default function SignInScreen({navigation}) {
             setMessage("Signed in successfully!");
         }
     };
-
-    const handleGoogleSignIn = async () => {
-        const redirectUri = AuthSession.makeRedirectUri({
-            scheme: "readra",
-            path: "/oauthredirect",
-            useProxy: false,
-        });
-        const {data, error} = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {redirectTo: redirectUri},
-        });
-        if (error) {
-            console.log("supabase.signInWithOAuth error:", error.message);
-            return;
-        }
-
-        console.log("→ supabase returned data.url:", data?.url);
-        const result = await Linking.openURL(data.url);
-        console.log("openAuthSessionAsync result:", result);
-    }
 
     return (
         <View style={AuthScreenStyles.container}>
@@ -84,10 +62,6 @@ export default function SignInScreen({navigation}) {
             {/* login button */}
             <TouchableOpacity style={AuthScreenStyles.button} onPress={handleSignIn}>
                 <Text style={AuthScreenStyles.buttonText}>Log in</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={AuthScreenStyles.button} onPress={handleGoogleSignIn}>
-                <Text style={AuthScreenStyles.buttonText}>Login With Google</Text>
             </TouchableOpacity>
 
 

@@ -26,50 +26,6 @@ export default function App() {
 
     const {hasPermission, requestPermission} = useCameraPermission()
 
-    useEffect(() => {
-        const handleDeepLink = async (event) => {
-            try {
-                const url = event.url;
-
-                let match = url.match(/access_token=([^&]+)/);
-                const access_token = match ? match[1] : null;
-
-                match = url.match(/refresh_token=([^&]+)/);
-                const refresh_token = match ? match[1] : null;
-
-                if (!access_token) {
-                    console.warn('[OAuth] No access token found in URL:', url);
-                    return;
-                }
-                if (!refresh_token) {
-                    console.warn('[OAuth] No refresh token found in URL:', url);
-                    return;
-                }
-
-                const { data, error } = await supabase.auth.setSession({access_token: access_token, refresh_token: refresh_token});
-                if (error) {
-                    console.error('[Supabase] exchangeCodeForSession error:', error);
-                    return;
-                }
-            } catch (err) {
-                console.error('[DeepLink] unexpected error:', err);
-            }
-        };
-
-        const listener = Linking.addEventListener('url', handleDeepLink);
-
-        (async () => {
-            const initialUrl = await Linking.getInitialURL();
-            if (initialUrl) {
-                await handleDeepLink({ url: initialUrl });
-            }
-        })();
-
-        return () => {
-            listener.remove();
-        };
-    }, []);
-
     // everything inside this provider has access to the user context
     return (
         <UserProvider>
