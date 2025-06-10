@@ -7,14 +7,14 @@ import { getCoverUrl } from '../api/openLibrary';
 const BookCard = ({ book, navigation, detailScreenName }) => {
   // console.log(book)
   return (
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(detailScreenName, { isbn: book.isbn })}>
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate(detailScreenName, { isbn: book.isbn13 })}>
       <Image
-        source={{ uri: getCoverUrl(book) }}
+        source={{ uri: book.image }}
         style={styles.image}
         resizeMode="cover"
       />
       <Text style={styles.title}>{book.title}</Text>
-      <Text style={styles.author}>by {book.authors?.[0] || 'Unknown'}</Text>
+      <Text style={styles.author}>by {book?.author || 'Unknown'}</Text>
       <Text style={styles.description}>
         {book.description ? book.description.slice(0, 100) + '...' : 'No description available.'}
       </Text>

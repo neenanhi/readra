@@ -1,3 +1,4 @@
+// File: RewindScreen2.js
 import { useEffect, useState } from "react";
 import {
   View,
@@ -60,8 +61,8 @@ const RewindPagesRead = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    // justifyContent: "center",
+    // alignItems: "center",
   },
   errorText: {
     fontSize: 18,
@@ -69,12 +70,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   statsCard: {
-    backgroundColor: "#ffffff",
     borderRadius: 16,
-    padding: 32,
-    alignItems: "center",
+    padding: 24,
+    top: "32%",
     width: "90%",
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -84,7 +83,7 @@ const styles = StyleSheet.create({
 
   statLabel: {
     fontSize: 20,
-    color: "#888",
+    color: "#fff",
     textAlign: "center",
     fontWeight: "500",
     fontStyle: "italic",
@@ -92,7 +91,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#007bff",
+    color: "#A47BC0",
   },
 });
 

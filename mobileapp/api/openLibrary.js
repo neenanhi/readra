@@ -4,41 +4,41 @@ import {getPages} from "../screens/BookDetail";
 
 
 // Fetch top books for a fixed genre (e.g., fantasy)
-export async function fetchBooks() {
+export async function fetchBooks(publishedDate = null) {
+  const apiKey = 'c8ZGljOzWgKmXCKsfd6mZdvTNzDZoGyI';
+  const baseUrl = 'https://api.nytimes.com/svc/books/v3/lists/overview.json';
+
+  const url = new URL(baseUrl);
+  url.searchParams.append('api-key', apiKey);
+  if (publishedDate) {
+    url.searchParams.append('published_date', publishedDate);
+  }
+
   try {
-    const response = await fetch(`https://api2.isbndb.com/books/fantasy`, {
-      headers: isbndbGetHeaders
-    });
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
-    const topBooks = data.books?.slice(0, 8) || [];
 
-    const booksWithDescriptions = topBooks.map((book) => {
-      const rawDescription = book.overview || book.synopsis || book.excerpt || '';
-      const cleanedDescription =
-        typeof rawDescription === 'string'
-          ? rawDescription.replace(/https?:\/\/[\S]+/g, '').trim()
-          : '';
+    const books = data.results.lists.map(list => ({
+      listName: list.display_name,
+      updated: list.updated,
+      topBook: {
+        title: list.books[0].title,
+        author: list.books[0].author,
+        description: list.books[0].description,
+        image: list.books[0].book_image,
+        amazonUrl: list.books[0].amazon_product_url,
+        isbn13: list.books[0].primary_isbn13
+      }
+    }));
 
-      return {
-        title: book.title || "Unknown Title",
-        authors: book.authors || [],
-        isbn: book.isbn13 || book.isbn || null,
-        cover_image: book.image || book.image_original || null,
-        description: cleanedDescription.length >= 15 ? cleanedDescription : '',
-        publisher: book.publisher || null,
-        date_published: book.date_published || null,
-        pages: book.pages || null,
-        binding: book.binding || null,
-        language: book.language || null,
-        genre: "fantasy" // optional if you want to tag it
-      };
-    });
-
-    return booksWithDescriptions;
+    return books;
   } catch (error) {
-    console.error('Error fetching books from ISBNdb:', error);
-    return [];
+    console.error('Failed to fetch books:', error);
+    return null;
   }
 }
 
@@ -90,4 +90,44 @@ export async function PutBook(book) {
     return null;
   }
   return data;
+}
+
+export async function fetchSimilar(isbn) {
+  try {
+    const response = await fetch(`https://api2.isbndb.com/book/${isbn}`, {
+      headers: isbndbGetHeaders
+    });
+
+    const data = await response.json();
+    const subject = data.book?.subjects?.[0] || data.book?.authors?.[0] || 'fiction';
+
+    return subject;
+    //
+    // const booksWithDescriptions = topBooks.map((book) => {
+    //   const rawDescription = book.overview || book.synopsis || book.excerpt || '';
+    //   const cleanedDescription =
+    //       typeof rawDescription === 'string'
+    //           ? rawDescription.replace(/https?:\/\/[\S]+/g, '').trim()
+    //           : '';
+    //
+    //   return {
+    //     title: book.title || "Unknown Title",
+    //     authors: book.authors || [],
+    //     isbn: book.isbn13 || book.isbn || null,
+    //     cover_image: book.image || book.image_original || null,
+    //     description: cleanedDescription.length >= 15 ? cleanedDescription : '',
+    //     publisher: book.publisher || null,
+    //     date_published: book.date_published || null,
+    //     pages: book.pages || null,
+    //     binding: book.binding || null,
+    //     language: book.language || null,
+    //     genre: "fantasy" // optional if you want to tag it
+    //   };
+    // });
+    //
+    // return booksWithDescriptions;
+  } catch (error) {
+    console.error('Error fetching books from ISBNdb:', error);
+    return [];
+  }
 }
