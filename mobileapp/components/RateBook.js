@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
   saveBtn: {
     marginTop: 12,
-    backgroundColor: COLORS.white || COLORS.periwinkle,
+    backgroundColor: COLORS.primary || "#7d819f",
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,

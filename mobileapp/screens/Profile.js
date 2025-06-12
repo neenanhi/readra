@@ -227,7 +227,7 @@ export default function ProfileScreen({ navigation }) {
   if (loading) {
     return (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.vibrantLavender} />
+          <ActivityIndicator size="large" color="#007aff" />
           <Text style={styles.hint}>Loading profile...</Text>
         </View>
     );
@@ -261,23 +261,20 @@ export default function ProfileScreen({ navigation }) {
             editable={!uploading}
         />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSave}
-          disabled={uploading || loading}
-        >
-          <Text style={styles.buttonText}>{uploading ? 'Saving…' : 'Save Profile'}</Text>
-        </TouchableOpacity>
+        <Button
+            title={uploading ? 'Saving…' : 'Save Profile'}
+            onPress={handleSave}
+            disabled={uploading || loading}
+            color="#007aff"
+        />
 
+        <Button
+            title="Logout"
+            onPress={logout}
+            color="#007aff"
+        />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={logout}
-        >
-          <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-
-        {uploading && <ActivityIndicator style={{ marginTop: 20 }} size="small" color={COLORS.vibrantLavender}/>}
+        {uploading && <ActivityIndicator style={{ marginTop: 20 }} size="small" color="#007aff"/>}
       </View>
       </SafeAreaView>
   );
@@ -286,12 +283,12 @@ export default function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: COLORS.cream, 
+    backgroundColor: COLORS.background, 
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
   container: {
     flex: 1,
-    backgroundColor: COLORS.cream,
+    backgroundColor: COLORS.background,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xl,
   },
@@ -299,10 +296,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.cream,
+    backgroundColor: '#f7f7f7',
   },
   heading: {
-    ...TEXT.h1,
     fontSize: 24,
     fontWeight: '600',
     textAlign: 'center',
@@ -312,10 +308,10 @@ const styles = StyleSheet.create({
   avatarContainer: {
     alignSelf: 'center',
     marginBottom: 16,
-    // borderRadius: 75,
-    // borderWidth: 3,
-    // borderColor: COLORS.buttonBg,
-    // padding: 3,
+    borderRadius: 75,
+    borderWidth: 3,
+    borderColor: '#007aff',
+    padding: 3,
   },
   avatar: {
     width: 150,
@@ -326,26 +322,24 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: COLORS.mistyLilac,
+    backgroundColor: '#e1e1e1',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarPlaceholderText: {
-    color: COLORS.dustyLavender,
-    ...TEXT.bodySmall,
-    // fontSize: 16,
+    color: '#555',
+    fontSize: 16,
   },
   input: {
     backgroundColor: '#fff',
     borderColor: '#ccc',
     borderWidth: 1,
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 20,
     borderRadius: 8,
     fontSize: 16,
     color: '#333',
-    textAlign: 'center',
   },
   hint: {
     marginTop: 12,
@@ -354,7 +348,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   button: {
-    backgroundColor: COLORS.midnightSlate,
+    backgroundColor: '#007aff',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
