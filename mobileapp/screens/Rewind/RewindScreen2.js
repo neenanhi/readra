@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { getBooksAndPages } from "../../api/booksAndPages";
-import { COLORS } from "../../styles/colors";
 
 const RewindPagesRead = () => {
   const [stats, setStats] = useState({ totalBooks: 0, totalPages: 0 });
@@ -32,7 +31,7 @@ const RewindPagesRead = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.vibrantLavender} />
+        <ActivityIndicator size="large" color="#4169E1" />
         <Text style={styles.loadingText}>Loading your reading journey...</Text>
       </View>
     );

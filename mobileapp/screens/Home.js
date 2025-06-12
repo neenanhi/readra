@@ -274,13 +274,13 @@ const Home = ({navigation}) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: COLORS.cream, 
+    backgroundColor: COLORS.background, 
     // backgroundColor: '#F7F8FA',
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.cream,
+    backgroundColor: COLORS.background,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xl,
   },
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   greetingContainer: {
     marginBottom: SPACING.lg,
     borderRadius: 12,
-    shadowColor: COLORS.black,
+    shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -303,8 +303,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md + 4, // ~20px
     padding: SPACING.lg,         // 24px
     borderRadius: 24,
-    backgroundColor: COLORS.paleLilac,
-    shadowColor: COLORS.black,
+    backgroundColor: COLORS.quoteBg,
+    shadowColor: COLORS.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   saveButton: {
     marginTop: SPACING.xs,
     alignSelf: 'center',
-    backgroundColor: COLORS.midnightSlate,
+    backgroundColor: COLORS.buttonBg,
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     borderRadius: 8,
@@ -339,14 +339,14 @@ const styles = StyleSheet.create({
   quoteText: {
     fontSize: 18,
     fontStyle: 'italic',
-    color: COLORS.gunmetal,
+    color: COLORS.textDark,
     textAlign: 'center',
   },
   quoteEmphasis: {
     fontSize: 18,       // ensure the nested text is the same size
     fontStyle: 'italic',
     fontWeight: 'bold',
-    color: COLORS.gunmetal,
+    color: COLORS.textDark,
   },
   quoteAuthor: {
     marginTop: SPACING.xs,
@@ -371,10 +371,10 @@ const styles = StyleSheet.create({
   recentCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.paleLilac,
+    backgroundColor: COLORS.quoteBg,
     padding: 12,
     borderRadius: 16,
-    shadowColor: COLORS.black,
+    shadowColor: COLORS.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 120,
     borderRadius: 8,
-    backgroundColor: COLORS.mistyLilac,
+    backgroundColor: COLORS.placeholderBg,
     marginRight: SPACING.md,
   },
   recentInfo: {
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   recentAction: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.darkPlum,
+    color: COLORS.accent,
     fontFamily: 'serif',
   },
 });

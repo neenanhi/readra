@@ -197,10 +197,10 @@ export default function Bookshelf({ navigation }) {
     <SafeAreaView style={styles.safe}>
     <View style={styles.container}>
       {/* Search + Profile */}
-      <View style={[styles.searchBarContainer, {backgroundColor: COLORS.cream}]}>
+      <View style={[styles.searchBarContainer, {backgroundColor: COLORS.background}]}>
         <TextInput
           placeholder="Search for books..."
-          placeholderTextColor={COLORS.dustyLavender}
+          placeholderTextColor={COLORS.textLight}
           style={styles.input}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -212,7 +212,7 @@ export default function Bookshelf({ navigation }) {
           style={[styles.iconButton, {backgroundColor: '#7d819f', borderRadius: 8}]}
           name="barcode-scan"
           size={24}
-          color={COLORS.cream}
+          color={COLORS.background}
           onPress={() => setScanner(true)}
         />
 
@@ -320,7 +320,7 @@ export default function Bookshelf({ navigation }) {
 
             <TextInput
               placeholder="Enter # of pages read..."
-              placeholderTextColor={COLORS.dustyLavender}
+              placeholderTextColor={COLORS.textLight}
               onChangeText={(text) => {
                 const numericValue = text.replace(/[^0-9]/g, "");
                 setPagesRead(numericValue ? parseInt(numericValue, 10) : 0);
@@ -356,14 +356,14 @@ export default function Bookshelf({ navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: COLORS.cream,
+    backgroundColor: COLORS.background,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   container: {
     flex: 1,
     paddingTop: SPACING.xl,         // ~32px
     paddingHorizontal: SPACING.md,   // ~16px
-    backgroundColor: COLORS.cream,
+    backgroundColor: COLORS.background,
   },
   // ── Search Bar + Profile Row
   searchBarContainer: {
@@ -378,11 +378,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderWidth: 1,
-    borderColor: COLORS.whisperGrey,  // "#ccc"
+    borderColor: COLORS.borderGray,  // "#ccc"
     borderRadius: 10,
     paddingHorizontal: SPACING.sm,   // ~8px
     fontSize: 16,
-    color: COLORS.gunmetal,          // "#2e2e42"
+    color: COLORS.textDark,          // "#2e2e42"
     fontFamily: 'serif',
   },
 
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,          // ~8px
     padding: SPACING.sm,             // ~8px
     borderRadius: 8,
-    backgroundColor: COLORS.whisperGrey, // "#f0f0f0"
+    backgroundColor: COLORS.backgroundGray, // "#f0f0f0"
   },
 
     profileButton: {
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: COLORS.periwinkle, // "#7d819f"
+        backgroundColor: COLORS.profileBg, // "#7d819f"
         justifyContent: "center",
         alignItems: "center",
     },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: "bold",
-    color: COLORS.gunmetal,       // "#2B2F3A"
+    color: COLORS.primaryText,       // "#2B2F3A"
     marginVertical: SPACING.sm,      // ~8px
     paddingHorizontal: SPACING.sm,   // ~8px
     fontFamily: 'serif',
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 12,
     elevation: 3,
-    shadowColor: COLORS.black,      // "#000"
+    shadowColor: COLORS.shadow,      // "#000"
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   bookTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: COLORS.gunmetal,          // "#2e2e42"
+    color: COLORS.textDark,          // "#2e2e42"
     textAlign: "center",
     lineHeight: 18,
     fontFamily: 'serif',
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     padding: SPACING.md,             // ~16px
     borderRadius: 15,
-    shadowColor: COLORS.black,      // "#000"
+    shadowColor: COLORS.shadow,      // "#000"
     shadowOpacity: 0.25,
     shadowOffset: { width: 0, height: 2 },
     elevation: 5,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: SPACING.sm,        // ~8px
-    color: COLORS.gunmetal,
+    color: COLORS.primaryText,
     fontFamily: 'serif',
   },
   modalButtons: {
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.sm,           // slight gap
   },
   button: {
-    backgroundColor: COLORS.periwinkle, // "#7d819f"
+    backgroundColor: COLORS.profileBg, // "#7d819f"
     paddingVertical: SPACING.sm,       // ~8px
     paddingHorizontal: SPACING.lg,     // ~24px
     borderRadius: 10,
@@ -547,19 +547,19 @@ const styles = StyleSheet.create({
   dropdown: {
     height: 40,
     borderWidth: 1,
-    borderColor: COLORS.whisperGrey,   // "#ccc"
+    borderColor: COLORS.borderGray,   // "#ccc"
     borderRadius: 10,
     paddingHorizontal: SPACING.sm,     // ~8px
     marginBottom: SPACING.lg,          // ~24px
   },
   placeholderStyle: {
     fontSize: 16,
-    color: COLORS.dustyLavender,           // "#7a7a90"
+    color: COLORS.textLight,           // "#7a7a90"
     fontFamily: 'serif',
   },
   selectedTextStyle: {
     fontSize: 16,
-    color: COLORS.gunmetal,            // "#2e2e42"
+    color: COLORS.textDark,            // "#2e2e42"
     fontFamily: 'serif',
   },
   inputSearchStyle: {
