@@ -294,7 +294,7 @@ export default function BookDetail({route}) {
                             <FontAwesome5
                             name="edit"
                             size={20}
-                            color={COLORS.textSecondary}
+                            color={COLORS.stormyLavender}
                             />
                         </TouchableOpacity>
                         </View>
