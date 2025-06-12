@@ -184,7 +184,7 @@ export function Rewind() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.cream,
     justifyContent: "center",
     alignItems: "center",
   },
