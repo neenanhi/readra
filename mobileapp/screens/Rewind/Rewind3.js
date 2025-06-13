@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, Animated, Dimensions } from "react-native";
 import LottieView from "lottie-react-native";
 import { getRewind3Data } from "../../api/rewindData";
 import { use } from "react";
+import {COLORS} from "../../styles/colors";
 
 const AnimatedLottie = Animated.createAnimatedComponent(LottieView);
 const SCREEN_W = Dimensions.get("window").width;
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "COLORS.midnightSlate",
+    backgroundColor: COLORS.midnightSlate,
   },
   // lottieWrapper: {
   //   ...StyleSheet.absoluteFillObject,
